@@ -1,0 +1,79 @@
+# Compiled source files
+*.dll
+*.exe
+*.so
+*.dylib
+*.pdb
+
+# Build directories
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Rider-specific files
+.idea/
+.idea_modules/
+*.sln.iml
+*.iws
+
+# Visual Studio files (if collaboration with VS users)
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Entity Framework migrations
+migrations/
+
+# Generated files
+*.generated.cs
+ServiceFabricBackup/
+
+# Environment variables
+.env
+
+# Configuration
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Test.json
+
+# Secrets
+secrets.json
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# Node.js (if used for frontend integration)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Azure specific
+.vscode/azure
+local.settings.json
+storage_emulator.*
+
+# Others
+_ReSharper.Caches/
