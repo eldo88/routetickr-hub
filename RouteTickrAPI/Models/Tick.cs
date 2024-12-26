@@ -1,11 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace RouteTickrAPI.Models;
 
 public class Tick
 {
     public Tick() {}
     
-    public Tick(DateTime date, string route, string rating, string notes, string url, int? pitches, string location, double? averageStars, double? userStars, string style, string leadStyle, string routeType, string userRating, double? length, int? ratingCode)
+    public Tick(int id, DateTime date, string route, string rating, string notes, string url, int? pitches, string location, double? averageStars, double? userStars, string style, string leadStyle, string routeType, string userRating, double? length, int? ratingCode)
     {
+        Id = id;
         Date = date;
         Route = route;
         Rating = rating;
@@ -22,7 +25,9 @@ public class Tick
         Length = length;
         RatingCode = ratingCode;
     }
-//TODO add id when database is hooked up
+
+    [Key]
+    public int Id { get; set; }
     public DateTime Date { get; set; }
     public string Route { get; set; }
     public string Rating { get; set; }
