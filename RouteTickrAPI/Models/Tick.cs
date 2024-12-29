@@ -6,9 +6,9 @@ public class Tick
 {
     public Tick() {}
     
-    public Tick(int id, DateTime date, string route, string rating, string notes, string url, int? pitches, string location, double? averageStars, double? userStars, string style, string leadStyle, string routeType, string userRating, double? length, int? ratingCode)
+    public Tick(DateTime date, string route, string rating, string notes, string url, int? pitches, string location, double? avgStars, double? yourStars, string style, string leadStyle, string routeType, string yourRating, double? length, int? ratingCode)
     {
-        Id = id;
+        //Id = id;
         Date = date;
         Route = route;
         Rating = rating;
@@ -16,12 +16,12 @@ public class Tick
         Url = url;
         Pitches = pitches;
         Location = location;
-        AverageStars = averageStars;
-        UserStars = userStars;
+        AvgStars = avgStars;
+        YourStars = yourStars;
         Style = style;
         LeadStyle = leadStyle;
         RouteType = routeType;
-        UserRating = userRating;
+        YourRating = yourRating;
         Length = length;
         RatingCode = ratingCode;
     }
@@ -35,12 +35,12 @@ public class Tick
     public string Url { get; set; }
     public int? Pitches { get; set; }
     public string Location { get; set; }
-    public double? AverageStars { get; set; }
-    public double? UserStars { get; set; }
+    public double? AvgStars { get; set; }
+    public double? YourStars { get; set; }
     public string Style { get; set; }
     public string LeadStyle { get; set; }
     public string RouteType { get; set; }
-    public string UserRating { get; set; }
+    public string YourRating { get; set; }
     public double? Length { get; set; }
     public int? RatingCode { get; set; }
 }
