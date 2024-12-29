@@ -19,9 +19,9 @@ public class TickRepository : ITickRepository
         return await _context.Ticks.ToListAsync();
     }
 
-    public async Task<Tick> GetByIdAsync(int id)
+    public async Task<Tick?> GetByIdAsync(int id)
     {
-        return await _context.Ticks.FindAsync(id) ?? throw new InvalidOperationException();
+        return await _context.Ticks.FindAsync(id);
     }
 
     public async Task AddAsync(Tick tick)
@@ -36,10 +36,16 @@ public class TickRepository : ITickRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var tick = await _context.Ticks.FindAsync(id) ?? throw new InvalidOperationException();
+        var tick = await _context.Ticks.FindAsync(id);
+
+        if (tick is null)
+        {
+            return false;
+        }
         _context.Ticks.Remove(tick);
         await _context.SaveChangesAsync();
+        return true;
     }
 }

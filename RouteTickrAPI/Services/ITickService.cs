@@ -5,10 +5,10 @@ namespace RouteTickrAPI.Services;
 
 public interface ITickService
 {
-    Task<IEnumerable<Tick>> GetAllAsync();
-    Task<Tick> GetByIdAsync(int id);
+    Task<ServiceResult<IEnumerable<Tick>>> GetAllAsync();
+    Task<ServiceResult<Tick>> GetByIdAsync(int id);
     Task AddAsync(Tick tick);
     Task UpdateAsync(Tick tick);
-    Task DeleteAsync(int id);
+    Task<bool> DeleteAsync(int id);
     Task ImportFileAsync(IFormFile file);
 }

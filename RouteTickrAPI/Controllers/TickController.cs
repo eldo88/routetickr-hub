@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using RouteTickrAPI.Models;
-using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
 
 namespace RouteTickrAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]/[action]")]
 public class TickController : ControllerBase
 {
     private readonly ITickService _tickService;
@@ -17,19 +16,26 @@ public class TickController : ControllerBase
     }
     
     [HttpGet]
-    [Route("")]
     public async Task<IActionResult> GetAll()
     {
-        var ticks = await _tickService.GetAllAsync();
-        return Ok(ticks);
+        var result = await _tickService.GetAllAsync();
+        if (!result.Success)
+        {
+            return NotFound(new { Message = result.ErrorMessage });
+        }
+        return Ok(result.Data);
     }
 
     [HttpGet]
     [Route("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var tick = await _tickService.GetByIdAsync(id);
-        return Ok(tick);
+        var result = await _tickService.GetByIdAsync(id);
+        if (!result.Success)
+        {
+            return BadRequest(new { Message = result.ErrorMessage });
+        }
+        return Ok(result.Data);
     }
 
     [HttpPost]
@@ -40,7 +46,6 @@ public class TickController : ControllerBase
     }
 
     [HttpPost]
-    [Route("ImportFile")]
     public async Task<IActionResult> ImportFile(IFormFile file)
     {
         if (file.Length == 0)
@@ -58,5 +63,25 @@ public class TickController : ControllerBase
             Console.WriteLine(e.Message);
             return StatusCode(500, "Error saving file");
         }
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update(Tick tick)
+    {
+        await _tickService.UpdateAsync(tick);
+        return CreatedAtAction(nameof(GetAll), new { id = tick.Id }, tick);
+    }
+    
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var isDeleted = await _tickService.DeleteAsync(id);
+
+        if (!isDeleted)
+        {
+            return NotFound($"Tick with ID: {id} was not found");
+        }
+
+        return NoContent();
     }
 }

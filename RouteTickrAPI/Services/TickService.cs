@@ -16,14 +16,43 @@ public class TickService : ITickService
         _tickRepository = tickRepository;
     }
 
-    public async Task<IEnumerable<Tick>> GetAllAsync()
+    public async Task<ServiceResult<IEnumerable<Tick>>> GetAllAsync()
     {
-        return await _tickRepository.GetAllAsync();
+        try
+        {
+            var ticks = await _tickRepository.GetAllAsync();
+            var enumerable = ticks.ToList();
+            return enumerable.Count == 0 ? ServiceResult<IEnumerable<Tick>>.ErrorResult("No ticks found.") 
+                : ServiceResult<IEnumerable<Tick>>.SuccessResult(enumerable);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error in GetAllAsync: {e.Message}");
+            throw;
+        }
     }
 
-    public async Task<Tick> GetByIdAsync(int id)
+    public async Task<ServiceResult<Tick>> GetByIdAsync(int id)
     {
-        return await _tickRepository.GetByIdAsync(id);
+        try
+        {
+            if (id <= 0)
+            {
+                return ServiceResult<Tick>.ErrorResult("ID must be greater than zero.");
+            }
+            
+            var tick = await _tickRepository.GetByIdAsync(id);
+            if (tick is null)
+            {
+                return ServiceResult<Tick>.ErrorResult($"Tick with ID: {id} not found.");
+            }
+            return ServiceResult<Tick>.SuccessResult(tick);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error in GetByIdAsync: {e.Message}");
+            throw;
+        }
     }
 
     public async Task AddAsync(Tick tick)
@@ -36,9 +65,9 @@ public class TickService : ITickService
         await _tickRepository.UpdateAsync(tick);
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        await _tickRepository.DeleteAsync(id);
+        return await _tickRepository.DeleteAsync(id);
     }
 
     public async Task ImportFileAsync(IFormFile file)

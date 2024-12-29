@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.Data;
+using RouteTickrAPI.Middleware;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
 
@@ -27,6 +28,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseHttpsRedirection();
 
