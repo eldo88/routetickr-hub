@@ -17,8 +17,7 @@ public class GlobalExceptionHandler
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            await HandleExceptionAsync(context, e);
         }
     }
 
