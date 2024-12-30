@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Mappers\" />
+    <Folder Include="src\DTOs\" />
+    <Folder Include="src\Mappers\" />
   </ItemGroup>
 
 </Project>

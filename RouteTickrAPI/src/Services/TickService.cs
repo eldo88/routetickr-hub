@@ -42,11 +42,8 @@ public class TickService : ITickService
             }
             
             var tick = await _tickRepository.GetByIdAsync(id);
-            if (tick is null)
-            {
-                return ServiceResult<Tick>.ErrorResult($"Tick with ID: {id} not found.");
-            }
-            return ServiceResult<Tick>.SuccessResult(tick);
+            return tick is null ? ServiceResult<Tick>.ErrorResult($"Tick with ID: {id} not found.") 
+                : ServiceResult<Tick>.SuccessResult(tick);
         }
         catch (Exception e)
         {

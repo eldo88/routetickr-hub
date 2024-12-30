@@ -21,10 +21,10 @@ public class GlobalExceptionHandler
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception ex)
+    private static Task HandleExceptionAsync(HttpContext context, Exception e)
     {
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = ex switch
+        context.Response.StatusCode = e switch
         {
             InvalidOperationException => StatusCodes.Status404NotFound,
             ArgumentException => StatusCodes.Status400BadRequest,
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler
         
         var errorResponse = new
         {
-            Message = ex.Message,
+            Message = e.Message,
             StatusCode = context.Response.StatusCode,
             Timestamp = DateTime.UtcNow
         };
