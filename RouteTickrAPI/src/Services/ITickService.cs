@@ -7,8 +7,8 @@ public interface ITickService
 {
     Task<ServiceResult<IEnumerable<Tick>>> GetAllAsync();
     Task<ServiceResult<Tick>> GetByIdAsync(int id);
-    Task AddAsync(Tick tick);
-    Task UpdateAsync(Tick tick);
-    Task<bool> DeleteAsync(int id);
-    Task ImportFileAsync(IFormFile file);
+    Task<ServiceResult<Tick>> AddAsync(Tick tick);
+    Task<ServiceResult<Tick>> UpdateAsync(Tick tick);
+    Task<ServiceResult<bool>> DeleteAsync(int id);
+    Task<ServiceResult<bool>> ImportFileAsync(IFormFile file);
 }

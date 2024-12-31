@@ -6,7 +6,7 @@ public interface ITickRepository
 {
     Task<IEnumerable<Tick>> GetAllAsync();
     Task<Tick?> GetByIdAsync(int id);
-    Task AddAsync(Tick tick);
-    Task UpdateAsync(Tick tick);
+    Task<bool> AddAsync(Tick tick);
+    Task<bool> UpdateAsync(Tick tick);
     Task<bool> DeleteAsync(int id);
 }

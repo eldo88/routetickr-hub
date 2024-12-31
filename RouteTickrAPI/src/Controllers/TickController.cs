@@ -23,6 +23,7 @@ public class TickController : ControllerBase
         {
             return NotFound(new { Message = result.ErrorMessage });
         }
+        
         return Ok(result.Data);
     }
 
@@ -35,13 +36,19 @@ public class TickController : ControllerBase
         {
             return BadRequest(new { Message = result.ErrorMessage });
         }
+        
         return Ok(result.Data);
     }
 
     [HttpPost]
     public async Task<IActionResult> Add(Tick tick)
     {
-        await _tickService.AddAsync(tick);
+        var result = await _tickService.AddAsync(tick);
+        if (!result.Success)
+        {
+            return BadRequest(new { Message = result.ErrorMessage });
+        }
+        
         return CreatedAtAction(nameof(GetAll), new { id = tick.Id }, tick);
     }
 
@@ -53,33 +60,34 @@ public class TickController : ControllerBase
             return BadRequest("File does not contain data");
         }
 
-        try
+        var result = await _tickService.ImportFileAsync(file);
+        if (!result.Success)
         {
-            await _tickService.ImportFileAsync(file);
-            return Ok($"Ticks uploaded from file: {file.Name}");
+            return BadRequest(new { Message = result.ErrorMessage });
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return StatusCode(500, "Error saving file");
-        }
+
+        return NoContent();
     }
 
     [HttpPut]
     public async Task<IActionResult> Update(Tick tick)
     {
-        await _tickService.UpdateAsync(tick);
-        return CreatedAtAction(nameof(GetAll), new { id = tick.Id }, tick);
+        var result = await _tickService.UpdateAsync(tick);
+        if (!result.Success)
+        {
+            return BadRequest(new { Message = result.ErrorMessage });
+        }
+        return Ok(result.Data);
     }
     
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var isDeleted = await _tickService.DeleteAsync(id);
+        var result = await _tickService.DeleteAsync(id);
 
-        if (!isDeleted)
+        if (!result.Success)
         {
-            return NotFound($"Tick with ID: {id} was not found");
+            return NotFound(new { Message = result.ErrorMessage });
         }
 
         return NoContent();

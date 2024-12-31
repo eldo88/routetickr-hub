@@ -24,28 +24,30 @@ public class TickRepository : ITickRepository
         return await _context.Ticks.FindAsync(id);
     }
 
-    public async Task AddAsync(Tick tick)
+    public async Task<bool> AddAsync(Tick tick)
     {
         _context.Ticks.Add(tick);
-        await _context.SaveChangesAsync();
+        var recordsAdded = await _context.SaveChangesAsync();
+        return recordsAdded == 1;
     }
 
-    public async Task UpdateAsync(Tick tick)
+    public async Task<bool> UpdateAsync(Tick tick)
     {
         _context.Ticks.Update(tick);
-        await _context.SaveChangesAsync();
+        var recordsUpdated = await _context.SaveChangesAsync();
+        return recordsUpdated == 1;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
         var tick = await _context.Ticks.FindAsync(id);
-
+        
         if (tick is null)
         {
             return false;
         }
         _context.Ticks.Remove(tick);
-        await _context.SaveChangesAsync();
-        return true;
+        var recordsDeleted = await _context.SaveChangesAsync();
+        return recordsDeleted == 1;
     }
 }
