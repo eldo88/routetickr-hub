@@ -22,13 +22,27 @@ public class TickControllerTests
     public async Task Delete_ReturnsNoContent_WhenDeletionIsSuccessful()
     {
         //Arrange
-        var tickId = 1;
+        const int tickId = 1;
         _tickService
             .Setup(s => s.DeleteAsync(tickId))
             .ReturnsAsync(ServiceResult<bool>.SuccessResult(true));
         //Act
         var result = await _tickController.Delete(tickId);
         //Assert
-        Assert.IsInstanceOf<NoContentResult>(result);
+        Assert.That(result, Is.InstanceOf(typeof(NoContentResult)));
+    }
+
+    [Test]
+    public async Task Delete_ReturnsNotFound_WhenDeletionIsNotSuccessful()
+    {
+        //Arrange
+        const int tickId = 999999;
+        _tickService
+            .Setup(s => s.DeleteAsync(tickId))
+            .ReturnsAsync(ServiceResult<bool>.ErrorResult("Error uploading file contents."));
+        //Act
+        var result = await _tickController.Delete(tickId);
+        //Assert
+        Assert.That(result, Is.InstanceOf(typeof(NotFoundObjectResult)));
     }
 }
