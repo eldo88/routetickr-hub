@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.Data;
 using RouteTickrAPI.Models;
-using InvalidOperationException = System.InvalidOperationException;
 
 namespace RouteTickrAPI.Repositories;
 
