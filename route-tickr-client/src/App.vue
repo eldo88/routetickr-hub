@@ -1,15 +1,19 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
   <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <ClimbingRoute/>
+  
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import ClimbingRoute from "@/components/ClimbingRoute.vue";
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    ClimbingRoute
   }
 }
 </script>
