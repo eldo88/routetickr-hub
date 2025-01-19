@@ -32,7 +32,12 @@ public class TickRepository : ITickRepository
 
     public async Task<bool> UpdateAsync(Tick tick)
     {
-        _context.Ticks.Update(tick);
+        var existingTick = await _context.Ticks.FindAsync(tick.Id);
+        if (existingTick is null)
+        {
+            return false;
+        }
+        _context.Entry(existingTick).CurrentValues.SetValues(tick);
         var recordsUpdated = await _context.SaveChangesAsync();
         return recordsUpdated == 1;
     }
