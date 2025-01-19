@@ -9,7 +9,7 @@ const routeData = computed(() => store.getters.routeData);
 
 // Fetch route data on mounted
 onMounted(() => {
-  store.dispatch("fetchRouteData", 1); // Replace '1' with your dynamic routeId if needed
+  store.dispatch("fetchRouteData", 2); // Replace '1' with your dynamic routeId if needed
 });
 </script>
 
@@ -35,7 +35,22 @@ onMounted(() => {
       <strong>URL:</strong> <a :href="routeData.url" target="_blank">Visit Route</a>
     </div>
     <div>
+      <strong>Pitches:</strong> {{ routeData.pitches }}
+    </div>
+    <div>
       <strong>Average Stars:</strong> {{ routeData.avgStars }}
+    </div>
+    <div>
+      <strong>Your Stars:</strong> {{ routeData.yourStars }}
+    </div>
+    <div>
+      <strong>Style:</strong> {{ routeData.style }}
+    </div>
+    <div>
+      <strong>Lead Style:</strong> {{ routeData.leadStyle }}
+    </div>
+    <div>
+      <strong>Route Type:</strong> {{ routeData.routeType }}
     </div>
     <div>
       <strong>Your Rating:</strong> {{ routeData.yourRating }}
@@ -43,11 +58,15 @@ onMounted(() => {
     <div>
       <strong>Length:</strong> {{ routeData.length }} meters
     </div>
+    <div>
+      <strong>Rating Code:</strong> {{ routeData.ratingCode }}
+    </div>
   </div>
   <div v-else>
     <p>Loading...</p>
   </div>
 </template>
+
 
 <style scoped>
 /* Add styling for the route details container */
