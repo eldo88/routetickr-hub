@@ -73,7 +73,6 @@ public class TickService : ITickService
             var recordToBeUpdated = await GetByIdAsync(tick.Id);
             if (!recordToBeUpdated.Success)
                 return recordToBeUpdated;
-            //var updatedTick = tick;
             var isUpdated = await _tickRepository.UpdateAsync(tick);
             return isUpdated ? ServiceResult<Tick>.SuccessResult(tick)
                 : ServiceResult<Tick>.ErrorResult($"Error updating tick with ID: {tick.Id}");
