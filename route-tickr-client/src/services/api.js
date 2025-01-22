@@ -11,3 +11,13 @@ export async function getClimbingRouteById(id) {
         throw error;
     }
 }
+
+export async function getAllTickedRoutes() {
+    try {
+        const response = await axios.get(`${apiBaseUrl}/api/Tick/GetAll`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        throw error;
+    }
+}

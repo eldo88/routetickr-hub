@@ -1,12 +1,17 @@
 import { getClimbingRouteById } from "@/services/api";
+import {getAllTickedRoutes} from "@/services/api";
 
 const state = {
-    routeData: null,
+    routes: [],
+    route: null,
 };
 
 const mutations = {
     SET_ROUTE_DATA(state, data) {
-        state.routeData = data;
+        state.route = data;
+    },
+    SET_ALL_ROUTES(state, data) {
+        state.routes = data;
     },
 };
 
@@ -19,10 +24,19 @@ const actions = {
             console.error("Error fetching route data:", error);
         }
     },
+    async fetchAllRoutes({commit}){
+        try {
+            const data = await getAllTickedRoutes();
+            commit("SET_ALL_ROUTES", data);
+        } catch (error) {
+            console.error("Error fetching route data:", error);
+        }
+    },
 };
 
 const getters = {
-    routeData: (state) => state.routeData,
+    routeData: (state) => state.route,
+    allRoutes: (state) => state.routes,
 };
 
 export default {
