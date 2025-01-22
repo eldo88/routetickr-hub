@@ -54,4 +54,23 @@ public class TickRepository : ITickRepository
         var recordsDeleted = await _context.SaveChangesAsync();
         return recordsDeleted == 1;
     }
+    
+    public async Task<int> GetTotalCountAsync()
+    {
+        return await _context.Ticks.CountAsync();
+    }
+
+    public async Task<int?> GetPitchesAsync()
+    {
+        return await _context.Ticks
+            .Where(t => t.Pitches != null)
+            .SumAsync(t => t.Pitches);
+    }
+
+    public async Task<List<string>> GetLocationAsync()
+    {
+        return await _context.Ticks
+            .Select(t => t.Location)
+            .ToListAsync();
+    }
 }

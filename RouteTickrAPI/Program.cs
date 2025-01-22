@@ -15,6 +15,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ITickService, TickService>();
 builder.Services.AddScoped<ITickRepository, TickRepository>();
+builder.Services.AddScoped<IClimbingStatsService, ClimbingStatsService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=RouteTickr.db"));
