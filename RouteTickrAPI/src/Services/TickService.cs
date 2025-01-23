@@ -34,17 +34,17 @@ public class TickService : ITickService
         }
     }
 
-    public async Task<ServiceResult<Tick>> GetByIdAsync(int id)
+    public async Task<ServiceResult<TickDto>> GetByIdAsync(int id)
     {
         try
         {
             if (id <= 0)
             {
-                return ServiceResult<Tick>.ErrorResult("ID must be greater than zero.");
+                return ServiceResult<TickDto>.ErrorResult("ID must be greater than zero.");
             }
             var tick = await _tickRepository.GetByIdAsync(id);
-            return tick is null ? ServiceResult<Tick>.ErrorResult($"Tick with ID: {id} not found.") 
-                : ServiceResult<Tick>.SuccessResult(tick);
+            return tick is null ? ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.") 
+                : ServiceResult<TickDto>.SuccessResult(tick);
         }
         catch (Exception e)
         {
@@ -68,16 +68,17 @@ public class TickService : ITickService
         }
     }
 
-    public async Task<ServiceResult<Tick>> UpdateAsync(Tick tick)
+    public async Task<ServiceResult<TickDto>> UpdateAsync(TickDto tickDto)
     {
         try
         {
-            var recordToBeUpdated = await GetByIdAsync(tick.Id);
+            var recordToBeUpdated = await GetByIdAsync(tickDto.Id);
             if (!recordToBeUpdated.Success)
                 return recordToBeUpdated;
+            var tick = TickMapper.ToTick(tickDto);
             var isUpdated = await _tickRepository.UpdateAsync(tick);
-            return isUpdated ? ServiceResult<Tick>.SuccessResult(tick)
-                : ServiceResult<Tick>.ErrorResult($"Error updating tick with ID: {tick.Id}");
+            return isUpdated ? ServiceResult<TickDto>.SuccessResult(tickDto)
+                : ServiceResult<TickDto>.ErrorResult($"Error updating tick with ID: {tickDto.Id}");
         }
         catch (Exception e)
         {

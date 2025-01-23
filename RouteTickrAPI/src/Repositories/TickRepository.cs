@@ -21,9 +21,15 @@ public class TickRepository : ITickRepository
         return ticks.Select(TickMapper.ToTickDto).ToList();
     }
 
-    public async Task<Tick?> GetByIdAsync(int id)
+    public async Task<TickDto?> GetByIdAsync(int id)
     {
-        return await _context.Ticks.FindAsync(id);
+        var tick = await _context.Ticks.FindAsync(id);
+        if (tick is not null)
+        {
+            return TickMapper.ToTickDto(tick);
+        }
+        TickDto? tickDto = null;
+        return tickDto;
     }
 
     public async Task<bool> AddAsync(Tick tick)
