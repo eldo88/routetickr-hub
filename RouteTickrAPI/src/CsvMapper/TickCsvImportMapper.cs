@@ -1,9 +1,10 @@
 using CsvHelper.Configuration;
+using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Models;
 
 namespace RouteTickrAPI.CsvMapper;
 
-public class TickCsvImportMapper : ClassMap<Tick>
+public sealed class TickCsvImportMapper : ClassMap<TickDto>
 {
     public TickCsvImportMapper()
     {

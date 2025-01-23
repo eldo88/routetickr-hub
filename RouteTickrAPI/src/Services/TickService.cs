@@ -5,6 +5,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using RouteTickrAPI.CsvMapper;
 using RouteTickrAPI.DTOs;
+using RouteTickrAPI.Mappers;
 
 namespace RouteTickrAPI.Services;
 
@@ -108,10 +109,10 @@ public class TickService : ITickService
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
 
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
-            var dataFromFile = csvFile.GetRecords<Tick>().ToList();
+            var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
 
-            bool recordIsAdded = false;
-            foreach (var tick in dataFromFile)
+            var recordIsAdded = false;
+            foreach (var tick in dataFromFile.Select(TickMapper.ToTick))
             {
                 recordIsAdded = await _tickRepository.AddAsync(tick);
             }

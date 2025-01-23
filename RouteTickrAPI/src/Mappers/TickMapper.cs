@@ -27,4 +27,28 @@ public static class TickMapper
             RatingCode = tick.RatingCode
         };
     }
+    
+    public static Tick ToTick(TickDto dto)
+    {
+        return new Tick
+        {
+            Id = dto.Id,
+            Date = dto.Date,
+            Route = dto.Route,
+            Rating = dto.Rating,
+            Notes = dto.Notes,
+            Url = dto.Url,
+            Pitches = dto.Pitches,
+            Location = dto.Location,
+            AvgStars = dto.AvgStars,
+            YourStars = dto.YourStars,
+            Style = dto.Style,
+            LeadStyle = dto.LeadStyle,
+            RouteType = dto.RouteType,
+            YourRating = dto.YourRating,
+            Length = dto.Length,
+            RatingCode = dto.RatingCode
+        };
+    }
+
 }
