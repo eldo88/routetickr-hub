@@ -4,7 +4,7 @@ namespace RouteTickrAPI.Services;
 
 public class ClimbingStatsService : IClimbingStatsService
 {
-    private ITickRepository _tickRepository;
+    private readonly ITickRepository _tickRepository;
 
     public ClimbingStatsService(ITickRepository tickRepository)
     {
@@ -35,7 +35,6 @@ public class ClimbingStatsService : IClimbingStatsService
 
         try
         {
-            //string[] splitLocations = [];
             foreach (var splitLocations in locationList.Select(location => location.Split('>', StringSplitOptions.TrimEntries)))
             {
                 allLocations.AddRange(splitLocations);
