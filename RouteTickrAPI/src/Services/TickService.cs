@@ -4,6 +4,7 @@ using RouteTickrAPI.Repositories;
 using CsvHelper;
 using CsvHelper.Configuration;
 using RouteTickrAPI.CsvMapper;
+using RouteTickrAPI.DTOs;
 
 namespace RouteTickrAPI.Services;
 
@@ -16,14 +17,14 @@ public class TickService : ITickService
         _tickRepository = tickRepository;
     }
 
-    public async Task<ServiceResult<IEnumerable<Tick>>> GetAllAsync()
+    public async Task<ServiceResult<IEnumerable<TickDto>>> GetAllAsync()
     {
         try
         {
             var ticks = await _tickRepository.GetAllAsync();
-            var enumerable = ticks.ToList();
-            return enumerable.Count == 0 ? ServiceResult<IEnumerable<Tick>>.ErrorResult("No ticks found.") 
-                : ServiceResult<IEnumerable<Tick>>.SuccessResult(enumerable);
+            var tickDto = ticks.ToList();
+            return tickDto.Count == 0 ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
+                : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDto);
         }
         catch (Exception e)
         {

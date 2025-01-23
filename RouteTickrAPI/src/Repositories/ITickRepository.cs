@@ -1,10 +1,11 @@
+using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Models;
 
 namespace RouteTickrAPI.Repositories;
 
 public interface ITickRepository
 {
-    Task<IEnumerable<Tick>> GetAllAsync();
+    Task<IEnumerable<TickDto>> GetAllAsync();
     Task<Tick?> GetByIdAsync(int id);
     Task<bool> AddAsync(Tick tick);
     Task<bool> UpdateAsync(Tick tick);

@@ -1,3 +1,4 @@
+using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Models;
 using RouteTickrAPI.Repositories;
 
@@ -5,7 +6,7 @@ namespace RouteTickrAPI.Services;
 
 public interface ITickService
 {
-    Task<ServiceResult<IEnumerable<Tick>>> GetAllAsync();
+    Task<ServiceResult<IEnumerable<TickDto>>> GetAllAsync();
     Task<ServiceResult<Tick>> GetByIdAsync(int id);
     Task<ServiceResult<Tick>> AddAsync(Tick tick);
     Task<ServiceResult<Tick>> UpdateAsync(Tick tick);

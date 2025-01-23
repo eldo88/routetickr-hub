@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.Data;
+using RouteTickrAPI.DTOs;
+using RouteTickrAPI.Mappers;
 using RouteTickrAPI.Models;
 
 namespace RouteTickrAPI.Repositories;
@@ -13,9 +15,10 @@ public class TickRepository : ITickRepository
         _context = context;
     }
     
-    public async Task<IEnumerable<Tick>> GetAllAsync()
+    public async Task<IEnumerable<TickDto>> GetAllAsync()
     {
-        return await _context.Ticks.ToListAsync();
+        var ticks = await _context.Ticks.ToListAsync();
+        return ticks.Select(TickMapper.ToTickDto).ToList();
     }
 
     public async Task<Tick?> GetByIdAsync(int id)
