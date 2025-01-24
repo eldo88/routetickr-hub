@@ -25,11 +25,11 @@ public class TickRepository : ITickRepository
         return await _context.Ticks.FindAsync(id);
     }
 
-    public async Task<bool> AddAsync(Tick tick)
+    public async Task<Tick?> AddAsync(Tick tick)
     {
         _context.Ticks.Add(tick);
-        var recordsAdded = await _context.SaveChangesAsync();
-        return recordsAdded == 1;
+        await _context.SaveChangesAsync();
+        return tick;
     }
 
     public async Task<bool> UpdateAsync(Tick tick)

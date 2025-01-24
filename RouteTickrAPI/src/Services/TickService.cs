@@ -60,13 +60,15 @@ public class TickService : ITickService
         }
     }
 
-    public async Task<ServiceResult<Tick>> AddAsync(Tick tick)
+    public async Task<ServiceResult<TickDto>> AddAsync(TickDto tickDto)
     {
         try
         {
-            var isAdded = await _tickRepository.AddAsync(tick);
-            return isAdded ? ServiceResult<Tick>.SuccessResult(tick) 
-                : ServiceResult<Tick>.ErrorResult("Error adding tick.");
+            var tick = TickMapper.ToTick(tickDto);
+            var addedTick = await _tickRepository.AddAsync(tick);
+            if (addedTick is null) return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
+            var tickAdded = TickMapper.ToTickDto(tick);
+            return ServiceResult<TickDto>.SuccessResult(tickAdded);
         }
         catch (Exception e)
         {
@@ -119,19 +121,32 @@ public class TickService : ITickService
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
             var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
 
-            var recordIsAdded = false;
+            var savedTickIds = new List<int>();
             foreach (var tick in dataFromFile.Select(TickMapper.ToTick))
             {
-                recordIsAdded = await _tickRepository.AddAsync(tick);
+                var tickAdded = await _tickRepository.AddAsync(tick);
+                if (tickAdded == null)
+                {
+                    await RollbackDatabaseAsync(savedTickIds);
+                    return ServiceResult<bool>.ErrorResult("Error uploading file contents, no data was saved.");
+                }
+                savedTickIds.Add(tickAdded.Id);
             }
 
-            return recordIsAdded ? ServiceResult<bool>.SuccessResult(true)
-                : ServiceResult<bool>.ErrorResult("Error uploading file contents.");
+            return ServiceResult<bool>.SuccessResult(true);
         }
         catch (Exception e)
         {
             Console.WriteLine($"Error is ImportFileAsync: {e.Message}");
             throw;
+        }
+    }
+
+    private async Task RollbackDatabaseAsync(IEnumerable<int> tickIds)
+    {
+        foreach (var tickId in tickIds)
+        {
+            await _tickRepository.DeleteAsync(tickId);
         }
     }
     
