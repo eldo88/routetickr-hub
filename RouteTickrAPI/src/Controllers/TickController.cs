@@ -44,13 +44,13 @@ public class TickController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add(TickDto tickDto)
     {
-        var result = await _tickService.AddAsync(tickDto);
-        if (!result.Success)
+        var tickAdded = await _tickService.AddAsync(tickDto);
+        if (!tickAdded.Success)
         {
-            return BadRequest(new { Message = result.ErrorMessage });
+            return BadRequest(new { Message = tickAdded.ErrorMessage });
         }
         
-        return CreatedAtAction(nameof(GetAll), new { id = tickDto.Id }, tickDto);
+        return CreatedAtAction(nameof(GetAll), new { id = tickAdded.Data.Id }, tickAdded.Data);
     }
 
     [HttpPost]
