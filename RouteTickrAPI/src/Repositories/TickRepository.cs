@@ -15,21 +15,14 @@ public class TickRepository : ITickRepository
         _context = context;
     }
     
-    public async Task<IEnumerable<TickDto>> GetAllAsync()
+    public async Task<IEnumerable<Tick>> GetAllAsync()
     {
-        var ticks = await _context.Ticks.ToListAsync();
-        return ticks.Select(TickMapper.ToTickDto).ToList();
+        return await _context.Ticks.ToListAsync();
     }
 
-    public async Task<TickDto?> GetByIdAsync(int id)
+    public async Task<Tick?> GetByIdAsync(int id)
     {
-        var tick = await _context.Ticks.FindAsync(id);
-        if (tick is not null)
-        {
-            return TickMapper.ToTickDto(tick);
-        }
-        TickDto? tickDto = null;
-        return tickDto;
+        return await _context.Ticks.FindAsync(id);
     }
 
     public async Task<bool> AddAsync(Tick tick)

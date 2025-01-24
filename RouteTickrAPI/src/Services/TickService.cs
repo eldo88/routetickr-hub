@@ -23,9 +23,9 @@ public class TickService : ITickService
         try
         {
             var ticks = await _tickRepository.GetAllAsync();
-            var tickDto = ticks.ToList();
-            return tickDto.Count == 0 ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
-                : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDto);
+            var tickDtoList = ticks.Select(TickMapper.ToTickDto).ToList();
+            return tickDtoList.Count == 0 ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
+                : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDtoList);
         }
         catch (Exception e)
         {
@@ -42,9 +42,16 @@ public class TickService : ITickService
             {
                 return ServiceResult<TickDto>.ErrorResult("ID must be greater than zero.");
             }
+            
             var tick = await _tickRepository.GetByIdAsync(id);
-            return tick is null ? ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.") 
-                : ServiceResult<TickDto>.SuccessResult(tick);
+            
+            if (tick is null)
+            {
+                return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.");
+            }
+            
+            var tickDto = TickMapper.ToTickDto(tick);
+            return ServiceResult<TickDto>.SuccessResult(tickDto);
         }
         catch (Exception e)
         {
