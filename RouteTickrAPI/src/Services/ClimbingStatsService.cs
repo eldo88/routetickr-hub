@@ -1,3 +1,4 @@
+using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
@@ -12,21 +13,21 @@ public class ClimbingStatsService : IClimbingStatsService
     }
 
 
-    public async Task<int> CalcTickTotal()
+    private async Task<int> CalcTickTotal()
     {
         var totalTicks = await _tickRepository.GetTotalCountAsync();
 
         return totalTicks;
     }
 
-    public async Task<int?> CalcTotalPitches()
+    private async Task<int?> CalcTotalPitches()
     {
         var totalPitches = await _tickRepository.GetPitchesAsync();
 
         return totalPitches ?? 0;
     }
 
-    public async Task<Dictionary<string, int>> CalcLocationVisits()
+    private async Task<Dictionary<string, int>> CalcLocationVisits()
     {
         var locationVisits = new Dictionary<string, int>();
 
@@ -52,5 +53,21 @@ public class ClimbingStatsService : IClimbingStatsService
         }
 
         return locationVisits;
+    }
+
+    public async Task<ServiceResult<ClimbingStatsDto>> GetClimbingStats()
+    {
+        var totalTicks = await CalcTickTotal();
+        var totalPitches = await CalcTotalPitches();
+        var locationVisits = await CalcLocationVisits();
+
+        var climbingStatsDto = new ClimbingStatsDto()
+        {
+            TotalTicks = totalTicks,
+            TotalPitches = totalPitches,
+            LocationVisits = locationVisits
+        };
+        
+        return ServiceResult<ClimbingStatsDto>.SuccessResult(climbingStatsDto);
     }
 }

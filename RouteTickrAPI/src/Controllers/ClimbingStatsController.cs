@@ -14,17 +14,17 @@ public class ClimbingStatsController : ControllerBase
     {
         _climbingStatsService = climbingStatsService;
     }
-
+    
     [HttpGet]
-    public async Task<IActionResult> GetLocationVisits()
+    public async Task<IActionResult> GetClimbingStats()
     {
-        var result = await _climbingStatsService.CalcLocationVisits();
+        var result = await _climbingStatsService.GetClimbingStats();
 
-        if (result.Count == 0)
+        if (!result.Success)
         {
-            return BadRequest("Error");
+            return BadRequest(new { Message = result.ErrorMessage });
         }
 
-        return Ok(result);
+        return Ok(result.Data);
     }
 }
