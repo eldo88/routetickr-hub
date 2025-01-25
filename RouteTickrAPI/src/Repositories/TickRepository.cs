@@ -29,8 +29,7 @@ public class TickRepository : ITickRepository
     {
         _context.Ticks.Add(tick);
         var recordAdded = await _context.SaveChangesAsync();
-        if (recordAdded == 1) return true;
-        return false;
+        return recordAdded == 1;
     }
 
     public async Task<bool> UpdateAsync(Tick tick)
