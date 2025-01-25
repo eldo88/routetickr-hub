@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Repositories;
 
@@ -6,10 +7,11 @@ namespace RouteTickrAPI.Services;
 public class ClimbingStatsService : IClimbingStatsService
 {
     private readonly ITickRepository _tickRepository;
-
-    public ClimbingStatsService(ITickRepository tickRepository)
+    private readonly IMemoryCache _cache;
+    public ClimbingStatsService(ITickRepository tickRepository, IMemoryCache cache)
     {
         _tickRepository = tickRepository;
+        _cache = cache;
     }
 
 
@@ -57,17 +59,22 @@ public class ClimbingStatsService : IClimbingStatsService
 
     public async Task<ServiceResult<ClimbingStatsDto>> GetClimbingStats()
     {
-        var totalTicks = await CalcTickTotal();
-        var totalPitches = await CalcTotalPitches();
-        var locationVisits = await CalcLocationVisits();
-
-        var climbingStatsDto = new ClimbingStatsDto()
+        var stats = await _cache.GetOrCreateAsync("ClimbingStats", async entry =>
         {
-            TotalTicks = totalTicks,
-            TotalPitches = totalPitches,
-            LocationVisits = locationVisits
-        };
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+            
+            return new ClimbingStatsDto
+            {
+                TotalTicks = await CalcTickTotal(),
+                TotalPitches = await CalcTotalPitches() ?? 0,
+                LocationVisits = await CalcLocationVisits()
+            };
+        });
         
-        return ServiceResult<ClimbingStatsDto>.SuccessResult(climbingStatsDto);
+        return stats is not null
+            ? ServiceResult<ClimbingStatsDto>.SuccessResult(stats)
+            : ServiceResult<ClimbingStatsDto>.ErrorResult("Failed to retrieve climbing stats.");
     }
+
 }
