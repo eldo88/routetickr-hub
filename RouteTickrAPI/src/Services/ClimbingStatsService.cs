@@ -32,7 +32,6 @@ public class ClimbingStatsService : IClimbingStatsService
     private async Task<Dictionary<string, int>> CalcLocationVisits()
     {
         var locationVisits = new Dictionary<string, int>();
-
         var locationList = await _tickRepository.GetLocationAsync();
         var allLocations = new List<string>();
 
@@ -55,6 +54,61 @@ public class ClimbingStatsService : IClimbingStatsService
         }
 
         return locationVisits;
+    }
+
+    private async Task<Dictionary<string, List<int>>> GetLocationWithTickIds()
+    {
+        try
+        {
+            var ticks = await _tickRepository.GetAllAsync();
+            var locationWithTickIds = new Dictionary<string, List<int>>();
+        
+            foreach (var tick in ticks)
+            {
+                if (string.IsNullOrWhiteSpace(tick.Location)) continue;
+                var locations = tick.Location.Split('>', StringSplitOptions.TrimEntries);
+
+                foreach (var location in locations)
+                {
+                    if (!locationWithTickIds.TryGetValue(location, out List<int>? value))
+                    {
+                        value = ([]);
+                        locationWithTickIds[location] = value;
+                    }
+
+                    value.Add(tick.Id);
+                }
+            }
+
+            return locationWithTickIds;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    public async Task<ServiceResult<List<int>>> GetTickIdsByState(string state)
+    {
+        try
+        {
+            var locationsWithTickIds = await GetLocationWithTickIds();
+
+            var tickIds = locationsWithTickIds
+                .Where(locationEntry => locationEntry.Key.Contains(state, StringComparison.OrdinalIgnoreCase))
+                .SelectMany(locationEntry => locationEntry.Value)
+                .ToList();
+            
+            return tickIds.Count == 0 
+                ? ServiceResult<List<int>>.ErrorResult($"No ticks found in {state}") 
+                : ServiceResult<List<int>>.SuccessResult(tickIds);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<ServiceResult<ClimbingStatsDto>> GetClimbingStats()

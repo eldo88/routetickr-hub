@@ -27,4 +27,12 @@ public class ClimbingStatsController : ControllerBase
 
         return Ok(result.Data);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetTickIdsPerState(string state)
+    {
+        var result = await _climbingStatsService.GetTickIdsByState(state);
+
+        return Ok(result);
+    }
 }
