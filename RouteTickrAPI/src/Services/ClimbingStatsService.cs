@@ -93,16 +93,32 @@ public class ClimbingStatsService : IClimbingStatsService
     {
         try
         {
+            if (_cache.TryGetValue($"TickIds_{state}", out List<int>? cachedTickIds))
+            {
+                return cachedTickIds is not null
+                    ? ServiceResult<List<int>>.SuccessResult(cachedTickIds)
+                    : ServiceResult<List<int>>.ErrorResult($"No tick IDs cached for state: {state}");
+            }
+            
             var locationsWithTickIds = await GetLocationWithTickIds();
-
             var tickIds = locationsWithTickIds
                 .Where(locationEntry => locationEntry.Key.Contains(state, StringComparison.OrdinalIgnoreCase))
                 .SelectMany(locationEntry => locationEntry.Value)
                 .ToList();
+
+            if (tickIds.Count == 0)
+            {
+                return ServiceResult<List<int>>.ErrorResult($"No tick IDs found for state: {state}");
+            }
             
-            return tickIds.Count == 0 
-                ? ServiceResult<List<int>>.ErrorResult($"No ticks found in {state}") 
-                : ServiceResult<List<int>>.SuccessResult(tickIds);
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1),
+                SlidingExpiration = TimeSpan.FromMinutes(30)
+            };
+            _cache.Set($"TickIds_{state}", tickIds, cacheOptions);
+
+            return ServiceResult<List<int>>.SuccessResult(tickIds);
         }
         catch (Exception e)
         {
