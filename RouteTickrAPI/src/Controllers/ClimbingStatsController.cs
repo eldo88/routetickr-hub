@@ -8,7 +8,7 @@ namespace RouteTickrAPI.Controllers;
 [Route("api/[controller]/[action]")]
 public class ClimbingStatsController : ControllerBase
 {
-    private IClimbingStatsService _climbingStatsService;
+    private readonly IClimbingStatsService _climbingStatsService;
 
     public ClimbingStatsController(IClimbingStatsService climbingStatsService)
     {
@@ -19,12 +19,7 @@ public class ClimbingStatsController : ControllerBase
     public async Task<IActionResult> GetClimbingStats()
     {
         var result = await _climbingStatsService.GetClimbingStats();
-
-        if (!result.Success)
-        {
-            return BadRequest(new { Message = result.ErrorMessage });
-        }
-
+        if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
         return Ok(result.Data);
     }
 
@@ -32,7 +27,6 @@ public class ClimbingStatsController : ControllerBase
     public async Task<IActionResult> GetTickIdsPerState(string state)
     {
         var result = await _climbingStatsService.GetTickIdsByState(state);
-
         return Ok(result);
     }
 }
