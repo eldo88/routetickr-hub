@@ -13,4 +13,5 @@ public interface ITickRepository
     Task<int> GetTotalCountAsync();
     Task<int?> GetPitchesAsync();
     Task<List<string>> GetLocationAsync();
+    Task<List<string>> GetRatingAsync();
 }

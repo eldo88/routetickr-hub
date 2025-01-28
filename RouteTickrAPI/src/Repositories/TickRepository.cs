@@ -75,4 +75,11 @@ public class TickRepository : ITickRepository
             .Select(t => t.Location)
             .ToListAsync();
     }
+
+    public async Task<List<string>> GetRatingAsync()
+    {
+        return await _context.Ticks
+            .Select(t => t.Rating)
+            .ToListAsync();
+    }
 }

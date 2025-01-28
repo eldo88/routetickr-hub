@@ -89,6 +89,27 @@ public class ClimbingStatsService : IClimbingStatsService
         }
     }
 
+    private async Task<Dictionary<string, int>> CalcTicksPerGrade()
+    {
+        var gradeCounts = new Dictionary<string, int>();
+        var grades = await _tickRepository.GetRatingAsync();
+        try
+        {
+            foreach (var grade in grades.Select(g => g.ToLowerInvariant()).Where(grade => !gradeCounts.TryAdd(grade, 1)))
+            {
+                gradeCounts[grade]++;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return gradeCounts;
+    }
+
+
     public async Task<ServiceResult<List<int>>> GetTickIdsByState(string state)
     {
         try
@@ -138,7 +159,8 @@ public class ClimbingStatsService : IClimbingStatsService
             {
                 TotalTicks = await CalcTickTotal(),
                 TotalPitches = await CalcTotalPitches() ?? 0,
-                LocationVisits = await CalcLocationVisits()
+                LocationVisits = await CalcLocationVisits(),
+                TicksPerGrade = await CalcTicksPerGrade()
             };
         });
         
