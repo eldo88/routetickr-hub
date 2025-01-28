@@ -15,7 +15,7 @@ public class ClimbingStatsService : IClimbingStatsService
     }
 
 
-    private async Task<int> CalcTickTotal()
+    private async Task<int?> CalcTickTotal()
     {
         var totalTicks = await _tickRepository.GetTotalCountAsync();
 
@@ -157,7 +157,7 @@ public class ClimbingStatsService : IClimbingStatsService
             
             return new ClimbingStatsDto
             {
-                TotalTicks = await CalcTickTotal(),
+                TotalTicks = await CalcTickTotal() ?? 0,
                 TotalPitches = await CalcTotalPitches() ?? 0,
                 LocationVisits = await CalcLocationVisits(),
                 TicksPerGrade = await CalcTicksPerGrade()
