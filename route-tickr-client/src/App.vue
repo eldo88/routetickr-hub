@@ -1,6 +1,7 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
   <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <TickedRoutesByState/>
   <ClimbingRoute/>
   <ClimbingRouteList/>
 </template>
@@ -9,13 +10,15 @@
 import HelloWorld from './components/HelloWorld.vue'
 import ClimbingRoute from "@/components/ClimbingRoute.vue";
 import ClimbingRouteList from "@/components/ClimbingRouteList.vue";
+import TickedRoutesByState from "@/components/TickedRoutesByState.vue";
 
 export default {
   name: 'App',
   components: {
     HelloWorld,
     ClimbingRoute,
-    ClimbingRouteList
+    ClimbingRouteList,
+    TickedRoutesByState
   }
 }
 </script>

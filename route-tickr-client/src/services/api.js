@@ -21,3 +21,13 @@ export async function getAllTickedRoutes() {
         throw error;
     }
 }
+
+export async function getTickedRouteIdsByState(state) {
+    try {
+        const response = await axios.get(`${apiBaseUrl}/api/ClimbingStats/GetTickIdsPerState?state=${state}`)
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching routes ids for ${state}`, error);
+        throw error;
+    }
+}
