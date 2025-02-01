@@ -51,7 +51,7 @@ public class ClimbingStatsService : IClimbingStatsService
 
             foreach (var test in allLocations)
             {
-                if (!locationVisits2.TryAddOrUpdateKeyCount(test))
+                if (!locationVisits2.TryIncrementCount(test))
                 {
                     Console.WriteLine("Error occured in CalcLocationVisits");
                 }

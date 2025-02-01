@@ -5,7 +5,7 @@ namespace RouteTickrAPI.Extensions;
 
 public static class DictionaryExtensions
 {
-    public static bool TryAddOrUpdateKeyCount<TKey>(this Dictionary<TKey, int>? dict, TKey key)
+    public static bool TryIncrementCount<TKey>(this Dictionary<TKey, int>? dict, TKey key)
         where TKey : notnull
     {
         if (dict is null)
