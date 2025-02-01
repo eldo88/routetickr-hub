@@ -1,9 +1,13 @@
 using Microsoft.EntityFrameworkCore.Storage;
+using RouteTickrAPI.Models;
 
 namespace RouteTickrAPI.Repositories;
 
 public interface IUserRepository
 {
+    Task<IEnumerable<User>> FindAllAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
     Task<bool> AnyUserAsync(string userName);
+    Task<User?> GetUserByUsernameAsync(string userName);
+    Task<bool> AddUserAsync(User user);
 }
