@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Mappers;
 using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
@@ -42,23 +42,22 @@ public class AuthService : IAuthService
         );
 
         var successToken = new JwtSecurityTokenHandler().WriteToken(token);
+        
         return ServiceResult<string>.SuccessResult(successToken);
     }
 
-    public async Task<ServiceResult<User>> Register(LoginRequestDto request)
+    public async Task<ServiceResult<UserDto>> Register(LoginRequestDto request)
     {
         var existingUser = await _userRepository.GetUserByUsernameAsync(request.Username);
         if (existingUser is not null)
-            return ServiceResult<User>.ErrorResult("Username already exists");
-        
-        var newUser = new User
-        {
-            Username = request.Username,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = "User"
-        };
+            return ServiceResult<UserDto>.ErrorResult("Username already exists");
 
-        await _userRepository.AddUserAsync(newUser);
-        return ServiceResult<User>.SuccessResult(newUser);
+        var newUser = UserMapper.ToUser(request);
+        var isAdded = await _userRepository.AddUserAsync(newUser);
+
+        if (!isAdded) return ServiceResult<UserDto>.ErrorResult("Error Registering User");
+        var addedUser = UserMapper.ToUserDto(newUser);
+        
+        return ServiceResult<UserDto>.SuccessResult(addedUser);
     }
 }
