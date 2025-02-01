@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Caching.Memory;
 using RouteTickrAPI.DTOs;
+using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
+
 
 namespace RouteTickrAPI.Services;
 
@@ -34,7 +36,7 @@ public class ClimbingStatsService : IClimbingStatsService
         var locationVisits = new Dictionary<string, int>();
         var locationList = await _tickRepository.GetLocationAsync();
         var allLocations = new List<string>();
-
+        var locationVisits2 = new Dictionary<string, int>();
         try
         {
             foreach (var splitLocations in locationList.Select(location => location.Split('>', StringSplitOptions.TrimEntries)))
@@ -46,6 +48,14 @@ public class ClimbingStatsService : IClimbingStatsService
             {
                 locationVisits[location]++;
             }
+
+            foreach (var test in allLocations)
+            {
+                if (!locationVisits2.TryAddOrUpdateKeyCount(test))
+                {
+                    Console.WriteLine("Error occured in CalcLocationVisits");
+                }
+            }
         }
         catch (Exception e)
         {
@@ -53,7 +63,7 @@ public class ClimbingStatsService : IClimbingStatsService
             throw;
         }
 
-        return locationVisits;
+        return locationVisits2;
     }
 
     private async Task<Dictionary<string, List<int>>> GetLocationWithTickIds()
@@ -75,7 +85,6 @@ public class ClimbingStatsService : IClimbingStatsService
                         value = ([]);
                         locationWithTickIds[location] = value;
                     }
-
                     value.Add(tick.Id);
                 }
             }
