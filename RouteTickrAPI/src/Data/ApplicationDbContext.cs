@@ -10,5 +10,6 @@ public class ApplicationDbContext : DbContext
     {
     }
 
-    public DbSet<Tick> Ticks { get; set; }
+    public DbSet<Tick> Ticks { get; init; }
+    public DbSet<User> Users { get; init; }
 }
