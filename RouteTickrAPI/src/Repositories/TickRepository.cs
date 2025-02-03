@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.Data;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Mappers;
@@ -81,5 +82,10 @@ public class TickRepository : ITickRepository
         return await _context.Ticks
             .Select(t => t.Rating)
             .ToListAsync();
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
     }
 }

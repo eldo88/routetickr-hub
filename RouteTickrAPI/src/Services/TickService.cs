@@ -3,6 +3,7 @@ using RouteTickrAPI.Models;
 using RouteTickrAPI.Repositories;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.CsvMapper;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Mappers;
@@ -131,38 +132,35 @@ public class TickService : ITickService
 
     public async Task<ServiceResult<bool>> ImportFileAsync(IFormFile file)
     {
+        IDbContextTransaction? transaction = null;
         try
         {
+            transaction = await _tickRepository.BeginTransactionAsync();
             using var stream = new StreamReader(file.OpenReadStream()) ;
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
             var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
-            var savedTickIds = new List<int>();
+            
             foreach (var tick in dataFromFile.Select(TickMapper.ToTick))
             {
-                var tickAdded = await _tickRepository.AddAsync(tick); //TODO use method in this class?
-                if (!tickAdded)
-                {
-                    await RollbackDatabaseAsync(savedTickIds);
-                    return ServiceResult<bool>.ErrorResult("Error uploading file contents, no data was saved.");
-                }
-                savedTickIds.Add(tick.Id);
+                var tickAdded = await _tickRepository.AddAsync(tick);
+                if (tickAdded) continue;
+                await transaction.RollbackAsync();
+                return ServiceResult<bool>.ErrorResult("Error uploading file contents, no data was saved.");
             }
 
+            await transaction.CommitAsync();
             return ServiceResult<bool>.SuccessResult(true);
         }
         catch (Exception e)
         {
             Console.WriteLine($"Error is ImportFileAsync: {e.Message}");
-            throw;
-        }
-    }
+            if (transaction != null)
+            {
+                await transaction.RollbackAsync();
+            }
 
-    private async Task RollbackDatabaseAsync(IEnumerable<int> tickIds)
-    {
-        foreach (var tickId in tickIds)
-        {
-            await _tickRepository.DeleteAsync(tickId);
+            return ServiceResult<bool>.ErrorResult("An error occurred during file import.");
         }
     }
     

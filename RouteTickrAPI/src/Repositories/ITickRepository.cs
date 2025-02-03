@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Models;
 
@@ -14,4 +15,5 @@ public interface ITickRepository
     Task<int?> GetPitchesAsync();
     Task<List<string>> GetLocationAsync();
     Task<List<string>> GetRatingAsync();
+    Task<IDbContextTransaction> BeginTransactionAsync();
 }
