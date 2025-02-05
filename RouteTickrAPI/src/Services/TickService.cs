@@ -29,10 +29,15 @@ public class TickService : ITickService
                 ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
                 : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDtoList);
         }
-        catch (Exception e)
+        catch (ArgumentNullException ex)
         {
-            Console.WriteLine($"Error in GetAllAsync: {e.Message}");
-            throw;
+            Console.WriteLine($"ArgumentNullException in GetAllAsync: {ex.Message}");
+            return ServiceResult<IEnumerable<TickDto>>.ErrorResult("A null value was encountered while mapping ticks.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetAllAsync: {ex.Message}");
+            return ServiceResult<IEnumerable<TickDto>>.ErrorResult("An unexpected error occurred.");
         }
     }
 
