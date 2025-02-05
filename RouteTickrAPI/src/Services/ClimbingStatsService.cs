@@ -36,22 +36,18 @@ public class ClimbingStatsService : IClimbingStatsService
         var locationVisits = new Dictionary<string, int>();
         var locationList = await _tickRepository.GetLocationAsync();
         var allLocations = new List<string>();
-        var locationVisits2 = new Dictionary<string, int>();
+        
         try
         {
-            foreach (var splitLocations in locationList.Select(location => location.Split('>', StringSplitOptions.TrimEntries)))
+            foreach (var locations in locationList)
             {
+                var splitLocations = locations.Split('>', StringSplitOptions.TrimEntries);
                 allLocations.AddRange(splitLocations);
-            }
-
-            foreach (var location in allLocations.Where(location => !locationVisits.TryAdd(location, 1)))
-            {
-                locationVisits[location]++;
             }
 
             foreach (var test in allLocations)
             {
-                if (!locationVisits2.TryIncrementCount(test))
+                if (!locationVisits.TryIncrementCount(test))
                 {
                     Console.WriteLine("Error occured in CalcLocationVisits");
                 }
@@ -63,7 +59,7 @@ public class ClimbingStatsService : IClimbingStatsService
             throw;
         }
 
-        return locationVisits2;
+        return locationVisits;
     }
 
     private async Task<Dictionary<string, List<int>>> GetLocationWithTickIds()
