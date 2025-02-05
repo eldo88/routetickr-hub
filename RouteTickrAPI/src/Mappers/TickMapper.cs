@@ -7,6 +7,8 @@ public static class TickMapper
 {
     public static TickDto ToTickDto(Tick tick)
     {
+        ArgumentNullException.ThrowIfNull(tick);
+
         return new TickDto
         {
             Id = tick.Id,
@@ -30,6 +32,8 @@ public static class TickMapper
     
     public static Tick ToTick(TickDto dto)
     {
+        ArgumentNullException.ThrowIfNull(dto);
+        
         return new Tick
         {
             Id = dto.Id,
