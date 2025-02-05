@@ -1,6 +1,10 @@
+using System.Collections;
 using Moq;
+using RouteTickrAPI.DTOs;
+using RouteTickrAPI.Models;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
+using RouteTickrAPI.Tests.TestHelpers;
 
 namespace RouteTickrAPI.Tests.ServiceTests;
 
@@ -15,6 +19,75 @@ public class TickServiceTests
     {
         _tickRepository = new Mock<ITickRepository>();
         _tickService = new TickService(_tickRepository.Object);
+    }
+
+    [Test]
+    public async Task GetAllAsync_ReturnsListOfTicks_WhenSuccessful()
+    {
+        //Arrange
+        var mockTicks = new List<Tick>()
+        {
+            TickBuilder.CreateValidTick(),
+            TickBuilder.CreateValidTick(),
+            TickBuilder.CreateValidTick()
+        };
+        
+        _tickRepository
+            .Setup(r => r.GetAllAsync())
+            .ReturnsAsync(mockTicks);
+        //Act
+        var result = await _tickService.GetAllAsync();
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
+            Assert.That(result.Data.Count(), Is.EqualTo(mockTicks.Count));
+            
+            var expectedDtoList = mockTicks.Select(t => new TickDto
+            {
+                Id = t.Id,
+                Date = t.Date,
+                Route = t.Route,
+                Rating = t.Rating,
+                Notes = t.Notes,
+                Url = t.Url,
+                Pitches = t.Pitches,
+                Location = t.Location,
+                AvgStars = t.AvgStars,
+                YourStars = t.YourStars,
+                Style = t.Style,
+                LeadStyle = t.LeadStyle,
+                RouteType = t.RouteType,
+                YourRating = t.YourRating,
+                Length = t.Length,
+                RatingCode = t.RatingCode
+            }).ToList();
+            
+            Assert.That(result.Data, Is.EqualTo(expectedDtoList).Using(new TickDtoComparer()));
+        });
+    }
+
+    [Test]
+    public async Task GetAllAsync_ReturnsEmptyListOfTicks_WhenThereAreNoTicks()
+    {
+        //Arrange
+        // ReSharper disable once CollectionNeverUpdated.Local
+        var mockTicks = new List<Tick>();
+
+        _tickRepository
+            .Setup(r => r.GetAllAsync())
+            .ReturnsAsync(mockTicks);
+        //Act
+        var result = await _tickService.GetAllAsync();
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("No ticks found."));
+        });
     }
 
     [Test]

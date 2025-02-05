@@ -1,8 +1,9 @@
+using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Models;
 
 namespace RouteTickrAPI.Tests.TestHelpers;
 
-public class TickBuilder
+public static class TickBuilder
 {
     public static Tick CreateValidTick(int id = 0)
     {
@@ -18,6 +19,23 @@ public class TickBuilder
             Style = "On-sight",
             Url = "https://example.com/tick",
             YourRating = "5.10d"
+        };
+    }
+
+    public static TickDto CreateValidTickDto(int id = 0)
+    {
+        return new TickDto
+        {
+            Id = id,
+            LeadStyle = "Sport",
+            Location = "Rifle",
+            Notes = "Heady",
+            Rating = "5.12a",
+            Route = "Baby Brother",
+            RouteType = "Sport",
+            Style = "On-sight",
+            Url = "https://example.com/tick",
+            YourRating = "5.12a"
         };
     }
 }
