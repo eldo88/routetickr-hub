@@ -33,6 +33,8 @@ public class TickServiceTests
             TickBuilder.CreateValidTick()
         };
         
+        var expectedDtoList = mockTicks.Select(TickMapper.ToTickDto).ToList();
+        
         _tickRepository
             .Setup(r => r.GetAllAsync())
             .ReturnsAsync(mockTicks);
@@ -45,8 +47,6 @@ public class TickServiceTests
             Assert.That(result.Success, Is.True);
             Assert.That(result.ErrorMessage, Is.Null);
             Assert.That(result.Data.Count(), Is.EqualTo(mockTicks.Count));
-            
-            var expectedDtoList = mockTicks.Select(TickMapper.ToTickDto).ToList();
             Assert.That(result.Data, Is.EqualTo(expectedDtoList).Using(new TickDtoComparer()));
         });
     }
