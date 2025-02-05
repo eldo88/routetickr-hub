@@ -111,6 +111,86 @@ public class TickServiceTests
     }
 
     [Test]
+    public async Task GetByIdAsync_ReturnsError_WhenIdIsZeroOrNegative()
+    {
+        //Arrange
+        var invalidIds = new[] { 0, -1, -100 };
+
+        foreach (var id in invalidIds)
+        {
+            //Act
+            var result = await _tickService.GetByIdAsync(id);
+            //Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Success, Is.False);
+                Assert.That(result.Data, Is.Null);
+                Assert.That(result.ErrorMessage, Is.EqualTo("ID must be greater than zero."));
+            });
+        }
+    }
+
+    [Test]
+    public async Task GetByIdAsync_ReturnsError_WhenTickNotFound()
+    {
+        //Arrange
+        const int tickId = 9999;
+
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(tickId))
+            .ReturnsAsync((Tick?)null);
+        //Act
+        var result = await _tickService.GetByIdAsync(tickId);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.ErrorMessage, Is.EqualTo($"Tick with ID: {tickId} not found."));
+        });
+    }
+
+    [Test]
+    public async Task GetByIdAsync_ReturnsTick_WhenTickExists()
+    {
+        //Arrange
+        var tick = TickBuilder.CreateValidTick();
+        tick.Id = 55; // needed because id is defaulted to 0 in TickBuilder.CreateValidTick()
+
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(tick.Id))
+            .ReturnsAsync(tick);
+        //Act
+        var result = await _tickService.GetByIdAsync(tick.Id);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
+            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result.Data.Id, Is.EqualTo(tick.Id));
+        });
+    }
+    
+    [Test]
+    public async Task GetByIdAsync_ReturnsError_WhenExceptionIsThrown()
+    {
+        // Arrange
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ThrowsAsync(new Exception("Database failure"));
+        // Act
+        var result = await _tickService.GetByIdAsync(1);
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
+        });
+    }
+    
+    [Test]
     public async Task DeleteAsync_ReturnsSuccess_WhenDeletionIsSuccessful()
     {
         //Arrange

@@ -54,7 +54,7 @@ public class TickService : ITickService
         catch (Exception e)
         {
             Console.WriteLine($"Error in GetByIdAsync: {e.Message}");
-            throw;
+            return ServiceResult<TickDto>.ErrorResult("An unexpected error occurred.");
         }
     }
 
