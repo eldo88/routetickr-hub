@@ -189,6 +189,86 @@ public class TickServiceTests
             Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
         });
     }
+
+    [Test]
+    public async Task GetByListOfIdsAsync_ReturnsError_WhenListOfIdsIsEmpty()
+    {
+        //Arrange
+        var emptyList = new List<int>();
+        //Act
+        var result = await _tickService.GetByListOfIdsAsync(emptyList);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("ID list is empty"));
+            Assert.That(result.Data, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task GetByListOfIdsAsync_ReturnsError_WhenIdsNotFoundInRepository()
+    {
+        //Arrange
+        var listOfInvalidTickIds = new List<int>() { 9999, 55555 };
+        //Act
+        var result = await _tickService.GetByListOfIdsAsync(listOfInvalidTickIds);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("No Ticks found"));
+            Assert.That(result.Data, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task GetByListOfIdsAsync_ReturnsError_WhenExceptionIsThrown()
+    {
+        //Arrange
+        var tickIds = new List<int>() { 1, 2 };
+        
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ThrowsAsync(new Exception("Database failure"));
+        //Act
+        var result = await _tickService.GetByListOfIdsAsync(tickIds);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
+        });
+    }
+
+    [Test]
+    public async Task GetByListOfIdsAsync_ReturnsListOfTickDtos_WhenIdsExistInRepository()
+    {
+        //Arrange
+        var tick1 = TickBuilder.CreateValidTick();
+        tick1.Id = 1;
+        var tick2 = TickBuilder.CreateValidTick();
+        tick2.Id = 2;
+        
+        var ticks = new List<Tick>() { tick1, tick2 };
+        var ids = new List<int>() { 1, 2 };
+
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync((int id) => ticks.FirstOrDefault(t => t.Id == id));
+        //Act
+        var result = await _tickService.GetByListOfIdsAsync(ids);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Data.Count, Is.EqualTo(2));
+            Assert.That(result.Data[0].Id, Is.EqualTo(1));
+            Assert.That(result.Data[1].Id, Is.EqualTo(2));
+        });
+    }
     
     [Test]
     public async Task DeleteAsync_ReturnsSuccess_WhenDeletionIsSuccessful()

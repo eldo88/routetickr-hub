@@ -76,10 +76,10 @@ public class TickService : ITickService
                 ? ServiceResult<List<TickDto>>.ErrorResult("No Ticks found")
                 : ServiceResult<List<TickDto>>.SuccessResult(tickDtos);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            Console.WriteLine($"Error occured in getByListOfIdsAsync {ex.Message}");
+            return ServiceResult<List<TickDto>>.ErrorResult("An unexpected error occurred.");
         }
     }
 
