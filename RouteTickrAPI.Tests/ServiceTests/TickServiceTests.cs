@@ -358,6 +358,33 @@ public class TickServiceTests
         //Assert
         Assert.That(result.Data, Is.EqualTo(tickDto).Using(new TickDtoComparer()));
     }
+
+    [Test]
+    public async Task UpdateAsync_ReturnsSuccess_WhenTickExistsAndIsUpdated()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+        tickDto.Id = 1;
+        var tick = TickMapper.ToTick(tickDto);
+        
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(tickDto.Id))
+            .ReturnsAsync(tick);
+
+        _tickRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<Tick>()))
+            .ReturnsAsync(true);
+        //Act
+        var result = await _tickService.UpdateAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
+            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result.Data.Id, Is.EqualTo(tickDto.Id));
+        });
+    }
     
     [Test]
     public async Task DeleteAsync_ReturnsSuccess_WhenDeletionIsSuccessful()

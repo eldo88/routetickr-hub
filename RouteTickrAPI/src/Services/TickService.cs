@@ -115,7 +115,7 @@ public class TickService : ITickService
         catch (Exception e)
         {
             Console.WriteLine($"Error in UpdateAsync: {e.Message}");
-            throw;
+            return ServiceResult<TickDto>.ErrorResult("An unexpected error occurred.");
         }
     }
 
