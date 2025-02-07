@@ -345,7 +345,7 @@ public class TickServiceTests
     }
 
     [Test]
-    public async Task AddAsync_ReturnsCorrectTickDto_WhenSuccessful()
+    public async Task AddAsync_ReturnsCorrectTickDto_WhenTickIsAdded()
     {
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
