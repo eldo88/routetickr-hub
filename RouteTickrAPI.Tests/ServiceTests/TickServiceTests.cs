@@ -269,6 +269,95 @@ public class TickServiceTests
             Assert.That(result.Data[1].Id, Is.EqualTo(2));
         });
     }
+
+    [Test]
+    public async Task AddAsync_ReturnsError_WhenTickNotAdded()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+
+        _tickRepository
+            .Setup(r => r.AddAsync(It.IsAny<Tick>()))
+            .ReturnsAsync(false);
+        //Act
+        var result = await _tickService.AddAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("Error adding tick."));
+            Assert.That(result.Data, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task AddAsync_ReturnsError_WhenExceptionIsThrown()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+
+        _tickRepository
+            .Setup(r => r.AddAsync(It.IsAny<Tick>()))
+            .ThrowsAsync(new Exception("Database failure"));
+        //Act
+        var result = await _tickService.AddAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
+        });
+    }
+
+    [Test]
+    public async Task AddAsync_ReturnsSuccess_WhenTickIsAdded()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+
+        _tickRepository
+            .Setup(r => r.AddAsync(It.IsAny<Tick>()))
+            .ReturnsAsync(true);
+        //Act
+        var result = await _tickService.AddAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.ErrorMessage, Is.Null);
+            Assert.That(result.Data, Is.Not.Null);
+        });
+    }
+    
+    [Test]
+    public async Task AddAsync_ReturnsError_WhenTickDtoIsNull()
+    {
+        //Act
+        var result = await _tickService.AddAsync(null);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Data, Is.Null);
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
+        });
+    }
+
+    [Test]
+    public async Task AddAsync_ReturnsCorrectTickDto_WhenSuccessful()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+
+        _tickRepository
+            .Setup(r => r.AddAsync(It.IsAny<Tick>()))
+            .ReturnsAsync(true);
+        //Act
+        var result = await _tickService.AddAsync(tickDto);
+        //Assert
+        Assert.That(result.Data, Is.EqualTo(tickDto).Using(new TickDtoComparer()));
+    }
     
     [Test]
     public async Task DeleteAsync_ReturnsSuccess_WhenDeletionIsSuccessful()

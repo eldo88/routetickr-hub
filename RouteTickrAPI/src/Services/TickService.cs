@@ -93,10 +93,10 @@ public class TickService : ITickService
             var tickAdded = TickMapper.ToTickDto(tick);
             return ServiceResult<TickDto>.SuccessResult(tickAdded);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine($"Error in AddAsync: {e.Message}");
-            throw;
+            Console.WriteLine($"Error in AddAsync: {ex.Message}");
+            return ServiceResult<TickDto>.ErrorResult("An unexpected error occurred.");
         }
     }
 
