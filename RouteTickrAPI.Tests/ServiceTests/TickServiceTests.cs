@@ -360,6 +360,97 @@ public class TickServiceTests
     }
 
     [Test]
+    public async Task UpdateAsync_ReturnsError_WhenTickNotFound()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync((Tick?)null);
+        //Act
+        var result = await _tickService.UpdateAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo($"Tick with ID: {tickDto.Id} does not exist"));
+            Assert.That(result.Data, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task UpdateAsync_ReturnsError_WhenUpdateFails()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+        var tick = TickMapper.ToTick(tickDto);
+
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(tickDto.Id))
+            .ReturnsAsync(tick);
+
+        _tickRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<Tick>()))
+            .ReturnsAsync(false);
+        //Act
+        var result = await _tickService.UpdateAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo($"Error updating tick with ID: {tickDto.Id}"));
+            Assert.That(result.Data, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task UpdateAsync_ReturnsError_WhenExceptionIsThrownByGetByIdAsync()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ThrowsAsync(new Exception("Database failure"));
+        
+        //Act
+        var result = await _tickService.UpdateAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
+            Assert.That(result.Data, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task UpdateAsync_ReturnsError_WhenExceptionIsThrownByUpdateAsync()
+    {
+        //Arrange
+        var tickDto = TickBuilder.CreateValidTickDto();
+        var tick = TickMapper.ToTick(tickDto);
+
+        _tickRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(tick);
+
+        _tickRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<Tick>()))
+            .ThrowsAsync(new Exception("Database failure"));
+        //Act
+        var result = await _tickService.UpdateAsync(tickDto);
+        //Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
+            Assert.That(result.Data, Is.Null);
+        });
+    }
+
+    [Test]
     public async Task UpdateAsync_ReturnsSuccess_WhenTickExistsAndIsUpdated()
     {
         //Arrange

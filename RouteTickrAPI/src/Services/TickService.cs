@@ -104,17 +104,17 @@ public class TickService : ITickService
     {
         try
         {
-            var recordToBeUpdated = await GetByIdAsync(tickDto.Id); //TODO use method in this class or repository?
-            if (!recordToBeUpdated.Success) return recordToBeUpdated;
+            var recordToBeUpdated = await _tickRepository.GetByIdAsync(tickDto.Id);
+            if (recordToBeUpdated is null) return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {tickDto.Id} does not exist");
             var tick = TickMapper.ToTick(tickDto);
             var isUpdated = await _tickRepository.UpdateAsync(tick);
             return isUpdated 
                 ? ServiceResult<TickDto>.SuccessResult(tickDto)
                 : ServiceResult<TickDto>.ErrorResult($"Error updating tick with ID: {tickDto.Id}");
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine($"Error in UpdateAsync: {e.Message}");
+            Console.WriteLine($"Error in UpdateAsync: {ex.Message}");
             return ServiceResult<TickDto>.ErrorResult("An unexpected error occurred.");
         }
     }
