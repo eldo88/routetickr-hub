@@ -17,14 +17,14 @@ public class ClimbingStatsService : IClimbingStatsService
     }
 
 
-    private async Task<int?> CalcTickTotal()
+    private async Task<int> CalcTickTotal()
     {
         var totalTicks = await _tickRepository.GetTotalCountAsync();
 
         return totalTicks;
     }
 
-    private async Task<int?> CalcTotalPitches()
+    private async Task<int> CalcTotalPitches()
     {
         var totalPitches = await _tickRepository.GetPitchesAsync();
 
@@ -33,33 +33,33 @@ public class ClimbingStatsService : IClimbingStatsService
 
     private async Task<Dictionary<string, int>> CalcLocationVisits()
     {
-        var locationVisits = new Dictionary<string, int>();
-        var locationList = await _tickRepository.GetLocationAsync();
-        var allLocations = new List<string>();
-        
         try
         {
+            var locationVisits = new Dictionary<string, int>();
+            var allLocations = new List<string>();
+            var locationList = await _tickRepository.GetLocationAsync();
+            
             foreach (var locations in locationList)
             {
                 var splitLocations = locations.Split('>', StringSplitOptions.TrimEntries);
                 allLocations.AddRange(splitLocations);
             }
 
-            foreach (var test in allLocations)
+            foreach (var location in allLocations)
             {
-                if (!locationVisits.TryIncrementCount(test))
+                if (!locationVisits.TryIncrementCount(location))
                 {
                     Console.WriteLine("Error occured in CalcLocationVisits");
                 }
             }
+            
+            return locationVisits;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
         }
-
-        return locationVisits;
     }
 
     private async Task<Dictionary<string, List<int>>> GetLocationWithTickIds()
@@ -96,22 +96,26 @@ public class ClimbingStatsService : IClimbingStatsService
 
     private async Task<Dictionary<string, int>> CalcTicksPerGrade()
     {
-        var gradeCounts = new Dictionary<string, int>();
-        var grades = await _tickRepository.GetRatingAsync();
         try
         {
-            foreach (var grade in grades.Select(g => g.ToLowerInvariant()).Where(grade => !gradeCounts.TryAdd(grade, 1)))
+            var gradeCounts = new Dictionary<string, int>();
+            var grades = await _tickRepository.GetRatingAsync();
+            
+            foreach (var grade in grades.Select(g => g.ToLowerInvariant()))
             {
-                gradeCounts[grade]++;
+                if (!gradeCounts.TryIncrementCount(grade))
+                {
+                    Console.WriteLine("An error occured in CalcTicksPerGrade");
+                }
             }
+            
+            return gradeCounts;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
         }
-
-        return gradeCounts;
     }
 
 
@@ -127,6 +131,7 @@ public class ClimbingStatsService : IClimbingStatsService
             }
             
             var locationsWithTickIds = await GetLocationWithTickIds();
+            
             var tickIds = locationsWithTickIds
                 .Where(locationEntry => locationEntry.Key.Contains(state, StringComparison.OrdinalIgnoreCase))
                 .SelectMany(locationEntry => locationEntry.Value)
@@ -162,8 +167,8 @@ public class ClimbingStatsService : IClimbingStatsService
             
             return new ClimbingStatsDto
             {
-                TotalTicks = await CalcTickTotal() ?? 0,
-                TotalPitches = await CalcTotalPitches() ?? 0,
+                TotalTicks = await CalcTickTotal(),
+                TotalPitches = await CalcTotalPitches(),
                 LocationVisits = await CalcLocationVisits(),
                 TicksPerGrade = await CalcTicksPerGrade()
             };
