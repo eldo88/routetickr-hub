@@ -12,5 +12,4 @@ public interface ITickService
     Task<ServiceResult<TickDto>> AddAsync(TickDto tickDto);
     Task<ServiceResult<TickDto>> UpdateAsync(TickDto tickDto);
     Task<ServiceResult<bool>> DeleteAsync(int id);
-    Task<ServiceResult<bool>> ImportFileAsync(IFormFile file);
 }

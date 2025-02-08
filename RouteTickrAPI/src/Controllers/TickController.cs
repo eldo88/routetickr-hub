@@ -49,15 +49,6 @@ public class TickController : ControllerBase
         return CreatedAtAction(nameof(GetAll), new { id = tickAdded.Data.Id }, tickAdded.Data);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> ImportFile(IFormFile file)
-    {
-        if (file.Length == 0) { return BadRequest("File does not contain data"); }
-        var result = await _tickService.ImportFileAsync(file);
-        if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
-        return NoContent();
-    }
-
     [HttpPut]
     public async Task<IActionResult> Update(TickDto tickDto)
     {

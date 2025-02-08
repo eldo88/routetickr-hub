@@ -482,7 +482,7 @@ public class TickServiceTests
         });
     }
 
-    [Test]
+    /*[Test]
     public async Task ImportFileAsync_SuccessfulImport_CommitsTransaction()
     {
         //Arrange
@@ -567,7 +567,7 @@ public class TickServiceTests
             
             _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once, "Rollback should be called when an exception is thrown.");
         });
-    }
+    }*/
     
     [Test]
     public async Task DeleteAsync_ReturnsSuccess_WhenDeletionIsSuccessful()
