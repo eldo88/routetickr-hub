@@ -8,7 +8,8 @@ public static class UserMapper
 {
     public static User ToUser(LoginRequestDto dto)
     {
-        return new UserBuilder()
+        return UserBuilder
+            .Create()
             .WithUsername(dto.Username)
             .WithPassword(dto.Password)
             .WithRole()
@@ -17,7 +18,8 @@ public static class UserMapper
 
     public static User ToUser(UpdateUserDto dto)
     {
-        return new UserBuilder()
+        return UserBuilder
+            .Create()
             .WithId(dto.Id)
             .WithUsername(dto.Username)
             .WithRole()
@@ -26,7 +28,8 @@ public static class UserMapper
 
     public static User ToUser(ChangePasswordDto dto)
     {
-        return new UserBuilder()
+        return UserBuilder
+            .Create()
             .WithId(dto.Id)
             .WithPasswordChange(dto.NewPassword, dto.CurrentPassword)
             .Build();

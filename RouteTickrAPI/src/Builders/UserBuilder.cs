@@ -6,6 +6,8 @@ public class UserBuilder
 {
     private readonly User _user = new ();
 
+    public static UserBuilder Create() => new();
+
     public UserBuilder WithId(int id)
     {
         if (id < 0)
