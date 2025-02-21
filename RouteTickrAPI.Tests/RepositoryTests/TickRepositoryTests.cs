@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.Data;
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Entities;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Tests.TestHelpers;
 

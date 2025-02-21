@@ -1,6 +1,4 @@
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Models;
-using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
 

@@ -1,6 +1,6 @@
 using RouteTickrAPI.Builders;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Mappers;
 

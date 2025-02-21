@@ -1,6 +1,6 @@
 using CsvHelper.Configuration;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.CsvMapper;
 

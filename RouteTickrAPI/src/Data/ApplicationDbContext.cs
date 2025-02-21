@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Data;
 

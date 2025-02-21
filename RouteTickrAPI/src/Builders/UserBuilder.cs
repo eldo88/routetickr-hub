@@ -1,4 +1,4 @@
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Builders;
 

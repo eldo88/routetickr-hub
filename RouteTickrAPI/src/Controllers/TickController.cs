@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Entities;
 using RouteTickrAPI.Services;
 
 namespace RouteTickrAPI.Controllers;

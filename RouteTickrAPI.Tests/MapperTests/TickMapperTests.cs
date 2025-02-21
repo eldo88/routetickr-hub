@@ -1,6 +1,6 @@
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Mappers;
-using RouteTickrAPI.Models;
+using RouteTickrAPI.Entities;
 using RouteTickrAPI.Tests.TestHelpers;
 
 namespace RouteTickrAPI.Tests.MapperTests;
