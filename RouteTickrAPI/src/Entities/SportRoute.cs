@@ -2,6 +2,6 @@ namespace RouteTickrAPI.Entities;
 
 public class SportRoute : Climb
 {
-    public int NumberOfBolts { get; set; }
-    public int NumberOfPitches { get; set; }
+    public int NumberOfBolts { get; init; }
+    public int NumberOfPitches { get; init; }
 }

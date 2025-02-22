@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RouteTickrAPI.Entities;
 
@@ -28,19 +29,23 @@ public class Tick
 
     [Key]
     public int Id { get; set; }
-    public DateTime Date { get; set; }
+    public DateTime Date { get; init; }
     public string Route { get; set; }
-    public string Rating { get; set; }
-    public string Notes { get; set; }
-    public string Url { get; set; }
-    public int? Pitches { get; set; }
-    public string Location { get; set; }
-    public double? AvgStars { get; set; }
-    public double? YourStars { get; set; }
-    public string Style { get; set; }
-    public string LeadStyle { get; set; }
-    public string RouteType { get; set; }
-    public string YourRating { get; set; }
-    public double? Length { get; set; }
-    public int? RatingCode { get; set; }
+    public string Rating { get; init; }
+    public string Notes { get; init; }
+    public string Url { get; init; }
+    public int? Pitches { get; init; }
+    public string Location { get; init; }
+    public double? AvgStars { get; init; }
+    public double? YourStars { get; init; }
+    public string Style { get; init; }
+    public string LeadStyle { get; init; }
+    public string RouteType { get; init; }
+    public string YourRating { get; init; }
+    public double? Length { get; init; }
+    public int? RatingCode { get; init; }
+    [Required]
+    public int ClimbId { get; set; }
+    [ForeignKey("ClimbId")]
+    public Climb Climb { get; set; }
 }

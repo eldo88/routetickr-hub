@@ -2,7 +2,7 @@ namespace RouteTickrAPI.Entities;
 
 public class AlpineRockRoute : Climb
 {
-    public int NumberOfPitches { get; set; }
-    public string GearNeeded { get; set; } = string.Empty;
-    public decimal ApproachDistance { get; set; }
+    public int NumberOfPitches { get; init; }
+    public string GearNeeded { get; init; } = string.Empty;
+    public decimal ApproachDistance { get; init; }
 }
