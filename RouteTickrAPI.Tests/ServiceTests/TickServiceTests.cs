@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Text;
-using Microsoft.AspNetCore.Http;
+
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
-using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Mappers;
 using RouteTickrAPI.Entities;
+using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
 using RouteTickrAPI.Tests.TestHelpers;
@@ -38,7 +35,7 @@ public class TickServiceTests
             TickBuilder.CreateValidTick()
         };
         
-        var expectedDtoList = mockTicks.Select(TickMapper.ToTickDto).ToList();
+        var expectedDtoList = mockTicks.Select(TickMapperExtensions.ToTickDto).ToList();
         
         _tickRepository
             .Setup(r => r.GetAllAsync())
@@ -389,7 +386,7 @@ public class TickServiceTests
     {
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
-        var tick = TickMapper.ToTick(tickDto);
+        var tick = tickDto.ToTick();
 
         _tickRepository
             .Setup(r => r.GetByIdAsync(tickDto.Id))
@@ -435,7 +432,7 @@ public class TickServiceTests
     {
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
-        var tick = TickMapper.ToTick(tickDto);
+        var tick = tickDto.ToTick();
 
         _tickRepository
             .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
@@ -461,7 +458,7 @@ public class TickServiceTests
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
         tickDto.Id = 1;
-        var tick = TickMapper.ToTick(tickDto);
+        var tick = tickDto.ToTick();
         
         _tickRepository
             .Setup(r => r.GetByIdAsync(tickDto.Id))

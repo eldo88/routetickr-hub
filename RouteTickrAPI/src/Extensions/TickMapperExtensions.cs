@@ -1,11 +1,11 @@
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
 
-namespace RouteTickrAPI.Mappers;
+namespace RouteTickrAPI.Extensions;
 
-public static class TickMapper
+public static class TickMapperExtensions
 {
-    public static TickDto ToTickDto(Tick tick)
+    public static TickDto ToTickDto(this Tick tick)
     {
         ArgumentNullException.ThrowIfNull(tick);
 
@@ -30,7 +30,7 @@ public static class TickMapper
         };
     }
     
-    public static Tick ToTick(TickDto dto)
+    public static Tick ToTick(this TickDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
         

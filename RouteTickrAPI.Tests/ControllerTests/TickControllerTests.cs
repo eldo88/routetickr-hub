@@ -3,7 +3,7 @@ using Moq;
 using RouteTickrAPI.Controllers;
 using RouteTickrAPI.Services;
 
-namespace RouteTickrAPI.Tests;
+namespace RouteTickrAPI.Tests.ControllerTests;
 
 [TestFixture]
 public class TickControllerTests

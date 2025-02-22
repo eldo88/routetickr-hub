@@ -1,12 +1,12 @@
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Mappers;
 using RouteTickrAPI.Entities;
+using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Tests.TestHelpers;
 
-namespace RouteTickrAPI.Tests.MapperTests;
+namespace RouteTickrAPI.Tests.ExtensionsTests;
 
 [TestFixture]
-public class TickMapperTests
+public class TickMapperExtensionsTests
 {
     [Test]
     public void ToTickDto_MapsTickToTickDto_Correctly()
@@ -14,7 +14,7 @@ public class TickMapperTests
         //Arrange
         var tick = TickBuilder.CreateValidTick();
         //Act
-        var result = TickMapper.ToTickDto(tick);
+        var result = tick.ToTickDto();
         //Assert
         Assert.Multiple(() =>
         {
@@ -43,7 +43,7 @@ public class TickMapperTests
         // Arrange
         var tick = new Tick();
         // Act
-        var result = TickMapper.ToTickDto(tick);
+        var result = tick.ToTickDto();
         // Assert
         Assert.Multiple(() =>
         {
@@ -70,7 +70,7 @@ public class TickMapperTests
     [Test]
     public void ToTickDto_ThrowsArgumentNullException_WhenTickIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => TickMapper.ToTickDto(null));
+        Assert.Throws<ArgumentNullException>(() => TickMapperExtensions.ToTickDto(null));
     }
 
     [Test]
@@ -79,7 +79,7 @@ public class TickMapperTests
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
         //Act
-        var result = TickMapper.ToTick(tickDto);
+        var result = tickDto.ToTick();
         //Assert
         Assert.Multiple(() =>
         {
@@ -108,7 +108,7 @@ public class TickMapperTests
         // Arrange
         var tickDto = new TickDto();
         // Act
-        var result = TickMapper.ToTick(tickDto);
+        var result = tickDto.ToTick();
         // Assert
         Assert.Multiple(() =>
         {
@@ -135,7 +135,7 @@ public class TickMapperTests
     [Test]
     public void ToTick_ThrowsArgumentNullException_WhenTickDtoIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => TickMapper.ToTick(null));
+        Assert.Throws<ArgumentNullException>(() => TickMapperExtensions.ToTick(null));
     }
 
 }

@@ -25,4 +25,8 @@
     <ProjectReference Include="..\RouteTickrAPI\RouteTickrAPI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MapperTests\" />
+  </ItemGroup>
+
 </Project>

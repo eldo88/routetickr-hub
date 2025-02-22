@@ -1,7 +1,7 @@
 
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Mappers;
+using RouteTickrAPI.Extensions;
 
 namespace RouteTickrAPI.Services;
 
@@ -19,7 +19,7 @@ public class TickService : ITickService
         try
         {
             var ticks = await _tickRepository.GetAllAsync();
-            var tickDtoList = ticks.Select(TickMapper.ToTickDto).ToList();
+            var tickDtoList = ticks.Select(TickMapperExtensions.ToTickDto).ToList();
             return tickDtoList.Count == 0 
                 ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
                 : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDtoList);
@@ -43,7 +43,7 @@ public class TickService : ITickService
             if (id <= 0) return ServiceResult<TickDto>.ErrorResult("ID must be greater than zero.");
             var tick = await _tickRepository.GetByIdAsync(id);
             if (tick is null) return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.");
-            var tickDto = TickMapper.ToTickDto(tick);
+            var tickDto = tick.ToTickDto();
             return ServiceResult<TickDto>.SuccessResult(tickDto);
         }
         catch (Exception e)
@@ -63,7 +63,7 @@ public class TickService : ITickService
             {
                 var tick = await _tickRepository.GetByIdAsync(id);
                 if (tick is null) continue;
-                var tickDto = TickMapper.ToTickDto(tick);
+                var tickDto = tick.ToTickDto();
                 tickDtos.Add(tickDto);
             }
 
@@ -82,10 +82,10 @@ public class TickService : ITickService
     {
         try
         {
-            var tick = TickMapper.ToTick(tickDto);
+            var tick = tickDto.ToTick();
             var isTickAdded = await _tickRepository.AddAsync(tick);
             if (!isTickAdded) return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
-            var tickAdded = TickMapper.ToTickDto(tick);
+            var tickAdded = tick.ToTickDto();
             return ServiceResult<TickDto>.SuccessResult(tickAdded);
         }
         catch (Exception ex)
@@ -101,7 +101,7 @@ public class TickService : ITickService
         {
             var recordToBeUpdated = await _tickRepository.GetByIdAsync(tickDto.Id);
             if (recordToBeUpdated is null) return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {tickDto.Id} does not exist");
-            var tick = TickMapper.ToTick(tickDto);
+            var tick = tickDto.ToTick();
             var isUpdated = await _tickRepository.UpdateAsync(tick);
             return isUpdated 
                 ? ServiceResult<TickDto>.SuccessResult(tickDto)

@@ -1,8 +1,7 @@
 using CsvHelper.Configuration;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Entities;
 
-namespace RouteTickrAPI.CsvMapper;
+namespace RouteTickrAPI.Mappers;
 
 public sealed class TickCsvImportMapper : ClassMap<TickDto>
 {

@@ -2,8 +2,8 @@ using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore.Storage;
-using RouteTickrAPI.CsvMapper;
 using RouteTickrAPI.DTOs;
+using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Mappers;
 using RouteTickrAPI.Repositories;
 
@@ -29,7 +29,7 @@ public class ImportFileService : IImportFileService
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
             var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
             
-            foreach (var tick in dataFromFile.Select(TickMapper.ToTick))
+            foreach (var tick in dataFromFile.Select(TickMapperExtensions.ToTick))
             {
                 var tickAdded = await _tickRepository.AddAsync(tick);
                 if (tickAdded) continue;
