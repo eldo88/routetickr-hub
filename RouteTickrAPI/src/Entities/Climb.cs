@@ -6,7 +6,7 @@ namespace RouteTickrAPI.Entities;
 public abstract class Climb
 {
     [Key]
-    private int Id { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Rating { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
