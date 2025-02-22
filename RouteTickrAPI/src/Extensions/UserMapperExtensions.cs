@@ -2,11 +2,11 @@ using RouteTickrAPI.Builders;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
 
-namespace RouteTickrAPI.Mappers;
+namespace RouteTickrAPI.Extensions;
 
-public static class UserMapper
+public static class UserMapperExtensions
 {
-    public static User ToUser(LoginRequestDto dto)
+    public static User ToUser(this LoginRequestDto dto)
     {
         return UserBuilder
             .Create()
@@ -16,7 +16,7 @@ public static class UserMapper
             .Build();
     }
 
-    public static User ToUser(UpdateUserDto dto)
+    public static User ToUser(this UpdateUserDto dto)
     {
         return UserBuilder
             .Create()
@@ -26,7 +26,7 @@ public static class UserMapper
             .Build();
     }
 
-    public static User ToUser(ChangePasswordDto dto)
+    public static User ToUser(this ChangePasswordDto dto)
     {
         return UserBuilder
             .Create()
@@ -35,7 +35,7 @@ public static class UserMapper
             .Build();
     }
 
-    public static UserDto ToUserDto(User user)
+    public static UserDto ToUserDto(this User user)
     {
         return new UserDto()
         {

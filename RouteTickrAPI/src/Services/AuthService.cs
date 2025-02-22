@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Mappers;
+using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
@@ -62,11 +62,11 @@ public class AuthService : IAuthService
             if (existingUser is not null)
                 return ServiceResult<UserDto>.ErrorResult("Username already exists");
 
-            var newUser = UserMapper.ToUser(request);
+            var newUser = request.ToUser();
             var isAdded = await _userRepository.AddUserAsync(newUser);
 
             if (!isAdded) return ServiceResult<UserDto>.ErrorResult("Error Registering User");
-            var addedUser = UserMapper.ToUserDto(newUser);
+            var addedUser = newUser.ToUserDto();
         
             return ServiceResult<UserDto>.SuccessResult(addedUser);
         }
