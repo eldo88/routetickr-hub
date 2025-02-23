@@ -6,5 +6,6 @@ public enum ClimbDangerRating
     Pg,
     Pg13,
     R,
-    X
+    X,
+    Unknown
 }
