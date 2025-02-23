@@ -5,32 +5,34 @@ namespace RouteTickrAPI.Extensions;
 
 public static class TickMapperExtensions
 {
-    public static TickDto ToTickDto(this Tick tick)
+    public static TickDto ToTickDto(this Tick entity)
     {
-        ArgumentNullException.ThrowIfNull(tick);
+        ArgumentNullException.ThrowIfNull(entity);
 
         return new TickDto
         {
-            Id = tick.Id,
-            Date = tick.Date,
-            Route = tick.Route,
-            Rating = tick.Rating,
-            Notes = tick.Notes,
-            Url = tick.Url,
-            Pitches = tick.Pitches,
-            Location = tick.Location,
-            AvgStars = tick.AvgStars,
-            YourStars = tick.YourStars,
-            Style = tick.Style,
-            LeadStyle = tick.LeadStyle,
-            RouteType = tick.RouteType,
-            YourRating = tick.YourRating,
-            Length = tick.Length,
-            RatingCode = tick.RatingCode
+            Id = entity.Id,
+            Date = entity.Date,
+            Route = entity.Route,
+            Rating = entity.Rating,
+            Notes = entity.Notes,
+            Url = entity.Url,
+            Pitches = entity.Pitches,
+            Location = entity.Location,
+            AvgStars = entity.AvgStars,
+            YourStars = entity.YourStars,
+            Style = entity.Style,
+            LeadStyle = entity.LeadStyle,
+            RouteType = entity.RouteType,
+            YourRating = entity.YourRating,
+            Length = entity.Length,
+            RatingCode = entity.RatingCode,
+            ClimbId = entity.ClimbId,
+            Climb = entity.Climb
         };
     }
     
-    public static Tick ToTick(this TickDto dto)
+    public static Tick ToEntity(this TickDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
         
@@ -51,7 +53,9 @@ public static class TickMapperExtensions
             RouteType = dto.RouteType,
             YourRating = dto.YourRating,
             Length = dto.Length,
-            RatingCode = dto.RatingCode
+            RatingCode = dto.RatingCode,
+            ClimbId = dto.ClimbId ?? 0,
+            Climb = dto.Climb ?? new Boulder() //TODO need to create a builder for derived types
         };
     }
 

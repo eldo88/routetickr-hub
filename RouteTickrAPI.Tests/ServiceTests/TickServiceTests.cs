@@ -386,7 +386,7 @@ public class TickServiceTests
     {
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
-        var tick = tickDto.ToTick();
+        var tick = tickDto.ToEntity();
 
         _tickRepository
             .Setup(r => r.GetByIdAsync(tickDto.Id))
@@ -432,7 +432,7 @@ public class TickServiceTests
     {
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
-        var tick = tickDto.ToTick();
+        var tick = tickDto.ToEntity();
 
         _tickRepository
             .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
@@ -458,7 +458,7 @@ public class TickServiceTests
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
         tickDto.Id = 1;
-        var tick = tickDto.ToTick();
+        var tick = tickDto.ToEntity();
         
         _tickRepository
             .Setup(r => r.GetByIdAsync(tickDto.Id))

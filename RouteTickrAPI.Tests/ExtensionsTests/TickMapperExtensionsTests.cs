@@ -79,7 +79,7 @@ public class TickMapperExtensionsTests
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
         //Act
-        var result = tickDto.ToTick();
+        var result = tickDto.ToEntity();
         //Assert
         Assert.Multiple(() =>
         {
@@ -108,7 +108,7 @@ public class TickMapperExtensionsTests
         // Arrange
         var tickDto = new TickDto();
         // Act
-        var result = tickDto.ToTick();
+        var result = tickDto.ToEntity();
         // Assert
         Assert.Multiple(() =>
         {
@@ -135,7 +135,7 @@ public class TickMapperExtensionsTests
     [Test]
     public void ToTick_ThrowsArgumentNullException_WhenTickDtoIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => TickMapperExtensions.ToTick(null));
+        Assert.Throws<ArgumentNullException>(() => TickMapperExtensions.ToEntity(null));
     }
 
 }

@@ -82,7 +82,7 @@ public class TickService : ITickService
     {
         try
         {
-            var tick = tickDto.ToTick();
+            var tick = tickDto.ToEntity();
             var isTickAdded = await _tickRepository.AddAsync(tick);
             if (!isTickAdded) return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
             var tickAdded = tick.ToTickDto();
@@ -101,7 +101,7 @@ public class TickService : ITickService
         {
             var recordToBeUpdated = await _tickRepository.GetByIdAsync(tickDto.Id);
             if (recordToBeUpdated is null) return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {tickDto.Id} does not exist");
-            var tick = tickDto.ToTick();
+            var tick = tickDto.ToEntity();
             var isUpdated = await _tickRepository.UpdateAsync(tick);
             return isUpdated 
                 ? ServiceResult<TickDto>.SuccessResult(tickDto)
