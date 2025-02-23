@@ -58,5 +58,33 @@ public static class TickMapperExtensions
             Climb = dto.Climb ?? new Boulder() //TODO need to create a builder for derived types
         };
     }
+    
+    public static Tick ToTickEntity(this TickDto dto, Climb climb)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+        ArgumentNullException.ThrowIfNull(climb);
+        
+        return new Tick
+        {
+            Id = dto.Id,
+            Date = dto.Date,
+            Route = dto.Route,
+            Rating = dto.Rating,
+            Notes = dto.Notes,
+            Url = dto.Url,
+            Pitches = dto.Pitches,
+            Location = dto.Location,
+            AvgStars = dto.AvgStars,
+            YourStars = dto.YourStars,
+            Style = dto.Style,
+            LeadStyle = dto.LeadStyle,
+            RouteType = dto.RouteType,
+            YourRating = dto.YourRating,
+            Length = dto.Length,
+            RatingCode = dto.RatingCode,
+            ClimbId = climb.Id,
+            Climb = climb
+        };
+    }
 
 }
