@@ -20,5 +20,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<IceClimb>().ToTable("IceClimbs");
         modelBuilder.Entity<AlpineRockRoute>().ToTable("AlpineRockRoutes");
         modelBuilder.Entity<Boulder>().ToTable("Boulders");
+        
+        modelBuilder.Entity<Tick>()
+            .HasOne(t => t.Climb)
+            .WithMany()
+            .HasForeignKey(t => t.ClimbId);
     }
 }
