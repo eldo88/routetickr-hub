@@ -82,7 +82,9 @@ public class TickService : ITickService
     {
         try
         {
-            var tick = tickDto.ToEntity();
+            var climb = tickDto.Climb;
+            await _tickRepository.AddClimb(climb);
+            var tick = tickDto.ToTickEntity(climb);
             var isTickAdded = await _tickRepository.AddAsync(tick);
             if (!isTickAdded) return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
             var tickAdded = tick.ToTickDto();

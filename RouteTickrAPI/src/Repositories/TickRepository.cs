@@ -86,4 +86,10 @@ public class TickRepository : ITickRepository
     {
         return await _context.Database.BeginTransactionAsync();
     }
+
+    public async Task<int> AddClimb(Climb climb)
+    {
+        _context.Climbs.Add(climb);
+        return await _context.SaveChangesAsync();
+    }
 }

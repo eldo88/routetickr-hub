@@ -13,8 +13,16 @@ public class ApplicationDbContext : DbContext
     public DbSet<Tick> Ticks { get; init; }
     public DbSet<User> Users { get; init; }
     
+    public DbSet<Climb> Climbs { get; init; }
+    public DbSet<SportRoute> SportRoutes { get; init; }
+    public DbSet<TradRoute> TradRoutes { get; init; }
+    public DbSet<IceClimb> IceClimbs { get; init; }
+    public DbSet<AlpineRockRoute> AlpineRockRoutes { get; init; }
+    public DbSet<Boulder> Boulders { get; init; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Climb>().ToTable("Climbs");
         modelBuilder.Entity<SportRoute>().ToTable("SportRoutes");
         modelBuilder.Entity<TradRoute>().ToTable("TradRoutes");
         modelBuilder.Entity<IceClimb>().ToTable("IceClimbs");
