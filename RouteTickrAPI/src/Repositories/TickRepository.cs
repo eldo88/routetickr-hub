@@ -16,7 +16,9 @@ public class TickRepository : ITickRepository
     
     public async Task<IEnumerable<Tick>> GetAllAsync()
     {
-        return await _context.Ticks.ToListAsync();
+        return await _context.Ticks
+            .Include(t => t.Climb)
+            .ToListAsync();
     }
 
     public async Task<Tick?> GetByIdAsync(int id)
