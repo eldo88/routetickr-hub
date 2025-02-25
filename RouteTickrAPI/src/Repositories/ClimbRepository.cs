@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.Data;
 using RouteTickrAPI.Entities;
 
@@ -39,5 +40,10 @@ public class ClimbRepository : IClimbRepository
         _context.Climbs.Remove(climb);
         var recordsDeleted = await _context.SaveChangesAsync();
         return recordsDeleted == 1;
+    }
+
+    public async Task<IEnumerable<Climb>> GetAllAsync()
+    {
+        return await _context.Climbs.ToListAsync();
     }
 }

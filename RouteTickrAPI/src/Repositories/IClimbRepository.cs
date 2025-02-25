@@ -8,4 +8,5 @@ public interface IClimbRepository
     Task<Climb?> GetByIdAsync(int id);
     Task<bool> UpdateAsync(Climb tick);
     Task<bool> DeleteAsync(int id);
+    Task<IEnumerable<Climb>> GetAllAsync();
 }
