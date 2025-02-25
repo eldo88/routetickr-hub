@@ -16,5 +16,4 @@ public interface ITickRepository
     Task<List<string>> GetLocationAsync();
     Task<List<string>> GetRatingAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
-    Task<int> AddClimb(Climb climb);
 }
