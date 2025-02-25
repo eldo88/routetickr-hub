@@ -8,12 +8,12 @@ namespace RouteTickrAPI.Services;
 public class TickService : ITickService
 {
     private readonly ITickRepository _tickRepository;
-    private readonly IClimbRepository _climbRepository;
+    private readonly IClimbService _climbService;
 
-    public TickService(ITickRepository tickRepository, IClimbRepository climbRepository)
+    public TickService(ITickRepository tickRepository,IClimbService climbService)
     {
         _tickRepository = tickRepository;
-        _climbRepository = climbRepository;
+        _climbService = climbService;
     }
 
     public async Task<ServiceResult<IEnumerable<TickDto>>> GetAllAsync()
@@ -22,6 +22,7 @@ public class TickService : ITickService
         {
             var ticks = await _tickRepository.GetAllAsync();
             var tickDtoList = ticks.Select(TickDtoExtensions.ToTickDto).ToList();
+            
             return tickDtoList.Count == 0 
                 ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
                 : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDtoList);
@@ -42,10 +43,15 @@ public class TickService : ITickService
     {
         try
         {
-            if (id <= 0) return ServiceResult<TickDto>.ErrorResult("ID must be greater than zero.");
+            if (id <= 0) 
+                return ServiceResult<TickDto>.ErrorResult("ID must be greater than zero.");
+            
             var tick = await _tickRepository.GetByIdAsync(id);
-            if (tick is null) return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.");
+            if (tick is null) 
+                return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.");
+            
             var tickDto = tick.ToTickDto();
+            
             return ServiceResult<TickDto>.SuccessResult(tickDto);
         }
         catch (Exception e)
@@ -59,8 +65,11 @@ public class TickService : ITickService
     {
         try
         {
-            if (tickIds.Count == 0) return ServiceResult<List<TickDto>>.ErrorResult("ID list is empty");
+            if (tickIds.Count == 0) 
+                return ServiceResult<List<TickDto>>.ErrorResult("ID list is empty");
+            
             var tickDtos = new List<TickDto>();
+            
             foreach (var id in tickIds)
             {
                 var tick = await _tickRepository.GetByIdAsync(id);
@@ -84,12 +93,14 @@ public class TickService : ITickService
     {
         try
         {
-            var climb = tickDto.Climb;
-            if (climb is null) return ServiceResult<TickDto>.ErrorResult("Climb is null");
-            await _climbRepository.AddClimb(climb);
-            var tick = tickDto.ToTickEntity(climb);
+            if (tickDto.Climb is null) return ServiceResult<TickDto>.ErrorResult("Climb is null");
+            var result = await _climbService.AddClimbIfNotExists(tickDto.Climb);
+            if (result.Data is null) return ServiceResult<TickDto>.ErrorResult("Climb is null.");
+            
+            var tick = tickDto.ToTickEntity(result.Data);
             var isTickAdded = await _tickRepository.AddAsync(tick);
             if (!isTickAdded) return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
+            
             var tickAdded = tick.ToTickDto();
             return ServiceResult<TickDto>.SuccessResult(tickAdded);
         }
@@ -105,9 +116,12 @@ public class TickService : ITickService
         try
         {
             var recordToBeUpdated = await _tickRepository.GetByIdAsync(tickDto.Id);
-            if (recordToBeUpdated is null) return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {tickDto.Id} does not exist");
+            if (recordToBeUpdated is null) 
+                return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {tickDto.Id} does not exist");
+            
             var tick = tickDto.ToEntity();
             var isUpdated = await _tickRepository.UpdateAsync(tick);
+            
             return isUpdated 
                 ? ServiceResult<TickDto>.SuccessResult(tickDto)
                 : ServiceResult<TickDto>.ErrorResult($"Error updating tick with ID: {tickDto.Id}");
@@ -124,6 +138,7 @@ public class TickService : ITickService
         try
         {
             var isDeleted = await _tickRepository.DeleteAsync(id);
+            
             return isDeleted 
                 ? ServiceResult<bool>.SuccessResult(true) 
                 : ServiceResult<bool>.ErrorResult($"Error deleting tick with ID: {id}");

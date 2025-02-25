@@ -13,14 +13,14 @@ namespace RouteTickrAPI.Tests.ServiceTests;
 public class TickServiceTests
 {
     private Mock<ITickRepository> _tickRepository;
-    private Mock<IClimbRepository> _climbRepository;
+    private Mock<IClimbService> _climbService;
     private TickService _tickService;
 
     [SetUp]
     public void Setup()
     {
         _tickRepository = new Mock<ITickRepository>();
-        _tickService = new TickService(_tickRepository.Object, _climbRepository.Object);
+        _tickService = new TickService(_tickRepository.Object, _climbService.Object);
     }
 
     [Test]
