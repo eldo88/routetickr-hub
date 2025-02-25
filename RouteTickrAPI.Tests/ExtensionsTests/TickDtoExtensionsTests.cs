@@ -6,7 +6,7 @@ using RouteTickrAPI.Tests.TestHelpers;
 namespace RouteTickrAPI.Tests.ExtensionsTests;
 
 [TestFixture]
-public class TickMapperExtensionsTests
+public class TickDtoExtensionsTests
 {
     [Test]
     public void ToTickDto_MapsTickToTickDto_Correctly()
@@ -70,7 +70,7 @@ public class TickMapperExtensionsTests
     [Test]
     public void ToTickDto_ThrowsArgumentNullException_WhenTickIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => TickMapperExtensions.ToTickDto(null));
+        Assert.Throws<ArgumentNullException>(() => TickDtoExtensions.ToTickDto(null));
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class TickMapperExtensionsTests
     [Test]
     public void ToTick_ThrowsArgumentNullException_WhenTickDtoIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => TickMapperExtensions.ToEntity(null));
+        Assert.Throws<ArgumentNullException>(() => TickDtoExtensions.ToEntity(null));
     }
 
 }

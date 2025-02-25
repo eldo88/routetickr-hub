@@ -19,7 +19,7 @@ public class TickService : ITickService
         try
         {
             var ticks = await _tickRepository.GetAllAsync();
-            var tickDtoList = ticks.Select(TickMapperExtensions.ToTickDto).ToList();
+            var tickDtoList = ticks.Select(TickDtoExtensions.ToTickDto).ToList();
             return tickDtoList.Count == 0 
                 ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
                 : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDtoList);

@@ -35,7 +35,7 @@ public class TickServiceTests
             TickBuilder.CreateValidTick()
         };
         
-        var expectedDtoList = mockTicks.Select(TickMapperExtensions.ToTickDto).ToList();
+        var expectedDtoList = mockTicks.Select(TickDtoExtensions.ToTickDto).ToList();
         
         _tickRepository
             .Setup(r => r.GetAllAsync())

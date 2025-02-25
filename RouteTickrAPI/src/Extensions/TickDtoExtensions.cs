@@ -3,7 +3,7 @@ using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Extensions;
 
-public static class TickMapperExtensions
+public static class TickDtoExtensions
 {
     public static TickDto ToTickDto(this Tick entity)
     {

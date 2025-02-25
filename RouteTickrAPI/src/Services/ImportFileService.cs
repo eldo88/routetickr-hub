@@ -29,7 +29,7 @@ public class ImportFileService : IImportFileService
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
             var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
             
-            foreach (var tick in dataFromFile.Select(TickMapperExtensions.ToEntity))
+            foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {
                 var tickAdded = await _tickRepository.AddAsync(tick);
                 if (tickAdded) continue;
