@@ -8,10 +8,12 @@ namespace RouteTickrAPI.Services;
 public class TickService : ITickService
 {
     private readonly ITickRepository _tickRepository;
+    private readonly IClimbRepository _climbRepository;
 
-    public TickService(ITickRepository tickRepository)
+    public TickService(ITickRepository tickRepository, IClimbRepository climbRepository)
     {
         _tickRepository = tickRepository;
+        _climbRepository = climbRepository;
     }
 
     public async Task<ServiceResult<IEnumerable<TickDto>>> GetAllAsync()
@@ -84,7 +86,7 @@ public class TickService : ITickService
         {
             var climb = tickDto.Climb;
             if (climb is null) return ServiceResult<TickDto>.ErrorResult("Climb is null");
-            await _tickRepository.AddClimb(climb);
+            await _climbRepository.AddClimb(climb);
             var tick = tickDto.ToTickEntity(climb);
             var isTickAdded = await _tickRepository.AddAsync(tick);
             if (!isTickAdded) return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
