@@ -83,6 +83,7 @@ public class TickService : ITickService
         try
         {
             var climb = tickDto.Climb;
+            if (climb is null) return ServiceResult<TickDto>.ErrorResult("Climb is null");
             await _tickRepository.AddClimb(climb);
             var tick = tickDto.ToTickEntity(climb);
             var isTickAdded = await _tickRepository.AddAsync(tick);

@@ -23,7 +23,9 @@ public class TickRepository : ITickRepository
 
     public async Task<Tick?> GetByIdAsync(int id)
     {
-        return await _context.Ticks.FindAsync(id);
+        return await _context.Ticks
+            .Include(t => t.Climb)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<bool> AddAsync(Tick tick)
@@ -35,7 +37,10 @@ public class TickRepository : ITickRepository
 
     public async Task<bool> UpdateAsync(Tick tick)
     {
-        var existingTick = await _context.Ticks.FindAsync(tick.Id);
+        var existingTick = await _context.Ticks
+            .Include(t => t.Climb)
+            .FirstOrDefaultAsync(t => t.Id == tick.Id);
+        
         if (existingTick is null)
         {
             return false;
@@ -47,7 +52,9 @@ public class TickRepository : ITickRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var tick = await _context.Ticks.FindAsync(id);
+        var tick = await _context.Ticks
+            .Include(t => t.Climb)
+            .FirstOrDefaultAsync(t => t.Id == id);
         
         if (tick is null)
         {
