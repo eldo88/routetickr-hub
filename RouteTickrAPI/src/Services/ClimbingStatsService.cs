@@ -76,12 +76,7 @@ public class ClimbingStatsService : IClimbingStatsService
 
                 foreach (var location in locations)
                 {
-                    if (!locationWithTickIds.TryGetValue(location, out List<int>? value))
-                    {
-                        value = ([]);
-                        locationWithTickIds[location] = value;
-                    }
-                    value.Add(tick.Id);
+                    locationWithTickIds.AddToCollection(location, tick.Id);
                 }
             }
 

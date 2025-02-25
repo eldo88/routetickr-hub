@@ -23,5 +23,31 @@ public static class DictionaryExtensions
         
         return true;
     }
+
+    public static void InvokeAction<TKey, TValue>( //experimenting
+        this Dictionary<TKey, TValue>? dict, 
+        Action<Dictionary<TKey, TValue>> action)
+        where TKey : notnull
+    {
+        if (dict is null) return;
+
+
+        action(dict);
+    }
+
+    public static void AddToCollection<TKey, TValue, TCollection>(
+        this Dictionary<TKey, TCollection> dict, 
+        TKey key, 
+        TValue value) 
+        where TKey : notnull 
+        where TCollection : ICollection<TValue>, new()
+    {
+        if (!dict.TryGetValue(key, out var collection))
+        {
+            collection = new TCollection();
+            dict[key] = collection;
+        }
+        collection.Add(value);
+    }
     
 }
