@@ -6,5 +6,6 @@ public enum ClimbType //possibly add mixed types for mixed trad and mixed ice
     Trad,
     Boulder,
     Ice,
-    Alpine
+    Alpine,
+    Unknown
 }
