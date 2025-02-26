@@ -24,8 +24,10 @@ public class ImportFileService : IImportFileService
         try
         {
             transaction = await _tickRepository.BeginTransactionAsync();
+            
             using var stream = new StreamReader(file.OpenReadStream()) ;
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
+            
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
             var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
             
@@ -34,16 +36,19 @@ public class ImportFileService : IImportFileService
                 var tickAdded = await _tickRepository.AddAsync(tick);
                 if (tickAdded) continue;
                 await transaction.RollbackAsync();
+                
                 return ServiceResult<bool>.ErrorResult("Error uploading file contents, no data was saved.");
             }
 
             await transaction.CommitAsync();
+            
             return ServiceResult<bool>.SuccessResult(true);
         }
         catch (Exception e)
         {
             Console.WriteLine($"Error is ImportFileAsync: {e.Message}");
-            if (transaction != null)
+            
+            if (transaction is not null)
             {
                 await transaction.RollbackAsync();
             }
