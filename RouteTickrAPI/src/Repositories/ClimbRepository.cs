@@ -46,4 +46,11 @@ public class ClimbRepository : IClimbRepository
     {
         return await _context.Climbs.ToListAsync();
     }
+
+    public async Task<Climb?> GetByNameAndLocationAsync(string name, string location)
+    {
+         return await _context.Climbs
+            .Where(c => c.Name == name && c.Location == location)
+            .FirstOrDefaultAsync();
+    }
 }

@@ -40,15 +40,43 @@ public class ClimbService : IClimbService
 
     public async Task<ServiceResult<Climb>> AddClimbIfNotExists(Climb climb)
     {
-        var result = await _climbRepository.GetByIdAsync(climb.Id);
-        if (result is not null) 
-            return ServiceResult<Climb>.SuccessResult(climb);
-        
-        var savedClimb = await _climbRepository.AddClimb(climb);
-        
-        return savedClimb == 2
-            ? ServiceResult<Climb>.SuccessResult(climb)
-            : ServiceResult<Climb>.ErrorResult("Error saving climb.");
+        try
+        {
+            var getByIdResult = await _climbRepository.GetByIdAsync(climb.Id);
+            if (getByIdResult is not null) 
+                return ServiceResult<Climb>.SuccessResult(getByIdResult);
 
+            var getByNameAndLocationResult = await _climbRepository.GetByNameAndLocationAsync(climb.Name, climb.Location);
+            if (getByNameAndLocationResult is not null)
+                return ServiceResult<Climb>.SuccessResult(getByNameAndLocationResult);
+            
+            var recordsWritten = await _climbRepository.AddClimb(climb);
+        
+            return recordsWritten == 2
+                ? ServiceResult<Climb>.SuccessResult(climb)
+                : ServiceResult<Climb>.ErrorResult("Error saving climb.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    public async Task<ServiceResult<Climb>> GetClimbByNameAndLocationIfExists(string name, string location)
+    { //method not used right now, will delete if not needed
+        try
+        {
+            var result = await _climbRepository.GetByNameAndLocationAsync(name, location);
+
+            return result is not null
+                ? ServiceResult<Climb>.SuccessResult(result)
+                : ServiceResult<Climb>.ErrorResult("No climb found with name and location");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

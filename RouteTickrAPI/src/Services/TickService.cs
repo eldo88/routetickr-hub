@@ -93,13 +93,18 @@ public class TickService : ITickService
     {
         try
         {
-            if (tickDto.Climb is null) return ServiceResult<TickDto>.ErrorResult("Climb is null");
+            if (tickDto.Climb is null) 
+                return ServiceResult<TickDto>.ErrorResult("Climb is null");
+            
             var result = await _climbService.AddClimbIfNotExists(tickDto.Climb);
-            if (result.Data is null) return ServiceResult<TickDto>.ErrorResult("Climb is null.");
+            if (result.Data is null) 
+                return ServiceResult<TickDto>.ErrorResult("Climb is null.");
             
             var tick = tickDto.ToTickEntity(result.Data);
+            
             var isTickAdded = await _tickRepository.AddAsync(tick);
-            if (!isTickAdded) return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
+            if (!isTickAdded) 
+                return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
             
             var tickAdded = tick.ToTickDto();
             return ServiceResult<TickDto>.SuccessResult(tickAdded);
