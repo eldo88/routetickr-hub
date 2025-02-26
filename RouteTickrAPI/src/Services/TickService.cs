@@ -1,6 +1,7 @@
 
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.DTOs;
+using RouteTickrAPI.Entities;
 using RouteTickrAPI.Extensions;
 
 namespace RouteTickrAPI.Services;
@@ -93,14 +94,9 @@ public class TickService : ITickService
     {
         try
         {
-            if (tickDto.Climb is null) 
-                return ServiceResult<TickDto>.ErrorResult("Climb is null");
+            var result = await GetOrSaveClimb(tickDto);
             
-            var result = await _climbService.AddClimbIfNotExists(tickDto.Climb);
-            if (result.Data is null) 
-                return ServiceResult<TickDto>.ErrorResult("Climb is null.");
-            
-            var tick = tickDto.ToTickEntity(result.Data);
+            var tick = tickDto.ToTickEntity(result);
             
             var isTickAdded = await _tickRepository.AddAsync(tick);
             if (!isTickAdded) 
@@ -153,6 +149,19 @@ public class TickService : ITickService
             Console.WriteLine($"Error in DeleteAsync: {e.Message}");
             throw;
         }
+    }
+
+    private async Task<Climb> GetOrSaveClimb(TickDto tickDto)
+    {
+        if (tickDto.Climb is null)
+            throw new ArgumentNullException(nameof(tickDto));
+
+        var result = await _climbService.AddClimbIfNotExists(tickDto.Climb);
+
+        if (result.Data is null)
+            throw new ArgumentNullException(nameof(result));
+        
+        return result.Data;
     }
     
 }
