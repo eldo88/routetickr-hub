@@ -31,7 +31,7 @@ public class SportRouteBuilder : ClimbBuilderBase<SportRouteBuilder, SportRoute>
             Rating = _rating,
             Location = _location,
             Url = _url,
-            Height = _height,
+            Height = _height ?? 0,
             DangerRating = _dangerRating,
             ClimbType = _climbType,
             NumberOfBolts = _numberOfBolts,

@@ -12,10 +12,12 @@ namespace RouteTickrAPI.Services;
 public class ImportFileService : IImportFileService
 {
     private readonly ITickRepository _tickRepository;
+    private readonly IClimbService _climbService;
 
-    public ImportFileService(ITickRepository tickRepository)
+    public ImportFileService(ITickRepository tickRepository, IClimbService climbService)
     {
         _tickRepository = tickRepository;
+        _climbService = climbService;
     }
     
     public async Task<ServiceResult<bool>> ImportFileAsync(IFormFile file)
@@ -30,6 +32,13 @@ public class ImportFileService : IImportFileService
             
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
             var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
+
+            foreach (var tickDto in dataFromFile)
+            {
+                var route = tickDto.BuildClimb();
+                var result = await _climbService.AddClimbIfNotExists(route);
+                tickDto.Climb = result.Data;
+            }
             
             foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {

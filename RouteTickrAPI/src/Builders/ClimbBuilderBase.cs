@@ -14,7 +14,7 @@ public abstract class ClimbBuilderBase<TBuilder, TClimb>
     protected string _rating = string.Empty;
     protected string _location = string.Empty;
     protected string _url = string.Empty;
-    protected decimal _height;
+    protected double? _height;
     protected ClimbDangerRating _dangerRating;
     protected ClimbType _climbType;
 
@@ -53,9 +53,9 @@ public abstract class ClimbBuilderBase<TBuilder, TClimb>
         return (TBuilder)this;
     }
 
-    public TBuilder WithHeight(decimal height)
+    public TBuilder WithHeight(double? height)
     {
-        _height = height;
+        _height = height ?? 0;
 
         return (TBuilder)this;
     }

@@ -21,5 +21,5 @@ public class TickDto
     public double? Length { get; init; }
     public int? RatingCode { get; init; }
     public int? ClimbId { get; set; }
-    public Climb? Climb { get; init; }
+    public Climb? Climb { get; set; }
 }

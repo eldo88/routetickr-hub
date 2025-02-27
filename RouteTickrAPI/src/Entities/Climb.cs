@@ -19,6 +19,6 @@ public abstract class Climb
     public string Rating { get; init; } = string.Empty;
     public string Location { get; init; } = string.Empty;
     public string Url { get; init; } = string.Empty;
-    public decimal Height { get; init; }
+    public double Height { get; init; }
     public ClimbDangerRating DangerRating { get; init; }
 }

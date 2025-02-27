@@ -30,7 +30,7 @@ public class IceClimbBuilder : ClimbBuilderBase<IceClimbBuilder, IceClimb>
             Rating = _rating,
             Location = _location,
             Url = _url,
-            Height = _height,
+            Height = _height ?? 0,
             DangerRating = _dangerRating,
             ClimbType = _climbType,
             IceType = _iceType,

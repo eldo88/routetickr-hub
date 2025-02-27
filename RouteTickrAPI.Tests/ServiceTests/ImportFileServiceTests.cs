@@ -12,13 +12,15 @@ public class ImportFileServiceTests
     private IImportFileService _importFileService;
     private Mock<ITickRepository> _tickRepository;
     private Mock<IDbContextTransaction> _transactionMock;
+    public Mock<IClimbService> _climbService;
     
     [SetUp]
     public void Setup()
     {
         _tickRepository = new Mock<ITickRepository>();
         _transactionMock = new Mock<IDbContextTransaction>();
-        _importFileService = new ImportFileService(_tickRepository.Object);
+        _climbService = new Mock<IClimbService>();
+        _importFileService = new ImportFileService(_tickRepository.Object, _climbService.Object);
     }
     
     [Test]
