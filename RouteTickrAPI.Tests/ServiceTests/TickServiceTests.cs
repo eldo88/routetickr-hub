@@ -1,5 +1,4 @@
-
-using Microsoft.EntityFrameworkCore.Storage;
+using System.Diagnostics;
 using Moq;
 using RouteTickrAPI.Entities;
 using RouteTickrAPI.Extensions;
@@ -20,6 +19,7 @@ public class TickServiceTests
     public void Setup()
     {
         _tickRepository = new Mock<ITickRepository>();
+        _climbService = new Mock<IClimbService>();
         _tickService = new TickService(_tickRepository.Object, _climbService.Object);
     }
 
