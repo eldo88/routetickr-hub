@@ -1,7 +1,7 @@
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Mappers;
@@ -21,60 +21,64 @@ public class ImportFileService : IImportFileService
     }
     
     public async Task<ServiceResult<bool>> ImportFileAsync(IFormFile file)
-    {
-        IDbContextTransaction? transaction = null;
-        var isTransActionSuccessful = true;
+    { //file can't be null so no need to check
+        await using var transaction = await _tickRepository.BeginTransactionAsync();
         try
         {
-            transaction = await _tickRepository.BeginTransactionAsync();
-
             using var stream = new StreamReader(file.OpenReadStream());
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
 
-            csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
-            var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
+            var dataFromFile = ConvertCsvFileToTickDto(csvFile);
 
             foreach (var tickDto in dataFromFile)
             {
                 var route = tickDto.BuildClimb();
                 var result = await _climbService.AddClimbIfNotExists(route);
+                if (!result.Success) throw new InvalidOperationException("Failed to add climb.");
                 tickDto.Climb = result.Data;
             }
 
             foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {
-                var tickAdded = await _tickRepository.AddAsync(tick); // use method in TickService
-                if (tickAdded) continue;
-                isTransActionSuccessful = false;
-                break;
+                var tickAdded = await _tickRepository.AddAsync(tick);
+                if (!tickAdded) throw new InvalidOperationException("Error saving tick.");
             }
 
-            if (isTransActionSuccessful)
-            {
-                await transaction.CommitAsync();   
-                return ServiceResult<bool>.SuccessResult(true);
-            }
-            else
-            {
-                return ServiceResult<bool>.ErrorResult("Error saving data, no data saved.");
-            }
+            await transaction.CommitAsync();
+            return ServiceResult<bool>.SuccessResult(true);
         }
-        catch (OperationCanceledException e)
+        catch (CsvHelperException e)
         {
-            return ServiceResult<bool>.ErrorResult($"Import file operation cancelled, no data was saved. {e.Message}");
+            Console.WriteLine($"CSV parsing error, {e.Message}");
+            await transaction.RollbackAsync();
+            return ServiceResult<bool>.ErrorResult($"Invalid CSV format in {file.FileName}. Please check the file.");
+        }
+        catch (DbUpdateException e)
+        {
+            Console.WriteLine($"Database error, {e.StackTrace}");
+            await transaction.RollbackAsync();
+            return ServiceResult<bool>.ErrorResult("Database error occurred while saving ticks.");
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine($"Error in {e.TargetSite}, {e.StackTrace}");
+            await transaction.RollbackAsync();
+            return ServiceResult<bool>.ErrorResult(e.Message);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error is ImportFileAsync: {e.Message}");
+            Console.WriteLine($"Error is ImportFileAsync: {e.StackTrace}");
 
-            return ServiceResult<bool>.ErrorResult("An error occurred during file import.");
+            await transaction.RollbackAsync();
+            return ServiceResult<bool>.ErrorResult("An unexpected error occurred. Please try again.");
         }
-        finally
-        {
-            if (transaction is not null && isTransActionSuccessful == false)
-            {
-                await transaction.RollbackAsync();
-            }
-        }
+    }
+
+    private static List<TickDto> ConvertCsvFileToTickDto(CsvReader? csvFile)
+    {
+        ArgumentNullException.ThrowIfNull(csvFile);
+        
+        csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
+        return csvFile.GetRecords<TickDto>().ToList();
     }
 }
