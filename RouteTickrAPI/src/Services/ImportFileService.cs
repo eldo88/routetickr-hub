@@ -23,13 +23,14 @@ public class ImportFileService : IImportFileService
     public async Task<ServiceResult<bool>> ImportFileAsync(IFormFile file)
     {
         IDbContextTransaction? transaction = null;
+        var isTransActionSuccessful = true;
         try
         {
             transaction = await _tickRepository.BeginTransactionAsync();
-            
-            using var stream = new StreamReader(file.OpenReadStream()) ;
+
+            using var stream = new StreamReader(file.OpenReadStream());
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
-            
+
             csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
             var dataFromFile = csvFile.GetRecords<TickDto>().ToList();
 
@@ -39,30 +40,41 @@ public class ImportFileService : IImportFileService
                 var result = await _climbService.AddClimbIfNotExists(route);
                 tickDto.Climb = result.Data;
             }
-            
+
             foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {
-                var tickAdded = await _tickRepository.AddAsync(tick);
+                var tickAdded = await _tickRepository.AddAsync(tick); // use method in TickService
                 if (tickAdded) continue;
-                await transaction.RollbackAsync();
-                
-                return ServiceResult<bool>.ErrorResult("Error uploading file contents, no data was saved.");
+                isTransActionSuccessful = false;
+                break;
             }
 
-            await transaction.CommitAsync();
-            
-            return ServiceResult<bool>.SuccessResult(true);
+            if (isTransActionSuccessful)
+            {
+                await transaction.CommitAsync();   
+                return ServiceResult<bool>.SuccessResult(true);
+            }
+            else
+            {
+                return ServiceResult<bool>.ErrorResult("Error saving data, no data saved.");
+            }
+        }
+        catch (OperationCanceledException e)
+        {
+            return ServiceResult<bool>.ErrorResult($"Import file operation cancelled, no data was saved. {e.Message}");
         }
         catch (Exception e)
         {
             Console.WriteLine($"Error is ImportFileAsync: {e.Message}");
-            
-            if (transaction is not null)
+
+            return ServiceResult<bool>.ErrorResult("An error occurred during file import.");
+        }
+        finally
+        {
+            if (transaction is not null && isTransActionSuccessful == false)
             {
                 await transaction.RollbackAsync();
             }
-
-            return ServiceResult<bool>.ErrorResult("An error occurred during file import.");
         }
     }
 }

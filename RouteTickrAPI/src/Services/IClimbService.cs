@@ -7,5 +7,6 @@ public interface IClimbService
 {
     Task<ServiceResult<IEnumerable<ClimbDto>>> GetAllAsync();
     Task<ServiceResult<Climb>> AddClimbIfNotExists(Climb climb);
-    Task<ServiceResult<Climb>> GetClimbByNameAndLocationIfExists(string name, string location);
+    Task<ServiceResult<Climb>> GetByIdAsync(int id);
+    Task<ServiceResult<Climb>> AddAsync(Climb climb);
 }

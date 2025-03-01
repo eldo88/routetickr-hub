@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.Data;
 using RouteTickrAPI.Entities;
 
@@ -52,5 +53,10 @@ public class ClimbRepository : IClimbRepository
          return await _context.Climbs
             .Where(c => c.Name == name && c.Location == location)
             .FirstOrDefaultAsync();
+    }
+    
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await _context.Database.BeginTransactionAsync();
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Repositories;
@@ -10,4 +11,5 @@ public interface IClimbRepository
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<Climb>> GetAllAsync();
     Task<Climb?> GetByNameAndLocationAsync(string name, string location);
+    Task<IDbContextTransaction> BeginTransactionAsync();
 }
