@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using RouteTickrAPI.Entities;
+using RouteTickrAPI.Enums;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
@@ -34,6 +35,24 @@ public class ImportFileServiceTests
         _tickRepository
             .Setup(r => r.BeginTransactionAsync())
             .ReturnsAsync(_transactionMock.Object);
+
+        var climb = new SportRoute()
+        {
+            ClimbType = ClimbType.Sport,
+            DangerRating = ClimbDangerRating.G,
+            Height = 50,
+            Id = 0,
+            Location = "Rifle",
+            Name = "Baby Brother",
+            NumberOfBolts = 7,
+            NumberOfPitches = 1,
+            Rating = "5.10d",
+            Url = "https://example.com/tick"
+        };
+
+        _climbService
+            .Setup(cs => cs.AddClimbIfNotExists(It.IsAny<Climb>()))
+            .ReturnsAsync(ServiceResult<Climb>.SuccessResult(climb));
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
@@ -78,7 +97,7 @@ public class ImportFileServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Success, Is.False);
-            Assert.That(result.ErrorMessage, Is.EqualTo("Error uploading file contents, no data was saved."));
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred. Please try again."));
             Assert.That(result.Data, Is.False);
             
             _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once, "A rollback should occur when a tick fails.");
@@ -107,7 +126,7 @@ public class ImportFileServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Success, Is.False);
-            Assert.That(result.ErrorMessage, Is.EqualTo("An error occurred during file import."));
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred. Please try again."));
             Assert.That(result.Data, Is.False);
             
             _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once, "Rollback should be called when an exception is thrown.");

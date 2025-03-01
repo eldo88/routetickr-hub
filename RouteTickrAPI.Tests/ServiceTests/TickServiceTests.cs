@@ -286,7 +286,7 @@ public class TickServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Success, Is.False);
-            Assert.That(result.ErrorMessage, Is.EqualTo("Error adding tick."));
+            Assert.That(result.ErrorMessage, Is.EqualTo("An unexpected error occurred."));
             Assert.That(result.Data, Is.Null);
         });
     }
@@ -316,6 +316,10 @@ public class TickServiceTests
     {
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
+
+        _climbService
+            .Setup(cs => cs.AddClimbIfNotExists(It.IsAny<Climb>()))
+            .ReturnsAsync(ServiceResult<Climb>.SuccessResult(tickDto.Climb));
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
@@ -350,6 +354,10 @@ public class TickServiceTests
     {
         //Arrange
         var tickDto = TickBuilder.CreateValidTickDto();
+        
+        _climbService
+            .Setup(cs => cs.AddClimbIfNotExists(It.IsAny<Climb>()))
+            .ReturnsAsync(ServiceResult<Climb>.SuccessResult(tickDto.Climb));
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
