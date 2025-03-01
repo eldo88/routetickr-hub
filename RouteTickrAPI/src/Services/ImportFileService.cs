@@ -20,12 +20,12 @@ public class ImportFileService : IImportFileService
         _climbService = climbService;
     }
     
-    public async Task<ServiceResult<bool>> ImportFileAsync(IFormFile file)
-    { //file can't be null so no need to check
+    public async Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto)
+    {
         await using var transaction = await _tickRepository.BeginTransactionAsync();
         try
         {
-            using var stream = new StreamReader(file.OpenReadStream());
+            using var stream = new StringReader(fileDto.Content);
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
 
             var dataFromFile = ConvertCsvFileToTickDto(csvFile);
@@ -51,7 +51,7 @@ public class ImportFileService : IImportFileService
         {
             Console.WriteLine($"CSV parsing error, {e.Message}");
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult($"Invalid CSV format in {file.FileName}. Please check the file.");
+            return ServiceResult<bool>.ErrorResult($"Invalid CSV format in {fileDto.FileName}. Please check the file.");
         }
         catch (DbUpdateException e)
         {

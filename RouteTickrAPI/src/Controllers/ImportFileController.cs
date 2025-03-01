@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Services;
 
 namespace RouteTickrAPI.Controllers;
@@ -17,9 +18,17 @@ public class ImportFileController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> ImportFile(IFormFile file)
     {
-        if (file.Length == 0) { return BadRequest("File does not contain data"); }
-        var result = await _importFileService.ImportFileAsync(file);
-        if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
-        return NoContent();
+        try
+        {
+            var fileDto = await file.ToImportFileDto();
+            var result = await _importFileService.ImportFileAsync(fileDto);
+            if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
+
+            return Ok($"File {fileDto.FileName} uploaded successfully.");
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(new { e.Message });
+        }
     }
 }
