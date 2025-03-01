@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using RouteTickrAPI.Entities;
+using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
 using RouteTickrAPI.Tests.TestHelpers;
@@ -12,7 +13,7 @@ public class ImportFileServiceTests
     private IImportFileService _importFileService;
     private Mock<ITickRepository> _tickRepository;
     private Mock<IDbContextTransaction> _transactionMock;
-    public Mock<IClimbService> _climbService;
+    private Mock<IClimbService> _climbService;
     
     [SetUp]
     public void Setup()
@@ -28,6 +29,7 @@ public class ImportFileServiceTests
     {
         //Arrange
         var formFile = ImportFileHelper.CreateMockImportFileWithMultipleTicks();
+        var fileDto = await formFile.ToImportFileDto();
 
         _tickRepository
             .Setup(r => r.BeginTransactionAsync())
@@ -37,7 +39,7 @@ public class ImportFileServiceTests
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
             .ReturnsAsync(true);
         //Act
-        var result = await _importFileService.ImportFileAsync(formFile);
+        var result = await _importFileService.ImportFileAsync(fileDto);
         
         //Assert
         Assert.Multiple(() =>
@@ -56,6 +58,7 @@ public class ImportFileServiceTests
     {
         //Arrange
         var formFile = ImportFileHelper.CreateMockImportFileWithMultipleTicks();
+        var fileDto = await formFile.ToImportFileDto();
 
         _tickRepository
             .Setup(r => r.BeginTransactionAsync())
@@ -70,7 +73,7 @@ public class ImportFileServiceTests
                 return callCount == 1;
             });
         //Act
-        var result = await _importFileService.ImportFileAsync(formFile);
+        var result = await _importFileService.ImportFileAsync(fileDto);
         //Assert
         Assert.Multiple(() =>
         {
@@ -88,6 +91,7 @@ public class ImportFileServiceTests
     {
         //Arrange
         var formFile = ImportFileHelper.CreateMockImportFileWithSingleTick();
+        var fileDto = await formFile.ToImportFileDto();
         
         _tickRepository
             .Setup(r => r.BeginTransactionAsync())
@@ -97,7 +101,7 @@ public class ImportFileServiceTests
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
             .ThrowsAsync(new Exception("Database exception"));
         //Act
-        var result = await _importFileService.ImportFileAsync(formFile);
+        var result = await _importFileService.ImportFileAsync(fileDto);
         
         //Assert
         Assert.Multiple(() =>
