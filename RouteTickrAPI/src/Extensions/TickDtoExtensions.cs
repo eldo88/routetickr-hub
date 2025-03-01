@@ -9,7 +9,7 @@ public static class TickDtoExtensions
 {
     public static TickDto ToTickDto(this Tick entity)
     {
-        ArgumentNullException.ThrowIfNull(entity, "Tick is null in ToTickDto");
+        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
 
         return new TickDto
         {
@@ -63,8 +63,8 @@ public static class TickDtoExtensions
     
     public static Tick ToTickEntity(this TickDto dto, Climb climb)
     {
-        ArgumentNullException.ThrowIfNull(dto, "Dto is null in ToTickEntity");
-        ArgumentNullException.ThrowIfNull(climb, "Climb is null in ToTickEntity");
+        ArgumentNullException.ThrowIfNull(dto, nameof(dto));
+        ArgumentNullException.ThrowIfNull(climb, nameof(climb));
         
         return new Tick
         {
