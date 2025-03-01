@@ -1,5 +1,6 @@
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
+using RouteTickrAPI.Enums;
 
 namespace RouteTickrAPI.Tests.TestHelpers;
 
@@ -18,7 +19,23 @@ public static class TickBuilder
             RouteType = "Sport",
             Style = "On-sight",
             Url = "https://example.com/tick",
-            YourRating = "5.10d"
+            Pitches = 1,
+            YourRating = "5.10d",
+            Length = 50,
+            ClimbId = 0,
+            Climb = new SportRoute()
+            {
+                ClimbType = ClimbType.Sport,
+                DangerRating = ClimbDangerRating.G,
+                Height = 50,
+                Id = 0,
+                Location = "Red River Gorge",
+                Name = "Breakfast Burrito",
+                NumberOfBolts = 7,
+                NumberOfPitches = 1,
+                Rating = "5.10d",
+                Url = "https://example.com/tick"
+            }
         };
     }
 
@@ -35,7 +52,22 @@ public static class TickBuilder
             RouteType = "Sport",
             Style = "On-sight",
             Url = "https://example.com/tick",
-            YourRating = "5.12a"
+            YourRating = "5.12a",
+            Length = 50,
+            ClimbId = 0,
+            Climb = new SportRoute()
+            {
+                ClimbType = ClimbType.Sport,
+                DangerRating = ClimbDangerRating.G,
+                Height = 50,
+                Id = 0,
+                Location = "Rifle",
+                Name = "Baby Brother",
+                NumberOfBolts = 7,
+                NumberOfPitches = 1,
+                Rating = "5.10d",
+                Url = "https://example.com/tick"
+            }
         };
     }
 }

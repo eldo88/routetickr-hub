@@ -25,7 +25,7 @@ public class TickRepository(ApplicationDbContext context) : ITickRepository
     {
         context.Ticks.Add(tick);
         var recordAdded = await context.SaveChangesAsync();
-        return recordAdded == 1;
+        return recordAdded == 2;
     }
 
     public async Task<bool> UpdateAsync(Tick tick)

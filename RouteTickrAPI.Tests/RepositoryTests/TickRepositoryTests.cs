@@ -177,27 +177,30 @@ public class TickRepositoryTests
         // Act
         var result = await _tickRepository.AddAsync(tick);
         // Assert
-        Assert.That(result, Is.True);
         var addedTick = await _context.Ticks.FindAsync(tick.Id);
-        Assert.That(addedTick, Is.Not.Null);
-        Assert.That(addedTick.Id, Is.EqualTo(tick.Id));
-        Assert.That(addedTick.Date, Is.EqualTo(tick.Date));
-        Assert.That(addedTick.Length, Is.EqualTo(tick.Length));
-        Assert.That(addedTick.Pitches, Is.EqualTo(tick.Pitches));
-        Assert.That(addedTick.Location, Is.EqualTo(tick.Location));
-        Assert.That(addedTick.Notes, Is.EqualTo(tick.Notes));
-        Assert.That(addedTick.Rating, Is.EqualTo(tick.Rating));
-        Assert.That(addedTick.Route, Is.EqualTo(tick.Route));
-        Assert.That(addedTick.Style, Is.EqualTo(tick.Style));
-        Assert.That(addedTick.Url, Is.EqualTo(tick.Url));
-        Assert.That(addedTick.AvgStars, Is.EqualTo(tick.AvgStars));
-        Assert.That(addedTick.LeadStyle, Is.EqualTo(tick.LeadStyle));
-        Assert.That(addedTick.RatingCode, Is.EqualTo(tick.RatingCode));
-        Assert.That(addedTick.RouteType, Is.EqualTo(tick.RouteType));
-        Assert.That(addedTick.YourRating, Is.EqualTo(tick.YourRating));
-        Assert.That(addedTick.YourStars, Is.EqualTo(tick.YourStars));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.True);
+            Assert.That(addedTick, Is.Not.Null);
+            Assert.That(addedTick.Id, Is.EqualTo(tick.Id));
+            Assert.That(addedTick.Date, Is.EqualTo(tick.Date));
+            Assert.That(addedTick.Length, Is.EqualTo(tick.Length));
+            Assert.That(addedTick.Pitches, Is.EqualTo(tick.Pitches));
+            Assert.That(addedTick.Location, Is.EqualTo(tick.Location));
+            Assert.That(addedTick.Notes, Is.EqualTo(tick.Notes));
+            Assert.That(addedTick.Rating, Is.EqualTo(tick.Rating));
+            Assert.That(addedTick.Route, Is.EqualTo(tick.Route));
+            Assert.That(addedTick.Style, Is.EqualTo(tick.Style));
+            Assert.That(addedTick.Url, Is.EqualTo(tick.Url));
+            Assert.That(addedTick.AvgStars, Is.EqualTo(tick.AvgStars));
+            Assert.That(addedTick.LeadStyle, Is.EqualTo(tick.LeadStyle));
+            Assert.That(addedTick.RatingCode, Is.EqualTo(tick.RatingCode));
+            Assert.That(addedTick.RouteType, Is.EqualTo(tick.RouteType));
+            Assert.That(addedTick.YourRating, Is.EqualTo(tick.YourRating));
+            Assert.That(addedTick.YourStars, Is.EqualTo(tick.YourStars));
+        });
     }
-    
+
     [Test]
     public async Task UpdateAsync_UpdatesExistingTick_WhenTickExists()
     {
