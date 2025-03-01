@@ -9,20 +9,11 @@ using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
 
-public class ImportFileService : IImportFileService
+public class ImportFileService(ITickRepository tickRepository, IClimbService climbService) : IImportFileService
 {
-    private readonly ITickRepository _tickRepository;
-    private readonly IClimbService _climbService;
-
-    public ImportFileService(ITickRepository tickRepository, IClimbService climbService)
-    {
-        _tickRepository = tickRepository;
-        _climbService = climbService;
-    }
-    
     public async Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto)
     {
-        await using var transaction = await _tickRepository.BeginTransactionAsync();
+        await using var transaction = await tickRepository.BeginTransactionAsync();
         try
         {
             using var stream = new StringReader(fileDto.Content);
@@ -33,14 +24,14 @@ public class ImportFileService : IImportFileService
             foreach (var tickDto in dataFromFile)
             {
                 var route = tickDto.BuildClimb();
-                var result = await _climbService.AddClimbIfNotExists(route);
+                var result = await climbService.AddClimbIfNotExists(route);
                 if (!result.Success) throw new InvalidOperationException("Failed to add climb.");
                 tickDto.Climb = result.Data;
             }
 
             foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {
-                var tickAdded = await _tickRepository.AddAsync(tick);
+                var tickAdded = await tickRepository.AddAsync(tick);
                 if (!tickAdded) throw new InvalidOperationException("Error saving tick.");
             }
 

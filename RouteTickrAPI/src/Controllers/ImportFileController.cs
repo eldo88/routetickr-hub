@@ -6,22 +6,15 @@ namespace RouteTickrAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
-public class ImportFileController : ControllerBase
+public class ImportFileController(IImportFileService importFileService) : ControllerBase
 {
-    private readonly IImportFileService _importFileService;
-
-    public ImportFileController(IImportFileService importFileService)
-    {
-        _importFileService = importFileService;
-    }
-    
     [HttpPost]
     public async Task<IActionResult> ImportFile(IFormFile file)
     {
         try
         {
             var fileDto = await file.ToImportFileDto();
-            var result = await _importFileService.ImportFileAsync(fileDto);
+            var result = await importFileService.ImportFileAsync(fileDto);
             if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
 
             return Ok($"File {fileDto.FileName} uploaded successfully.");

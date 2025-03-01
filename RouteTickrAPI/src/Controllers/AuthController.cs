@@ -12,22 +12,16 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 namespace RouteTickrAPI.Controllers;
 
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController(IConfiguration config, IUserRepository userRepository, IAuthService authService)
+    : ControllerBase
 {
-    private readonly IConfiguration _config;
-    private readonly IUserRepository _userRepository;
-    private readonly IAuthService _authService;
+    private readonly IConfiguration _config = config;
+    private readonly IUserRepository _userRepository = userRepository;
 
-    public AuthController(IConfiguration config, IUserRepository userRepository, IAuthService authService)
-    {
-        _config = config;
-        _userRepository = userRepository;
-        _authService = authService;
-    }
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        var result = await _authService.Login(request);
+        var result = await authService.Login(request);
 
         if (!result.Success) return Unauthorized(result);
 
@@ -37,7 +31,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] LoginRequestDto request)
     {
-        var result = await _authService.Register(request);
+        var result = await authService.Register(request);
         if (!result.Success)
             return BadRequest(result);
         

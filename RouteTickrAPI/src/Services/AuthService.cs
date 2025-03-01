@@ -8,22 +8,13 @@ using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
 
-public class AuthService : IAuthService
+public class AuthService(IUserRepository userRepository, IConfiguration config) : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IConfiguration _config;
-
-    public AuthService(IUserRepository userRepository, IConfiguration config)
-    {
-        _userRepository = userRepository;
-        _config = config;
-    }
-
     public async Task<ServiceResult<string>> Login(LoginRequestDto request)
     {
         try
         {
-            var user = await _userRepository.GetUserByUsernameAsync(request.Username);
+            var user = await userRepository.GetUserByUsernameAsync(request.Username);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return ServiceResult<string>.ErrorResult("User Unauthorized");
             
@@ -33,11 +24,11 @@ public class AuthService : IAuthService
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? string.Empty));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ?? string.Empty));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: config["Jwt:Issuer"],
+                audience: config["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: credentials
@@ -58,12 +49,12 @@ public class AuthService : IAuthService
     {
         try
         {
-            var existingUser = await _userRepository.GetUserByUsernameAsync(request.Username);
+            var existingUser = await userRepository.GetUserByUsernameAsync(request.Username);
             if (existingUser is not null)
                 return ServiceResult<UserDto>.ErrorResult("Username already exists");
 
             var newUser = request.ToUser();
-            var isAdded = await _userRepository.AddUserAsync(newUser);
+            var isAdded = await userRepository.AddUserAsync(newUser);
 
             if (!isAdded) return ServiceResult<UserDto>.ErrorResult("Error Registering User");
             var addedUser = newUser.ToUserDto();

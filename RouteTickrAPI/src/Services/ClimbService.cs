@@ -7,21 +7,13 @@ using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
 
-public class ClimbService : IClimbService
+public class ClimbService(IClimbRepository climbRepository) : IClimbService
 {
-    private readonly IClimbRepository _climbRepository;
-
-    public ClimbService(IClimbRepository climbRepository)
-    {
-        _climbRepository = climbRepository;
-    }
-
-
     public async Task<ServiceResult<IEnumerable<ClimbDto>>> GetAllAsync()
     {
         try
         {
-            var climbs = await _climbRepository.GetAllAsync();
+            var climbs = await climbRepository.GetAllAsync();
             var climbDtoList = climbs.Select(ClimbDtoExtensions.ToDto).ToList();
             
             return climbDtoList.Count == 0
@@ -72,7 +64,7 @@ public class ClimbService : IClimbService
 
     public async Task<ServiceResult<Climb>> GetByIdAsync(int id)
     {
-        var result = await _climbRepository.GetByIdAsync(id);
+        var result = await climbRepository.GetByIdAsync(id);
 
         return result is not null
             ? ServiceResult<Climb>.SuccessResult(result)
@@ -83,7 +75,7 @@ public class ClimbService : IClimbService
     {
         try
         {
-            var recordsWritten = await _climbRepository.AddClimb(climb);
+            var recordsWritten = await climbRepository.AddClimb(climb);
 
             return recordsWritten == 2
                 ? ServiceResult<Climb>.SuccessResult(climb)
@@ -124,7 +116,7 @@ public class ClimbService : IClimbService
         
         if (string.IsNullOrEmpty(location)) throw new ArgumentNullException(nameof(location));
         
-        var result = await _climbRepository.GetByNameAndLocationAsync(name, location);
+        var result = await climbRepository.GetByNameAndLocationAsync(name, location);
 
         return result is not null
             ? ServiceResult<Climb>.SuccessResult(result)

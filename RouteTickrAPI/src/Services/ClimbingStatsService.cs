@@ -6,27 +6,18 @@ using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
 
-public class ClimbingStatsService : IClimbingStatsService
+public class ClimbingStatsService(ITickRepository tickRepository, IMemoryCache cache) : IClimbingStatsService
 {
-    private readonly ITickRepository _tickRepository;
-    private readonly IMemoryCache _cache;
-    public ClimbingStatsService(ITickRepository tickRepository, IMemoryCache cache)
-    {
-        _tickRepository = tickRepository;
-        _cache = cache;
-    }
-
-
     private async Task<int> CalcTickTotal()
     {
-        var totalTicks = await _tickRepository.GetTotalCountAsync();
+        var totalTicks = await tickRepository.GetTotalCountAsync();
 
         return totalTicks;
     }
 
     private async Task<int> CalcTotalPitches()
     {
-        var totalPitches = await _tickRepository.GetPitchesAsync();
+        var totalPitches = await tickRepository.GetPitchesAsync();
 
         return totalPitches ?? 0;
     }
@@ -37,7 +28,7 @@ public class ClimbingStatsService : IClimbingStatsService
         {
             var locationVisits = new Dictionary<string, int>();
             var allLocations = new List<string>();
-            var locationList = await _tickRepository.GetLocationAsync();
+            var locationList = await tickRepository.GetLocationAsync();
             
             foreach (var locations in locationList)
             {
@@ -66,7 +57,7 @@ public class ClimbingStatsService : IClimbingStatsService
     {
         try
         {
-            var ticks = await _tickRepository.GetAllAsync();
+            var ticks = await tickRepository.GetAllAsync();
             var locationWithTickIds = new Dictionary<string, List<int>>();
         
             foreach (var tick in ticks)
@@ -94,7 +85,7 @@ public class ClimbingStatsService : IClimbingStatsService
         try
         {
             var gradeCounts = new Dictionary<string, int>();
-            var grades = await _tickRepository.GetRatingAsync();
+            var grades = await tickRepository.GetRatingAsync();
             
             foreach (var grade in grades.Select(g => g.ToLowerInvariant()))
             {
@@ -118,7 +109,7 @@ public class ClimbingStatsService : IClimbingStatsService
     {
         try
         {
-            if (_cache.TryGetValue($"TickIds_{state}", out List<int>? cachedTickIds))
+            if (cache.TryGetValue($"TickIds_{state}", out List<int>? cachedTickIds))
             {
                 return cachedTickIds is not null
                     ? ServiceResult<List<int>>.SuccessResult(cachedTickIds)
@@ -142,7 +133,7 @@ public class ClimbingStatsService : IClimbingStatsService
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1),
                 SlidingExpiration = TimeSpan.FromMinutes(30)
             };
-            _cache.Set($"TickIds_{state}", tickIds, cacheOptions);
+            cache.Set($"TickIds_{state}", tickIds, cacheOptions);
 
             return ServiceResult<List<int>>.SuccessResult(tickIds);
         }
@@ -155,7 +146,7 @@ public class ClimbingStatsService : IClimbingStatsService
 
     public async Task<ServiceResult<ClimbingStatsDto>> GetClimbingStats()
     {
-        var stats = await _cache.GetOrCreateAsync("ClimbingStats", async entry =>
+        var stats = await cache.GetOrCreateAsync("ClimbingStats", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
             entry.SlidingExpiration = TimeSpan.FromMinutes(5);

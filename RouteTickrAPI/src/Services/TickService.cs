@@ -6,22 +6,13 @@ using RouteTickrAPI.Extensions;
 
 namespace RouteTickrAPI.Services;
 
-public class TickService : ITickService
+public class TickService(ITickRepository tickRepository, IClimbService climbService) : ITickService
 {
-    private readonly ITickRepository _tickRepository;
-    private readonly IClimbService _climbService;
-
-    public TickService(ITickRepository tickRepository,IClimbService climbService)
-    {
-        _tickRepository = tickRepository;
-        _climbService = climbService;
-    }
-
     public async Task<ServiceResult<IEnumerable<TickDto>>> GetAllAsync()
     {
         try
         {
-            var ticks = await _tickRepository.GetAllAsync();
+            var ticks = await tickRepository.GetAllAsync();
             var tickDtoList = ticks.Select(TickDtoExtensions.ToTickDto).ToList();
             
             return tickDtoList.Count == 0 
@@ -47,7 +38,7 @@ public class TickService : ITickService
             if (id <= 0) 
                 return ServiceResult<TickDto>.ErrorResult("ID must be greater than zero.");
             
-            var tick = await _tickRepository.GetByIdAsync(id);
+            var tick = await tickRepository.GetByIdAsync(id);
             if (tick is null) 
                 return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.");
             
@@ -73,7 +64,7 @@ public class TickService : ITickService
             
             foreach (var id in tickIds)
             {
-                var tick = await _tickRepository.GetByIdAsync(id);
+                var tick = await tickRepository.GetByIdAsync(id);
                 if (tick is null) continue;
                 var tickDto = tick.ToTickDto();
                 tickDtos.Add(tickDto);
@@ -98,7 +89,7 @@ public class TickService : ITickService
             
             var tick = tickDto.ToTickEntity(result);
             
-            var isTickAdded = await _tickRepository.AddAsync(tick);
+            var isTickAdded = await tickRepository.AddAsync(tick);
             if (!isTickAdded) 
                 return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
             
@@ -116,12 +107,12 @@ public class TickService : ITickService
     {
         try
         {
-            var recordToBeUpdated = await _tickRepository.GetByIdAsync(tickDto.Id);
+            var recordToBeUpdated = await tickRepository.GetByIdAsync(tickDto.Id);
             if (recordToBeUpdated is null) 
                 return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {tickDto.Id} does not exist");
             
             var tick = tickDto.ToEntity();
-            var isUpdated = await _tickRepository.UpdateAsync(tick);
+            var isUpdated = await tickRepository.UpdateAsync(tick);
             
             return isUpdated 
                 ? ServiceResult<TickDto>.SuccessResult(tickDto)
@@ -138,7 +129,7 @@ public class TickService : ITickService
     {
         try
         {
-            var isDeleted = await _tickRepository.DeleteAsync(id);
+            var isDeleted = await tickRepository.DeleteAsync(id);
             
             return isDeleted 
                 ? ServiceResult<bool>.SuccessResult(true) 
@@ -156,7 +147,7 @@ public class TickService : ITickService
         if (tickDto.Climb is null)
             throw new ArgumentNullException(nameof(tickDto));
 
-        var result = await _climbService.AddClimbIfNotExists(tickDto.Climb);
+        var result = await climbService.AddClimbIfNotExists(tickDto.Climb);
 
         if (result.Data is null)
             throw new ArgumentNullException(nameof(result));
