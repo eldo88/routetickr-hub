@@ -9,11 +9,22 @@ using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
 
-public class ImportFileService(ITickRepository tickRepository, IClimbService climbService) : IImportFileService
+public class ImportFileService : IImportFileService
 {
+    
+    private readonly ITickRepository _tickRepository;
+    private readonly IClimbService _climbService;
+    private readonly ILocationService _locationService;
+
+    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ILocationService locationService)
+    {
+        _tickRepository = tickRepository ?? throw new ArgumentNullException(nameof(tickRepository));
+        _climbService = climbService ?? throw new ArgumentNullException(nameof(climbService));
+        _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+    }
     public async Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto)
     {
-        await using var transaction = await tickRepository.BeginTransactionAsync();
+        await using var transaction = await _tickRepository.BeginTransactionAsync();
         try
         {
             using var stream = new StringReader(fileDto.Content);
@@ -24,14 +35,16 @@ public class ImportFileService(ITickRepository tickRepository, IClimbService cli
             foreach (var tickDto in dataFromFile)
             {
                 var route = tickDto.BuildClimb();
-                var result = await climbService.AddClimbIfNotExists(route);
+                var locations = route.Location;
+                await _locationService.AddLocationsAsync(locations);
+                var result = await _climbService.AddClimbIfNotExists(route);
                 if (!result.Success) throw new InvalidOperationException("Failed to add climb.");
                 tickDto.Climb = result.Data;
             }
 
             foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {
-                var tickAdded = await tickRepository.AddAsync(tick);
+                var tickAdded = await _tickRepository.AddAsync(tick);
                 if (!tickAdded) throw new InvalidOperationException("Error saving tick.");
             }
 

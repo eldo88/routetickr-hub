@@ -15,6 +15,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<AlpineRockRoute> AlpineRockRoutes { get; init; }
     public DbSet<Boulder> Boulders { get; init; }
     
+    public DbSet<LocationNode> Locations { get; init; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Climb>().ToTable("Climbs");
@@ -28,5 +30,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasOne(t => t.Climb)
             .WithMany()
             .HasForeignKey(t => t.ClimbId);
+
+        modelBuilder.Entity<LocationNode>()
+            .HasMany(l => l.Children)
+            .WithOne(l => l.Parent)
+            .HasForeignKey(l => l.ParentId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        base.OnModelCreating(modelBuilder);
     }
 }

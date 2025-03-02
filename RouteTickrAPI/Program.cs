@@ -32,6 +32,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IImportFileService, ImportFileService>();
 builder.Services.AddScoped<IClimbRepository, ClimbRepository>();
 builder.Services.AddScoped<IClimbService, ClimbService>();
+builder.Services.AddScoped<ILocationTreeService, LocationTreeService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=RouteTickr.db"));
