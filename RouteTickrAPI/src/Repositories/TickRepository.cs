@@ -5,32 +5,39 @@ using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Repositories;
 
-public class TickRepository(ApplicationDbContext context) : ITickRepository
+public class TickRepository : ITickRepository
 {
+
+    private readonly ApplicationDbContext _context;
+
+    public TickRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
     public async Task<IEnumerable<Tick>> GetAllAsync()
     {
-        return await context.Ticks
+        return await _context.Ticks
             .Include(t => t.Climb)
             .ToListAsync();
     }
 
     public async Task<Tick?> GetByIdAsync(int id)
     {
-        return await context.Ticks
+        return await _context.Ticks
             .Include(t => t.Climb)
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<bool> AddAsync(Tick tick)
     {
-        context.Ticks.Add(tick);
-        var recordAdded = await context.SaveChangesAsync();
-        return recordAdded == 2;
+        _context.Ticks.Add(tick);
+        var recordAdded = await _context.SaveChangesAsync();
+        return recordAdded == 1;
     }
 
     public async Task<bool> UpdateAsync(Tick tick)
     {
-        var existingTick = await context.Ticks
+        var existingTick = await _context.Ticks
             .Include(t => t.Climb)
             .FirstOrDefaultAsync(t => t.Id == tick.Id);
         
@@ -38,14 +45,14 @@ public class TickRepository(ApplicationDbContext context) : ITickRepository
         {
             return false;
         }
-        context.Entry(existingTick).CurrentValues.SetValues(tick);
-        var recordsUpdated = await context.SaveChangesAsync();
+        _context.Entry(existingTick).CurrentValues.SetValues(tick);
+        var recordsUpdated = await _context.SaveChangesAsync();
         return recordsUpdated == 1;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var tick = await context.Ticks
+        var tick = await _context.Ticks
             .Include(t => t.Climb)
             .FirstOrDefaultAsync(t => t.Id == id);
         
@@ -53,39 +60,39 @@ public class TickRepository(ApplicationDbContext context) : ITickRepository
         {
             return false;
         }
-        context.Ticks.Remove(tick);
-        var recordsDeleted = await context.SaveChangesAsync();
+        _context.Ticks.Remove(tick);
+        var recordsDeleted = await _context.SaveChangesAsync();
         return recordsDeleted == 1;
     }
     
     public async Task<int> GetTotalCountAsync()
     {
-        return await context.Ticks.CountAsync();
+        return await _context.Ticks.CountAsync();
     }
 
     public async Task<int?> GetPitchesAsync()
     {
-        return await context.Ticks
+        return await _context.Ticks
             .Where(t => t.Pitches != null)
             .SumAsync(t => t.Pitches);
     }
 
     public async Task<List<string>> GetLocationAsync()
     {
-        return await context.Ticks
+        return await _context.Ticks
             .Select(t => t.Location)
             .ToListAsync();
     }
 
     public async Task<List<string>> GetRatingAsync()
     {
-        return await context.Ticks
+        return await _context.Ticks
             .Select(t => t.Rating)
             .ToListAsync();
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync()
     {
-        return await context.Database.BeginTransactionAsync();
+        return await _context.Database.BeginTransactionAsync();
     }
 }
