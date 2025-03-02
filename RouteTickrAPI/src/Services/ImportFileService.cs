@@ -14,13 +14,11 @@ public class ImportFileService : IImportFileService
     
     private readonly ITickRepository _tickRepository;
     private readonly IClimbService _climbService;
-    private readonly ILocationService _locationService;
 
-    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ILocationService locationService)
+    public ImportFileService(ITickRepository tickRepository, IClimbService climbService)
     {
-        _tickRepository = tickRepository ?? throw new ArgumentNullException(nameof(tickRepository));
-        _climbService = climbService ?? throw new ArgumentNullException(nameof(climbService));
-        _locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+        _tickRepository = tickRepository;
+        _climbService = climbService;
     }
     public async Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto)
     {
@@ -35,8 +33,6 @@ public class ImportFileService : IImportFileService
             foreach (var tickDto in dataFromFile)
             {
                 var route = tickDto.BuildClimb();
-                var locations = route.Location;
-                await _locationService.AddLocationsAsync(locations);
                 var result = await _climbService.AddClimbIfNotExists(route);
                 if (!result.Success) throw new InvalidOperationException("Failed to add climb.");
                 tickDto.Climb = result.Data;
