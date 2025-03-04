@@ -41,7 +41,8 @@ public static class DictionaryExtensions
     /// <param name="value">The value to add to the collection.</param>
     /// <typeparam name="TKey">The type of the dictionary key. Must not be null.</typeparam>
     /// <typeparam name="TValue">The type of values stored in the collection.</typeparam>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="dict"/> is null.</exception>/// <typeparam name="TCollection">The type of collection that holds values. Must implement <see cref="ICollection{TValue}"/> and have a parameterless constructor.</typeparam>
+    /// <typeparam name="TCollection">The type of collection that holds values. Must implement <see cref="ICollection{TValue}"/> and have a parameterless constructor.</typeparam>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="dict"/> is null.</exception>
     public static void AddToCollection<TKey, TValue, TCollection>(
         this Dictionary<TKey, TCollection> dict, 
         TKey key, 
@@ -49,6 +50,8 @@ public static class DictionaryExtensions
         where TKey : notnull 
         where TCollection : ICollection<TValue>, new()
     {
+        ArgumentNullException.ThrowIfNull(dict, nameof(dict));
+        
         if (!dict.TryGetValue(key, out var collection))
         {
             collection = new TCollection();
