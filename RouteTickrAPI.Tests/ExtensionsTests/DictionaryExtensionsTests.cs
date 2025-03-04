@@ -1,4 +1,5 @@
 using RouteTickrAPI.Extensions;
+using ArgumentNullException = System.ArgumentNullException;
 
 namespace RouteTickrAPI.Tests.ExtensionsTests;
 
@@ -10,10 +11,9 @@ public class DictionaryExtensionsTests
     {
         //Arrange
         Dictionary<string, int> dict = null;
-        //Act
-        var result = dict.TryIncrementCount("test");
+        
         //Assert
-        Assert.That(result, Is.False);
+        Assert.Throws<ArgumentNullException>(() => dict.IncrementCount("test"));
     }
 
     [Test]
@@ -22,11 +22,10 @@ public class DictionaryExtensionsTests
         //Arrange
         var dict = new Dictionary<string, int>();
         //Act
-        var result = dict.TryIncrementCount("test");
+        dict.IncrementCount("test");
         //Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.True);
             Assert.That(dict.ContainsKey("test"), Is.True);
             Assert.That(dict["test"], Is.EqualTo(1));
         });
@@ -38,11 +37,10 @@ public class DictionaryExtensionsTests
         //Arrange
         var dict = new Dictionary<string, int> { { "test", 1 } };
         //Act
-        var result = dict.TryIncrementCount("test");
+        dict.IncrementCount("test");
         //Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.True);
             Assert.That(dict.ContainsKey("test"), Is.True);
             Assert.That(dict["test"], Is.EqualTo(2));
         });
@@ -54,9 +52,9 @@ public class DictionaryExtensionsTests
         //Arrange
         var dict = new Dictionary<string, int>();
         //Act
-        dict.TryIncrementCount("test");
-        dict.TryIncrementCount("test");
-        dict.TryIncrementCount("test");
+        dict.IncrementCount("test");
+        dict.IncrementCount("test");
+        dict.IncrementCount("test");
         //Assert
         Assert.That(dict["test"], Is.EqualTo(3));
     }
@@ -67,11 +65,10 @@ public class DictionaryExtensionsTests
         //Arrange
         var dict = new Dictionary<string, int>() { { "a", 1 }, { "b", 2 } };
         //Act
-        var result = dict.TryIncrementCount("b");
+        dict.IncrementCount("b");
         //Assert
         Assert.Multiple(() =>
         {
-            Assert.That(result, Is.True);
             Assert.That(dict["a"], Is.EqualTo(1));
             Assert.That(dict["b"], Is.EqualTo(3));
         });
