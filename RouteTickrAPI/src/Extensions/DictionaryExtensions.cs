@@ -71,28 +71,5 @@ public static class DictionaryExtensions
             action(kvp.Value);
         }
     }
-
-    
-    /// <summary>
-    /// Filters the dictionary by applying a predicate to the values, 
-    /// returning a new dictionary containing only key-value pairs 
-    /// where the value satisfies the specified condition.
-    /// </summary>
-    /// <param name="dict">The dictionary to filter.</param>
-    /// <param name="predicate">A function to test each value for a condition.</param>
-    /// <typeparam name="TKey">The type of the dictionary keys.</typeparam>
-    /// <typeparam name="TValue">The type of the dictionary values.</typeparam>
-    /// <returns>A new dictionary containing only the key-value pairs where the value meets the predicate condition.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="dict"/> or <paramref name="predicate"/> is null.</exception>
-    public static Dictionary<TKey, TValue> FilterValues<TKey, TValue>(this Dictionary<TKey, TValue> dict,
-        Func<TValue, bool> predicate)
-        where TKey: notnull
-    {
-        ArgumentNullException.ThrowIfNull(dict);
-        ArgumentNullException.ThrowIfNull(predicate);
-
-        return dict.Where(kvp => predicate(kvp.Value))
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-    }
     
 }
