@@ -157,8 +157,8 @@ public class TickService : ITickService
 
         var result = await _climbService.AddClimbIfNotExists(tickDto.Climb);
 
-        if (result.Data is null)
-            throw new ArgumentNullException(nameof(result));
+        if (!result.Success || result.Data is null)
+            throw new InvalidOperationException($"Failed to get or save climb: {result.ErrorMessage}");
         
         return result.Data;
     }
