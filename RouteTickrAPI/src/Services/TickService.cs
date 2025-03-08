@@ -157,24 +157,30 @@ public class TickService : ITickService
         return result.Data;
     }
 
-    public async Task<ServiceResult<Tick>> SaveTickAsync(TickDto tickDto)
+    public async Task<ServiceResult<TickDto>> SaveTickAsync(TickDto tickDto) //make private?
     {
         var climb = await GetOrSaveClimb(tickDto);
         var tick = tickDto.ToTickEntity(climb);
         var recordsAdded = await _tickRepository.AddAsync(tick);
 
-        return recordsAdded == 1
-            ? ServiceResult<Tick>.SuccessResult(tick)
-            : ServiceResult<Tick>.ErrorResult("Unexpected number of records saved.");
+        if (recordsAdded != 1)
+            throw new InvalidOperationException("Unexpected number of records saved.");
+        
+        var tickDtoToReturn = tick.ToTickDto();
+        
+        return ServiceResult<TickDto>.SuccessResult(tickDtoToReturn);
     }
 
-    public async Task<ServiceResult<Tick>> SaveTickAsync(Tick tick)
+    public async Task<ServiceResult<TickDto>> SaveTickAsync(Tick tick)
     {
         var recordsAdded = await _tickRepository.AddAsync(tick);
+
+        if (recordsAdded != 1)
+            throw new InvalidOperationException("Unexpected number of records saved.");
         
-        return recordsAdded == 1
-            ? ServiceResult<Tick>.SuccessResult(tick)
-            : ServiceResult<Tick>.ErrorResult("Unexpected number of records saved.");
+        var tickDto = tick.ToTickDto();
+        
+        return ServiceResult<TickDto>.SuccessResult(tickDto);
     }
     
 }

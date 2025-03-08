@@ -11,6 +11,6 @@ public interface ITickService
     Task<ServiceResult<TickDto>> AddAsync(TickDto tickDto);
     Task<ServiceResult<TickDto>> UpdateAsync(TickDto tickDto);
     Task<ServiceResult<bool>> DeleteAsync(int id);
-    Task<ServiceResult<Tick>> SaveTickAsync(TickDto tick);
-    Task<ServiceResult<Tick>> SaveTickAsync(Tick tick);
+    Task<ServiceResult<TickDto>> SaveTickAsync(TickDto tick);
+    Task<ServiceResult<TickDto>> SaveTickAsync(Tick tick);
 }
