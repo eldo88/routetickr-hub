@@ -14,11 +14,13 @@ public class ImportFileService : IImportFileService
     
     private readonly ITickRepository _tickRepository;
     private readonly IClimbService _climbService;
+    private readonly ITickService _tickService;
 
-    public ImportFileService(ITickRepository tickRepository, IClimbService climbService)
+    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ITickService tickService)
     {
         _tickRepository = tickRepository;
         _climbService = climbService;
+        _tickService = tickService;
     }
     public async Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto)
     {
@@ -40,8 +42,9 @@ public class ImportFileService : IImportFileService
 
             foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {
-                var tickAdded = await _tickRepository.AddAsync(tick);
-                if (!tickAdded) throw new InvalidOperationException("Error saving tick.");
+                var result = await _tickService.SaveTickAsync(tick);
+                if (!result.Success) 
+                    throw new InvalidOperationException("Error saving tick.");
             }
 
             await transaction.CommitAsync();

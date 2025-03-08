@@ -28,14 +28,14 @@ public class TickRepository : ITickRepository
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public async Task<bool> AddAsync(Tick tick)
+    public async Task<int> AddAsync(Tick tick)
     {
         _context.Ticks.Add(tick);
-        var recordAdded = await _context.SaveChangesAsync();
-        return recordAdded == 1;
+        return await _context.SaveChangesAsync();
+        //return recordAdded == 1;
     }
 
-    public async Task<bool> UpdateAsync(Tick tick)
+    public async Task<bool> UpdateAsync(Tick tick) //create service method
     {
         var existingTick = await _context.Ticks
             .Include(t => t.Climb)
@@ -50,7 +50,7 @@ public class TickRepository : ITickRepository
         return recordsUpdated == 1;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id) //create service method
     {
         var tick = await _context.Ticks
             .Include(t => t.Climb)

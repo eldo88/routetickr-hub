@@ -93,16 +93,10 @@ public class TickService : ITickService
     {
         try
         {
-            var result = await GetOrSaveClimb(tickDto);
-            
-            var tick = tickDto.ToTickEntity(result);
-            
-            var isTickAdded = await _tickRepository.AddAsync(tick);
-            if (!isTickAdded) 
-                return ServiceResult<TickDto>.ErrorResult("Error adding tick.");
-            
-            var tickAdded = tick.ToTickDto();
-            return ServiceResult<TickDto>.SuccessResult(tickAdded);
+            var result = await SaveTickAsync(tickDto);
+            return !result.Success 
+                ? ServiceResult<TickDto>.ErrorResult("Error adding tick.") 
+                : ServiceResult<TickDto>.SuccessResult(tickDto);
         }
         catch (Exception ex)
         {
@@ -161,6 +155,26 @@ public class TickService : ITickService
             throw new InvalidOperationException($"Failed to get or save climb: {result.ErrorMessage}");
         
         return result.Data;
+    }
+
+    public async Task<ServiceResult<Tick>> SaveTickAsync(TickDto tickDto)
+    {
+        var climb = await GetOrSaveClimb(tickDto);
+        var tick = tickDto.ToTickEntity(climb);
+        var recordsAdded = await _tickRepository.AddAsync(tick);
+
+        return recordsAdded == 1
+            ? ServiceResult<Tick>.SuccessResult(tick)
+            : ServiceResult<Tick>.ErrorResult("Unexpected number of records saved.");
+    }
+
+    public async Task<ServiceResult<Tick>> SaveTickAsync(Tick tick)
+    {
+        var recordsAdded = await _tickRepository.AddAsync(tick);
+        
+        return recordsAdded == 1
+            ? ServiceResult<Tick>.SuccessResult(tick)
+            : ServiceResult<Tick>.ErrorResult("Unexpected number of records saved.");
     }
     
 }
