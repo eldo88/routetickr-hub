@@ -1,4 +1,5 @@
 
+using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
@@ -94,9 +95,21 @@ public class TickService : ITickService
         try
         {
             var result = await SaveTickAsync(tickDto);
-            return !result.Success 
-                ? ServiceResult<TickDto>.ErrorResult("Error adding tick.") 
+            return !result.Success
+                ? ServiceResult<TickDto>.ErrorResult("Error adding tick.")
                 : ServiceResult<TickDto>.SuccessResult(tickDto);
+        }
+        catch (ArgumentNullException e)
+        {
+            return ServiceResult<TickDto>.ErrorResult($"An argument was null {e.Message}");
+        }
+        catch (InvalidOperationException e)
+        {
+            return ServiceResult<TickDto>.ErrorResult($"Issue saving tick {e.Message}");
+        }
+        catch (DbUpdateException e)
+        {
+            return ServiceResult<TickDto>.ErrorResult($"Database error {e.Message}");
         }
         catch (Exception ex)
         {
@@ -164,7 +177,7 @@ public class TickService : ITickService
         var recordsAdded = await _tickRepository.AddAsync(tick);
 
         if (recordsAdded != 1)
-            throw new InvalidOperationException("Unexpected number of records saved.");
+            throw new InvalidOperationException($"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
         
         var tickDtoToReturn = tick.ToTickDto();
         
@@ -176,7 +189,7 @@ public class TickService : ITickService
         var recordsAdded = await _tickRepository.AddAsync(tick);
 
         if (recordsAdded != 1)
-            throw new InvalidOperationException("Unexpected number of records saved.");
+            throw new InvalidOperationException($"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
         
         var tickDto = tick.ToTickDto();
         
