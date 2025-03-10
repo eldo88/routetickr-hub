@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.DTOs;
@@ -25,13 +24,13 @@ public class TickService : ITickService
             var tickDtoList = ticks.Select(TickDtoExtensions.ToTickDto).ToList();
             
             return tickDtoList.Count == 0 
-                ? ServiceResult<IEnumerable<TickDto>>.ErrorResult("No ticks found.") 
+                ? ServiceResult<IEnumerable<TickDto>>.NotFoundResult("No ticks found.") 
                 : ServiceResult<IEnumerable<TickDto>>.SuccessResult(tickDtoList);
         }
-        catch (ArgumentNullException ex)
+        catch (ArgumentNullException e)
         {
-            Console.WriteLine($"ArgumentNullException in GetAllAsync: {ex.Message}");
-            return ServiceResult<IEnumerable<TickDto>>.ErrorResult("A null value was encountered while mapping ticks.");
+            Console.WriteLine($"ArgumentNullException in GetAllAsync: {e.Message}");
+            return ServiceResult<IEnumerable<TickDto>>.ErrorResult($"A null value was encountered while mapping ticks, {e.Message}");
         }
         catch (Exception ex)
         {
@@ -44,16 +43,20 @@ public class TickService : ITickService
     {
         try
         {
-            if (id <= 0) 
-                return ServiceResult<TickDto>.ErrorResult("ID must be greater than zero.");
-            
+            if (id <= 0)
+                throw new ArgumentException("ID must be greater than zero.");
+
             var tick = await _tickRepository.GetByIdAsync(id);
-            if (tick is null) 
-                return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {id} not found.");
-            
+            if (tick is null)
+                return ServiceResult<TickDto>.NotFoundResult($"Tick with ID: {id} not found.");
+
             var tickDto = tick.ToTickDto();
-            
+
             return ServiceResult<TickDto>.SuccessResult(tickDto);
+        }
+        catch (ArgumentException e)
+        {
+            return ServiceResult<TickDto>.ErrorResult($"Error: {e.Message}");
         }
         catch (Exception e)
         {
@@ -66,11 +69,11 @@ public class TickService : ITickService
     {
         try
         {
-            if (tickIds.Count == 0) 
-                return ServiceResult<List<TickDto>>.ErrorResult("ID list is empty");
-            
+            if (tickIds.Count == 0)
+                throw new ArgumentException("ID list is empty");
+
             var tickDtos = new List<TickDto>();
-            
+
             foreach (var id in tickIds)
             {
                 var tick = await _tickRepository.GetByIdAsync(id);
@@ -80,8 +83,16 @@ public class TickService : ITickService
             }
 
             return tickDtos.Count == 0
-                ? ServiceResult<List<TickDto>>.ErrorResult("No Ticks found")
+                ? ServiceResult<List<TickDto>>.NotFoundResult("No Ticks found")
                 : ServiceResult<List<TickDto>>.SuccessResult(tickDtos);
+        }
+        catch (ArgumentNullException e)
+        {
+            return ServiceResult<List<TickDto>>.ErrorResult($"An argument was null, {e.Message}");
+        }
+        catch (ArgumentException e)
+        {
+            return ServiceResult<List<TickDto>>.ErrorResult($"Invalid parameter, {e.Message}");
         }
         catch (Exception ex)
         {
@@ -124,7 +135,7 @@ public class TickService : ITickService
         {
             var recordToBeUpdated = await _tickRepository.GetByIdAsync(tickDto.Id);
             if (recordToBeUpdated is null) 
-                return ServiceResult<TickDto>.ErrorResult($"Tick with ID: {tickDto.Id} does not exist");
+                return ServiceResult<TickDto>.NotFoundResult($"Tick with ID: {tickDto.Id} does not exist");
             
             var tick = tickDto.ToEntity();
             var isUpdated = await _tickRepository.UpdateAsync(tick);
