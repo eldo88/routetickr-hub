@@ -34,9 +34,9 @@ public class TickRepository : ITickRepository
         return await _context.SaveChangesAsync();
     }
 
-    public async Task<int> UpdateAsync(Tick existingTick, Tick tickToUpdate)
+    public async Task<int> UpdateAsync(Tick existingTick, Tick updateTo)
     {
-        _context.Entry(existingTick).CurrentValues.SetValues(tickToUpdate);
+        _context.Entry(existingTick).CurrentValues.SetValues(updateTo);
         return await _context.SaveChangesAsync();
     }
 
