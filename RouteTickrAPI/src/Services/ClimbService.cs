@@ -21,19 +21,19 @@ public class ClimbService : IClimbService
         {
             var climbs = await _climbRepository.GetAllAsync();
             var climbDtoList = climbs.Select(ClimbDtoExtensions.ToDto).ToList();
-            
-            return climbDtoList.Count == 0
-                ? ServiceResult<IEnumerable<ClimbDto>>.ErrorResult("No climbs found")
-                : ServiceResult<IEnumerable<ClimbDto>>.SuccessResult(climbDtoList);
+
+            return climbDtoList.Count > 0
+                ? ServiceResult<IEnumerable<ClimbDto>>.SuccessResult(climbDtoList)
+                : ServiceResult<IEnumerable<ClimbDto>>.NotFoundResult("No climbs found");
         }
-        catch (ArgumentNullException ex)
+        catch (ArgumentNullException e)
         {
-            Console.WriteLine($"ArgumentNullException in GetAllAsync: {ex.Message}");
+            Console.WriteLine($"ArgumentNullException in GetAllAsync: {e.Message}");
             return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult("A null value was encountered while mapping climbs.");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"Error in GetAllAsync: {ex.Message}");
+            Console.WriteLine($"Error in GetAllAsync: {e.Message}");
             return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult("An unexpected error occurred.");
         }
     }
@@ -50,11 +50,7 @@ public class ClimbService : IClimbService
             if (getByNameAndLocationResult.Success)
                 return getByNameAndLocationResult;
 
-            var result = await AddAsync(climb);
-
-            return result.Success
-                ? ServiceResult<Climb>.SuccessResult(climb)
-                : ServiceResult<Climb>.ErrorResult("Error saving climb.");
+            return await AddAsync(climb);
         }
         catch (ArgumentNullException e)
         {
@@ -64,7 +60,7 @@ public class ClimbService : IClimbService
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            return ServiceResult<Climb>.ErrorResult($"An unexpected error occurred: {e.Message}");
         }
     }
 
@@ -74,7 +70,7 @@ public class ClimbService : IClimbService
 
         return result is not null
             ? ServiceResult<Climb>.SuccessResult(result)
-            : ServiceResult<Climb>.NotFoundResult("Climb not found");
+            : ServiceResult<Climb>.NotFoundResult($"Climb not found with ID {id}");
     }
 
     public async Task<ServiceResult<Climb>> AddAsync(Climb climb)
@@ -85,7 +81,7 @@ public class ClimbService : IClimbService
 
             return recordsWritten == 2
                 ? ServiceResult<Climb>.SuccessResult(climb)
-                : ServiceResult<Climb>.ErrorResult($"Error saving climb {climb.Name}.");
+                : ServiceResult<Climb>.ErrorResult($"Error saving climb {climb.Name}."); // throw exception?
         }
         catch (DbUpdateException e)
         {
@@ -126,6 +122,6 @@ public class ClimbService : IClimbService
 
         return result is not null
             ? ServiceResult<Climb>.SuccessResult(result)
-            : ServiceResult<Climb>.NotFoundResult("No climb found with name and location");
+            : ServiceResult<Climb>.NotFoundResult($"No climb found with {name} and {location}");
     }
 }

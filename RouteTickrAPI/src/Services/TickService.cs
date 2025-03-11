@@ -106,10 +106,8 @@ public class TickService : ITickService
         try
         {
             var result = await SaveTickAsync(tickDto);
-            
-            return result.Success
-                ? ServiceResult<TickDto>.SuccessResult(tickDto)
-                : ServiceResult<TickDto>.ErrorResult("Error adding tick.");
+
+            return ServiceResult<TickDto>.SuccessResult(result);
         }
         catch (ArgumentNullException e)
         {
@@ -174,7 +172,7 @@ public class TickService : ITickService
         }
     }
 
-    public async Task<ServiceResult<TickDto>> SaveTickAsync(Tick tick)
+    public async Task<ServiceResult<TickDto>> SaveTickAsync(Tick tick) // consider changing return type if result is not needed
     {
         ArgumentNullException.ThrowIfNull(tick, nameof(tick));
         
@@ -204,7 +202,7 @@ public class TickService : ITickService
         return result.Data;
     }
     
-    private async Task<ServiceResult<TickDto>> SaveTickAsync(TickDto tickDto) 
+    private async Task<TickDto> SaveTickAsync(TickDto tickDto) 
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
         
@@ -215,7 +213,7 @@ public class TickService : ITickService
         var tickDtoToReturn = tick.ToTickDto();
 
         return recordsAdded == 1
-            ? ServiceResult<TickDto>.SuccessResult(tickDtoToReturn)
+            ? tickDtoToReturn
             : throw new InvalidOperationException(
                 $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
     }

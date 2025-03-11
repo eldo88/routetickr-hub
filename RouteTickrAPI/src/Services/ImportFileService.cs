@@ -36,15 +36,16 @@ public class ImportFileService : IImportFileService
             {
                 var route = tickDto.BuildClimb();
                 var result = await _climbService.AddClimbIfNotExists(route);
-                if (!result.Success) throw new InvalidOperationException("Failed to add climb.");
+                if (!result.Success) 
+                    throw new InvalidOperationException($"Failed to save climb. {result.ErrorMessage}");
                 tickDto.Climb = result.Data;
             }
 
             foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
             {
                 var result = await _tickService.SaveTickAsync(tick);
-                if (!result.Success) 
-                    throw new InvalidOperationException("Error saving tick.");
+                if (!result.Success)
+                    throw new InvalidOperationException($"Failed to save tick. {result.ErrorMessage}");
             }
 
             await transaction.CommitAsync();
@@ -71,15 +72,14 @@ public class ImportFileService : IImportFileService
         catch (Exception e)
         {
             Console.WriteLine($"Error is ImportFileAsync: {e.StackTrace}");
-
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult("An unexpected error occurred. Please try again.");
+            return ServiceResult<bool>.ErrorResult($"An unexpected error occurred. {e.Message}");
         }
     }
 
     private static List<TickDto> ConvertCsvFileToTickDto(CsvReader? csvFile)
     {
-        ArgumentNullException.ThrowIfNull(csvFile);
+        ArgumentNullException.ThrowIfNull(csvFile, nameof(csvFile));
         
         csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
         return csvFile.GetRecords<TickDto>().ToList();
