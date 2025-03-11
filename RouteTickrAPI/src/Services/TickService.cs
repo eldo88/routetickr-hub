@@ -133,16 +133,21 @@ public class TickService : ITickService
     {
         try
         {
-            var recordToBeUpdated = await _tickRepository.GetByIdAsync(tickDto.Id);
-            if (recordToBeUpdated is null) 
-                return ServiceResult<TickDto>.NotFoundResult($"Tick with ID: {tickDto.Id} does not exist");
-            
-            var tick = tickDto.ToEntity();
-            var isUpdated = await _tickRepository.UpdateAsync(tick);
-            
-            return isUpdated 
-                ? ServiceResult<TickDto>.SuccessResult(tickDto)
-                : ServiceResult<TickDto>.ErrorResult($"Error updating tick with ID: {tickDto.Id}");
+            await UpdateTickAsync(tickDto);
+
+            return ServiceResult<TickDto>.SuccessResult(tickDto);
+        }
+        catch (ArgumentNullException e)
+        {
+            return ServiceResult<TickDto>.ErrorResult($"An argument was null {e.Message}");
+        }
+        catch (InvalidOperationException e)
+        {
+            return ServiceResult<TickDto>.ErrorResult($"Error updating tick {e.Message}");
+        }
+        catch (DbUpdateException e)
+        {
+            return ServiceResult<TickDto>.ErrorResult($"Database error {e.Message}");
         }
         catch (Exception ex)
         {
@@ -183,28 +188,50 @@ public class TickService : ITickService
 
     public async Task<ServiceResult<TickDto>> SaveTickAsync(TickDto tickDto) //make private?
     {
+        ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
+        
         var climb = await GetOrSaveClimb(tickDto);
         var tick = tickDto.ToTickEntity(climb);
+        
         var recordsAdded = await _tickRepository.AddAsync(tick);
-
-        if (recordsAdded != 1)
-            throw new InvalidOperationException($"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
-        
         var tickDtoToReturn = tick.ToTickDto();
-        
-        return ServiceResult<TickDto>.SuccessResult(tickDtoToReturn);
+
+        return recordsAdded == 1
+            ? ServiceResult<TickDto>.SuccessResult(tickDtoToReturn)
+            : throw new InvalidOperationException(
+                $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
     }
 
     public async Task<ServiceResult<TickDto>> SaveTickAsync(Tick tick)
     {
+        ArgumentNullException.ThrowIfNull(tick, nameof(tick));
+        
         var recordsAdded = await _tickRepository.AddAsync(tick);
-
-        if (recordsAdded != 1)
-            throw new InvalidOperationException($"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
-        
         var tickDto = tick.ToTickDto();
+
+        return recordsAdded == 1
+            ? ServiceResult<TickDto>.SuccessResult(tickDto)
+            : throw new InvalidOperationException(
+                $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
+    }
+
+    private async Task UpdateTickAsync(TickDto tickDto)
+    {
+        ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
         
-        return ServiceResult<TickDto>.SuccessResult(tickDto);
+        var existingTick = await _tickRepository.GetByIdAsync(tickDto.Id);
+
+        if (existingTick is null)
+            throw new InvalidOperationException($"Tick with ID: {tickDto.Id} does not exist");
+
+        var climb = tickDto.BuildClimb();
+        var tickToUpdate = tickDto.ToTickEntity(climb);
+
+        var recordsUpdated = await _tickRepository.UpdateAsync(existingTick, tickToUpdate);
+
+        if (recordsUpdated != 1) 
+            throw new InvalidOperationException(
+                $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
     }
     
 }

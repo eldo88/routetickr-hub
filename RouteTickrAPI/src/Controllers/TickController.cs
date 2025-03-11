@@ -51,8 +51,7 @@ public class TickController : ControllerBase
 
     [HttpPut]
     public async Task<IActionResult> Update(TickDto tickDto)
-    {
-        if (!ModelState.IsValid) { return BadRequest(new { Message = "Invalid model state.", Errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)) }); }
+    { 
         var result = await _tickService.UpdateAsync(tickDto);
         if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
         return Ok(result.Data);

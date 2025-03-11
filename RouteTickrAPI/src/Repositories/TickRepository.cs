@@ -32,22 +32,12 @@ public class TickRepository : ITickRepository
     {
         _context.Ticks.Add(tick);
         return await _context.SaveChangesAsync();
-        //return recordAdded == 1;
     }
 
-    public async Task<bool> UpdateAsync(Tick tick) //create service method
+    public async Task<int> UpdateAsync(Tick existingTick, Tick tickToUpdate)
     {
-        var existingTick = await _context.Ticks
-            .Include(t => t.Climb)
-            .FirstOrDefaultAsync(t => t.Id == tick.Id);
-        
-        if (existingTick is null)
-        {
-            return false;
-        }
-        _context.Entry(existingTick).CurrentValues.SetValues(tick);
-        var recordsUpdated = await _context.SaveChangesAsync();
-        return recordsUpdated == 1;
+        _context.Entry(existingTick).CurrentValues.SetValues(tickToUpdate);
+        return await _context.SaveChangesAsync();
     }
 
     public async Task<bool> DeleteAsync(int id) //create service method
