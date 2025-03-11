@@ -34,21 +34,12 @@ public class ImportFileService : IImportFileService
 
             foreach (var tickDto in dataFromFile)
             {
-                var route = tickDto.BuildClimb();
-                var result = await _climbService.AddClimbIfNotExists(route);
-                if (!result.Success) 
-                    throw new InvalidOperationException($"Failed to save climb. {result.ErrorMessage}");
-                tickDto.Climb = result.Data;
-            }
-
-            foreach (var tick in dataFromFile.Select(TickDtoExtensions.ToEntity))
-            {
-                var result = await _tickService.SaveTickAsync(tick);
-                if (!result.Success)
-                    throw new InvalidOperationException($"Failed to save tick. {result.ErrorMessage}");
+                await SaveClimbAsync(tickDto);
+                await SaveTickAsync(tickDto);
             }
 
             await transaction.CommitAsync();
+            
             return ServiceResult<bool>.SuccessResult(true);
         }
         catch (CsvHelperException e)
@@ -83,5 +74,22 @@ public class ImportFileService : IImportFileService
         
         csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
         return csvFile.GetRecords<TickDto>().ToList();
+    }
+
+    private async Task SaveClimbAsync(TickDto tickDto)
+    {
+        var route = tickDto.BuildClimb();
+        var result = await _climbService.AddClimbIfNotExists(route);
+        if (!result.Success) 
+            throw new InvalidOperationException($"Failed to save climb. {result.ErrorMessage}");
+        tickDto.Climb = result.Data;
+    }
+
+    private async Task SaveTickAsync(TickDto tickDto)
+    {
+        var tick = tickDto.ToEntity();
+        var result = await _tickService.SaveTickAsync(tick);
+        if (!result.Success)
+            throw new InvalidOperationException($"Failed to save tick. {result.ErrorMessage}");
     }
 }

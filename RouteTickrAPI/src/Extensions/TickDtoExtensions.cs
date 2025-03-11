@@ -56,12 +56,12 @@ public static class TickDtoExtensions
             YourRating = dto.YourRating,
             Length = dto.Length,
             RatingCode = dto.RatingCode,
-            ClimbId = dto.ClimbId ?? 0,
-            Climb = dto.Climb ?? new Boulder() //TODO need to create a builder for derived types
+            Climb = dto.Climb ?? dto.BuildClimb(),
+            ClimbId = dto.ClimbId ?? 0
         };
     }
     
-    public static Tick ToTickEntity(this TickDto dto, Climb climb)
+    public static Tick ToTickEntity(this TickDto dto, Climb climb) // not needed?
     {
         ArgumentNullException.ThrowIfNull(dto, nameof(dto));
         ArgumentNullException.ThrowIfNull(climb, nameof(climb));
