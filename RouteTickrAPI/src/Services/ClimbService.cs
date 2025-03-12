@@ -29,12 +29,12 @@ public class ClimbService : IClimbService
         catch (ArgumentNullException e)
         {
             Console.WriteLine($"ArgumentNullException in GetAllAsync: {e.Message}");
-            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult("A null value was encountered while mapping climbs.");
+            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult($"A null value was encountered while mapping climbs. {e.Message}");
         }
         catch (Exception e)
         {
             Console.WriteLine($"Error in GetAllAsync: {e.Message}");
-            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult("An unexpected error occurred.");
+            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult($"An unexpected error occurred. {e.Message}");
         }
     }
 
@@ -123,5 +123,44 @@ public class ClimbService : IClimbService
         return result is not null
             ? ServiceResult<Climb>.SuccessResult(result)
             : ServiceResult<Climb>.NotFoundResult($"No climb found with {name} and {location}");
+    }
+
+    private async Task<Climb> GetClimbByIdAsync(int id)
+    {
+        if (id <= 0)
+            throw new ArgumentException($"Error deleting climb, ID: {id} is invalid.");
+
+        var climb = await _climbRepository.GetByIdAsync(id);
+        
+        return climb ?? throw new InvalidOperationException($"Climb with ID: {id} does not exist.");
+    }
+
+    private async Task UpdateClimbAsync(ClimbDto climbDto)
+    {
+        ArgumentNullException.ThrowIfNull(climbDto, nameof(climbDto));
+        
+        var climb = climbDto.ToEntity();
+
+        var existingClimb = await GetClimbByIdAsync(climb.Id);
+
+        var recordsUpdated = await _climbRepository.UpdateAsync(existingClimb, climb);
+        
+        if (recordsUpdated != 1) 
+            throw new InvalidOperationException(
+                $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
+    }
+
+    private async Task DeleteClimbAsync(int id)
+    {
+        if (id <= 0)
+            throw new ArgumentException($"Error deleting climb, ID: {id} is invalid.");
+
+        var climbToBeDeleted = await GetClimbByIdAsync(id);
+
+        var recordsDeleted = await _climbRepository.DeleteAsync(climbToBeDeleted);
+        
+        if (recordsDeleted != 1)
+            throw new InvalidOperationException(
+                $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
     }
 }

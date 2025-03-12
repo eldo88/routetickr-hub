@@ -66,7 +66,7 @@ public class TickService : ITickService
     }
 
     public async Task<ServiceResult<List<TickDto>>> GetByListOfIdsAsync(List<int> tickIds)
-    {
+    {//possibly not needed
         try
         {
             if (tickIds.Count == 0)
@@ -232,10 +232,7 @@ public class TickService : ITickService
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
         
-        var existingTick = await _tickRepository.GetByIdAsync(tickDto.Id);
-
-        if (existingTick is null)
-            throw new InvalidOperationException($"Tick with ID: {tickDto.Id} does not exist");
+        var existingTick = await GetTickByIdAsync(tickDto.Id);
 
         var climb = tickDto.BuildClimb();
         var updateTo = tickDto.ToTickEntity(climb);
@@ -249,19 +246,23 @@ public class TickService : ITickService
 
     private async Task DeleteTickAsync(int id)
     {
-        if (id <= 0)
-            throw new ArgumentException($"Error deleting tick, ID: {id} is invalid.");
-        
-        var tickToBeDeleted = await _tickRepository.GetByIdAsync(id);
-
-        if (tickToBeDeleted is null)
-            throw new InvalidOperationException($"Tick with ID: {id} does not exist");
+        var tickToBeDeleted = await GetTickByIdAsync(id);
 
         var recordsDeleted = await _tickRepository.DeleteAsync(tickToBeDeleted);
 
         if (recordsDeleted != 1)
             throw new InvalidOperationException(
                 $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
+    }
+
+    private async Task<Tick> GetTickByIdAsync(int id)
+    {
+        if (id <= 0)
+            throw new ArgumentException($"ID: {id} is invalid.");
+        
+        var tick = await _tickRepository.GetByIdAsync(id);
+        
+        return tick ?? throw new InvalidOperationException($"Tick with ID: {id} does not exist");
     }
     
 }
