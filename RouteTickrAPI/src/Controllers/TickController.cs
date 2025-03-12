@@ -32,7 +32,7 @@ public class TickController : ControllerBase
     {
         var result = await _tickService.GetByIdAsync(id);
         if (!result.Success) 
-            return BadRequest(new { Message = result.ErrorMessage });
+            return BadRequest(result);
         
         return Ok(result.Data);
     }
@@ -42,7 +42,7 @@ public class TickController : ControllerBase
     {
         var result = await _tickService.GetByListOfIdsAsync(tickIds);
         if (!result.Success) 
-            return BadRequest(new { Message = result.ErrorMessage });
+            return BadRequest(result);
         
         return Ok(result.Data);
     }
@@ -50,11 +50,11 @@ public class TickController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add(TickDto tickDto)
     {
-        var tickAdded = await _tickService.AddAsync(tickDto);
-        if (!tickAdded.Success) 
-            return BadRequest(new { Message = tickAdded.ErrorMessage });
-        
-        return CreatedAtAction(nameof(GetAll), new { id = tickAdded.Data.Id }, tickAdded.Data);
+        var result = await _tickService.AddAsync(tickDto);
+        if (!result.Success) 
+            return BadRequest(result);
+        //TODO return link to newly added tick?
+        return CreatedAtAction(nameof(GetAll), new { id = result.Data.Id }, result.Data);
     }
 
     [HttpPut]
@@ -62,7 +62,7 @@ public class TickController : ControllerBase
     { 
         var result = await _tickService.UpdateAsync(tickDto);
         if (!result.Success) 
-            return BadRequest(new { Message = result.ErrorMessage });
+            return BadRequest(result);
         
         return Ok(result.Data);
     }
@@ -72,7 +72,7 @@ public class TickController : ControllerBase
     {
         var result = await _tickService.DeleteAsync(id);
         if (!result.Success) 
-            return NotFound(new { Message = result.ErrorMessage });
+            return NotFound(result);
         
         return NoContent();
     }

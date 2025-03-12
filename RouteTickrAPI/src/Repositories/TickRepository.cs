@@ -40,19 +40,10 @@ public class TickRepository : ITickRepository
         return await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> DeleteAsync(int id) //create service method
+    public async Task<int> DeleteAsync(Tick tick)
     {
-        var tick = await _context.Ticks
-            .Include(t => t.Climb)
-            .FirstOrDefaultAsync(t => t.Id == id);
-        
-        if (tick is null)
-        {
-            return false;
-        }
         _context.Ticks.Remove(tick);
-        var recordsDeleted = await _context.SaveChangesAsync();
-        return recordsDeleted == 1;
+        return await _context.SaveChangesAsync();
     }
     
     public async Task<int> GetTotalCountAsync()

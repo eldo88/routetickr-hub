@@ -10,7 +10,7 @@ public interface ITickRepository
     Task<Tick?> GetByIdAsync(int id);
     Task<int> AddAsync(Tick tick);
     Task<int> UpdateAsync(Tick existingTick, Tick updateTo);
-    Task<bool> DeleteAsync(int id);
+    Task<int> DeleteAsync(Tick tick);
     Task<int> GetTotalCountAsync();
     Task<int?> GetPitchesAsync();
     Task<List<string>> GetLocationAsync();

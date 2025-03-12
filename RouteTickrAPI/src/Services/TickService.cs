@@ -159,11 +159,21 @@ public class TickService : ITickService
     {
         try
         {
-            var isDeleted = await _tickRepository.DeleteAsync(id);
-            
-            return isDeleted 
-                ? ServiceResult<bool>.SuccessResult(true) 
-                : ServiceResult<bool>.ErrorResult($"Error deleting tick with ID: {id}");
+            await DeleteTickAsync(id);
+
+            return ServiceResult<bool>.SuccessResult(true);
+        }
+        catch (ArgumentException e)
+        {
+            return ServiceResult<bool>.ErrorResult($"Error: {e.Message}");
+        }
+        catch (InvalidOperationException e)
+        {
+            return ServiceResult<bool>.ErrorResult($"Error: {e.Message}");
+        }
+        catch (DbUpdateException e)
+        {
+            return ServiceResult<bool>.ErrorResult($"Database error: {e.Message}");
         }
         catch (Exception e)
         {
@@ -235,6 +245,23 @@ public class TickService : ITickService
         if (recordsUpdated != 1) 
             throw new InvalidOperationException(
                 $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
+    }
+
+    private async Task DeleteTickAsync(int id)
+    {
+        if (id <= 0)
+            throw new ArgumentException($"Error deleting tick, ID: {id} is invalid.");
+        
+        var tickToBeDeleted = await _tickRepository.GetByIdAsync(id);
+
+        if (tickToBeDeleted is null)
+            throw new InvalidOperationException($"Tick with ID: {id} does not exist");
+
+        var recordsDeleted = await _tickRepository.DeleteAsync(tickToBeDeleted);
+
+        if (recordsDeleted != 1)
+            throw new InvalidOperationException(
+                $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
     }
     
 }
