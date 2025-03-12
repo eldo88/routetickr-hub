@@ -24,22 +24,16 @@ public class ClimbRepository : IClimbRepository
         return await _context.Climbs.FindAsync(id);
     }
 
-    public async Task<bool> UpdateAsync(Climb climb)
+    public async Task<int> UpdateAsync(Climb existingClimb, Climb tobeUpdated)
     {
-        var existingClimb = await _context.Climbs.FindAsync(climb.Id);
-        if (existingClimb is null) return false;
-        _context.Entry(existingClimb).CurrentValues.SetValues(climb);
-        var recordsUpdated = await _context.SaveChangesAsync();
-        return recordsUpdated == 1;
+        _context.Entry(existingClimb).CurrentValues.SetValues(tobeUpdated);
+        return await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<int> DeleteAsync(Climb climb)
     {
-        var climb = await _context.Climbs.FindAsync(id);
-        if (climb is null) return false;
         _context.Climbs.Remove(climb);
-        var recordsDeleted = await _context.SaveChangesAsync();
-        return recordsDeleted == 1;
+        return await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Climb>> GetAllAsync()
