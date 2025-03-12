@@ -20,7 +20,9 @@ public class TickController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var result = await _tickService.GetAllAsync();
-        if (!result.Success) { return NotFound(new { Message = result.ErrorMessage }); }
+        if (!result.Success) 
+            return NotFound(new { Message = result.ErrorMessage });
+        
         return Ok(result.Data);
     }
 
@@ -29,7 +31,9 @@ public class TickController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _tickService.GetByIdAsync(id);
-        if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
+        if (!result.Success) 
+            return BadRequest(new { Message = result.ErrorMessage });
+        
         return Ok(result.Data);
     }
 
@@ -37,7 +41,9 @@ public class TickController : ControllerBase
     public async Task<IActionResult> GetByListOfIds([FromQuery] List<int> tickIds)
     {
         var result = await _tickService.GetByListOfIdsAsync(tickIds);
-        if (!result.Success) return BadRequest(new { Message = result.ErrorMessage });
+        if (!result.Success) 
+            return BadRequest(new { Message = result.ErrorMessage });
+        
         return Ok(result.Data);
     }
 
@@ -45,7 +51,9 @@ public class TickController : ControllerBase
     public async Task<IActionResult> Add(TickDto tickDto)
     {
         var tickAdded = await _tickService.AddAsync(tickDto);
-        if (!tickAdded.Success) { return BadRequest(new { Message = tickAdded.ErrorMessage }); }
+        if (!tickAdded.Success) 
+            return BadRequest(new { Message = tickAdded.ErrorMessage });
+        
         return CreatedAtAction(nameof(GetAll), new { id = tickAdded.Data.Id }, tickAdded.Data);
     }
 
@@ -53,7 +61,9 @@ public class TickController : ControllerBase
     public async Task<IActionResult> Update(TickDto tickDto)
     { 
         var result = await _tickService.UpdateAsync(tickDto);
-        if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
+        if (!result.Success) 
+            return BadRequest(new { Message = result.ErrorMessage });
+        
         return Ok(result.Data);
     }
     
@@ -61,7 +71,9 @@ public class TickController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _tickService.DeleteAsync(id);
-        if (!result.Success) { return NotFound(new { Message = result.ErrorMessage }); }
+        if (!result.Success) 
+            return NotFound(new { Message = result.ErrorMessage });
+        
         return NoContent();
     }
 }
