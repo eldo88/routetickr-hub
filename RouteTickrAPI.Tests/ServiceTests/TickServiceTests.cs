@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using Moq;
+using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
@@ -47,8 +47,8 @@ public class TickServiceTests
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Success, Is.True);
             Assert.That(result.ErrorMessage, Is.Null);
-            Assert.That(result.Data.Count(), Is.EqualTo(mockTicks.Count));
-            Assert.That(result.Data, Is.EqualTo(expectedDtoList).Using(new TickDtoComparer()));
+            Assert.That(result?.Data?.Count(), Is.EqualTo(mockTicks.Count));
+            Assert.That(result?.Data, Is.EqualTo(expectedDtoList).Using(new TickDtoComparer()));
         });
     }
 
@@ -169,7 +169,7 @@ public class TickServiceTests
             Assert.That(result.Success, Is.True);
             Assert.That(result.ErrorMessage, Is.Null);
             Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data.Id, Is.EqualTo(tick.Id));
+            Assert.That(result?.Data?.Id, Is.EqualTo(tick.Id));
         });
     }
     
@@ -265,9 +265,9 @@ public class TickServiceTests
         {
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Success, Is.True);
-            Assert.That(result.Data.Count, Is.EqualTo(2));
-            Assert.That(result.Data[0].Id, Is.EqualTo(1));
-            Assert.That(result.Data[1].Id, Is.EqualTo(2));
+            Assert.That(result?.Data?.Count, Is.EqualTo(2));
+            Assert.That(result?.Data?[0].Id, Is.EqualTo(1));
+            Assert.That(result?.Data?[1].Id, Is.EqualTo(2));
         });
     }
 
@@ -279,7 +279,7 @@ public class TickServiceTests
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
-            .ReturnsAsync(false);
+            .ReturnsAsync(1);
         //Act
         var result = await _tickService.AddAsync(tickDto);
         //Assert
@@ -323,7 +323,7 @@ public class TickServiceTests
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(1);
         //Act
         var result = await _tickService.AddAsync(tickDto);
         //Assert
@@ -361,7 +361,7 @@ public class TickServiceTests
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(1);
         //Act
         var result = await _tickService.AddAsync(tickDto);
         //Assert
@@ -400,8 +400,8 @@ public class TickServiceTests
             .ReturnsAsync(tick);
 
         _tickRepository
-            .Setup(r => r.UpdateAsync(It.IsAny<Tick>()))
-            .ReturnsAsync(false);
+            .Setup(r => r.UpdateAsync(It.IsAny<Tick>(), It.IsAny<Tick>()))
+            .ReturnsAsync(0);
         //Act
         var result = await _tickService.UpdateAsync(tickDto);
         //Assert
@@ -446,7 +446,7 @@ public class TickServiceTests
             .ReturnsAsync(tick);
 
         _tickRepository
-            .Setup(r => r.UpdateAsync(It.IsAny<Tick>()))
+            .Setup(r => r.UpdateAsync(It.IsAny<Tick>(), It.IsAny<Tick>()))
             .ThrowsAsync(new Exception("Database failure"));
         //Act
         var result = await _tickService.UpdateAsync(tickDto);
@@ -472,8 +472,8 @@ public class TickServiceTests
             .ReturnsAsync(tick);
 
         _tickRepository
-            .Setup(r => r.UpdateAsync(It.IsAny<Tick>()))
-            .ReturnsAsync(true);
+            .Setup(r => r.UpdateAsync(It.IsAny<Tick>(), It.IsAny<Tick>()))
+            .ReturnsAsync(1);
         //Act
         var result = await _tickService.UpdateAsync(tickDto);
         //Assert
@@ -482,7 +482,7 @@ public class TickServiceTests
             Assert.That(result.Success, Is.True);
             Assert.That(result.ErrorMessage, Is.Null);
             Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data.Id, Is.EqualTo(tickDto.Id));
+            Assert.That(result.Data?.Id, Is.EqualTo(tickDto.Id));
         });
     }
     
@@ -492,8 +492,8 @@ public class TickServiceTests
         //Arrange
         const int tickId = 1;
         _tickRepository
-            .Setup(r => r.DeleteAsync(tickId))
-            .ReturnsAsync(true);
+            .Setup(r => r.DeleteAsync(It.IsAny<Tick>()))
+            .ReturnsAsync(1);
         //Act
         var result = await _tickService.DeleteAsync(tickId);
         //Assert
@@ -507,8 +507,8 @@ public class TickServiceTests
         //Arrange
         const int tickId = 1;
         _tickRepository
-            .Setup(r => r.DeleteAsync(tickId))
-            .ReturnsAsync(false);
+            .Setup(r => r.DeleteAsync(It.IsAny<Tick>()))
+            .ReturnsAsync(0);
         //Act
         var result = await _tickService.DeleteAsync(tickId);
         //Assert

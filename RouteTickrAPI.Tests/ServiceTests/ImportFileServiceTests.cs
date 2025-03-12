@@ -15,6 +15,7 @@ public class ImportFileServiceTests
     private Mock<ITickRepository> _tickRepository;
     private Mock<IDbContextTransaction> _transactionMock;
     private Mock<IClimbService> _climbService;
+    private Mock<ITickService> _tickService;
     
     [SetUp]
     public void Setup()
@@ -22,7 +23,8 @@ public class ImportFileServiceTests
         _tickRepository = new Mock<ITickRepository>();
         _transactionMock = new Mock<IDbContextTransaction>();
         _climbService = new Mock<IClimbService>();
-        _importFileService = new ImportFileService(_tickRepository.Object, _climbService.Object);
+        _tickService = new Mock<ITickService>();
+        _importFileService = new ImportFileService(_tickRepository.Object, _climbService.Object, _tickService.Object);
     }
     
     [Test]
@@ -56,7 +58,7 @@ public class ImportFileServiceTests
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(1);
         //Act
         var result = await _importFileService.ImportFileAsync(fileDto);
         
@@ -83,14 +85,10 @@ public class ImportFileServiceTests
             .Setup(r => r.BeginTransactionAsync())
             .ReturnsAsync(_transactionMock.Object);
 
-        var callCount = 0;
+        //var callCount = 0;
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
-            .ReturnsAsync(() =>
-            {
-                callCount++;
-                return callCount == 1;
-            });
+            .ReturnsAsync(1);
         //Act
         var result = await _importFileService.ImportFileAsync(fileDto);
         //Assert
