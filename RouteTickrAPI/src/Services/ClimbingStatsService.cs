@@ -10,7 +10,7 @@ public class ClimbingStatsService : IClimbingStatsService
 {
     private readonly ITickRepository _tickRepository;
     private readonly IMemoryCache _cache;
-
+    // TODO implement error handling in this class
     public ClimbingStatsService(ITickRepository tickRepository, IMemoryCache cache)
     {
         _tickRepository = tickRepository;
