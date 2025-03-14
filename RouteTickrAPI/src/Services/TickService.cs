@@ -42,10 +42,7 @@ public class TickService : ITickService
     {
         try
         {
-            if (id <= 0)
-                throw new ArgumentException("ID must be greater than zero.");
-
-            var tick = await _tickRepository.GetByIdAsync(id);
+            var tick = await GetTickByIdAsync(id);
             if (tick is null)
                 return ServiceResult<TickDto>.NotFoundResult($"Tick with ID: {id} not found.");
 
