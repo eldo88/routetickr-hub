@@ -44,27 +44,26 @@ public class ImportFileService : IImportFileService
         }
         catch (CsvHelperException e)
         {
-            Console.WriteLine($"CSV parsing error, {e.Message}");
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult($"Invalid CSV format in {fileDto.FileName}. Please check the file.");
+            return ServiceResult<bool>.ErrorResult(
+                $"Invalid CSV format in {fileDto.FileName}. Please check the file. {e.Message}");
         }
         catch (DbUpdateException e)
         {
-            Console.WriteLine($"Database error, {e.StackTrace}");
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult("Database error occurred while saving ticks.");
+            return ServiceResult<bool>.ErrorResult(
+                $"Database error occurred while saving ticks. {e.Message}");
         }
         catch (InvalidOperationException e)
-        {
-            Console.WriteLine($"Error in {e.TargetSite}, {e.StackTrace}");
+        { 
             await transaction.RollbackAsync();
             return ServiceResult<bool>.ErrorResult(e.Message);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error is ImportFileAsync: {e.StackTrace}");
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult($"An unexpected error occurred. {e.Message}");
+            return ServiceResult<bool>.ErrorResult(
+                $"An unexpected error occurred. {e.Message}");
         }
     }
 
@@ -80,16 +79,15 @@ public class ImportFileService : IImportFileService
     {
         var route = tickDto.BuildClimb();
         var result = await _climbService.AddClimbIfNotExists(route);
-        if (!result.Success) 
+        if (!result.Success) // TODO think about a better way to bubble exceptions up
             throw new InvalidOperationException($"Failed to save climb. {result.ErrorMessage}");
         tickDto.Climb = result.Data;
     }
 
     private async Task SaveTickAsync(TickDto tickDto)
     {
-        var tick = tickDto.ToEntity();
-        var result = await _tickService.SaveTickAsync(tick);
-        if (!result.Success)
+        var result = await _tickService.AddAsync(tickDto);
+        if (!result.Success) // TODO think about a better way to bubble exceptions up
             throw new InvalidOperationException($"Failed to save tick. {result.ErrorMessage}");
     }
 }

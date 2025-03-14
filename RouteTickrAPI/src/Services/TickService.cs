@@ -3,6 +3,7 @@ using RouteTickrAPI.Repositories;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
 using RouteTickrAPI.Extensions;
+using ArgumentException = System.ArgumentException;
 
 namespace RouteTickrAPI.Services;
 
@@ -29,12 +30,10 @@ public class TickService : ITickService
         }
         catch (ArgumentNullException e)
         {
-            Console.WriteLine($"ArgumentNullException in GetAllAsync: {e.Message}");
             return ServiceResult<IEnumerable<TickDto>>.ErrorResult($"A null value was encountered while mapping ticks, {e.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error in GetAllAsync: {ex.Message}");
             return ServiceResult<IEnumerable<TickDto>>.ErrorResult("An unexpected error occurred.");
         }
     }
@@ -60,8 +59,7 @@ public class TickService : ITickService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error in GetByIdAsync: {e.Message}");
-            return ServiceResult<TickDto>.ErrorResult("An unexpected error occurred.");
+            return ServiceResult<TickDto>.ErrorResult($"An unexpected error occurred. {e.Message}");
         }
     }
 
@@ -94,10 +92,9 @@ public class TickService : ITickService
         {
             return ServiceResult<List<TickDto>>.ErrorResult($"Invalid parameter, {e.Message}");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"Error occured in getByListOfIdsAsync {ex.Message}");
-            return ServiceResult<List<TickDto>>.ErrorResult("An unexpected error occurred.");
+            return ServiceResult<List<TickDto>>.ErrorResult($"An unexpected error occurred. {e.Message}");
         }
     }
 
@@ -121,10 +118,9 @@ public class TickService : ITickService
         {
             return ServiceResult<TickDto>.ErrorResult($"Database error {e.Message}");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"Error in AddAsync: {ex.Message}");
-            return ServiceResult<TickDto>.ErrorResult("An unexpected error occurred.");
+            return ServiceResult<TickDto>.ErrorResult($"An unexpected error occurred. {e.Message}");
         }
     }
 
@@ -148,10 +144,9 @@ public class TickService : ITickService
         {
             return ServiceResult<TickDto>.ErrorResult($"Database error {e.Message}");
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Console.WriteLine($"Error in UpdateAsync: {ex.Message}");
-            return ServiceResult<TickDto>.ErrorResult("An unexpected error occurred.");
+            return ServiceResult<TickDto>.ErrorResult($"An unexpected error occurred. {e.Message}");
         }
     }
 
@@ -177,23 +172,10 @@ public class TickService : ITickService
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error in DeleteAsync: {e.Message}");
-            throw;
+            return ServiceResult<bool>.ErrorResult($"Unexpected error occurred: {e.Message}");
         }
     }
-
-    public async Task<ServiceResult<TickDto>> SaveTickAsync(Tick tick) // consider changing return type if result is not needed
-    {
-        ArgumentNullException.ThrowIfNull(tick, nameof(tick));
-        
-        var recordsAdded = await _tickRepository.AddAsync(tick);
-        var tickDto = tick.ToTickDto();
-
-        return recordsAdded == 1
-            ? ServiceResult<TickDto>.SuccessResult(tickDto)
-            : throw new InvalidOperationException(
-                $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
-    }
+    
     
     /*****************************************************************************************************/
     /* Private methods*/
@@ -234,6 +216,10 @@ public class TickService : ITickService
         
         var existingTick = await GetTickByIdAsync(tickDto.Id);
 
+        if (existingTick is null)
+            throw new InvalidOperationException(
+                $"Tick with {tickDto.Id} does not exist and cannot be updated.");
+
         var climb = tickDto.BuildClimb();
         var updateTo = tickDto.ToTickEntity(climb);
 
@@ -248,6 +234,10 @@ public class TickService : ITickService
     {
         var tickToBeDeleted = await GetTickByIdAsync(id);
 
+        if (tickToBeDeleted is null)
+            throw new InvalidOperationException(
+                $"Tick with {id} does not exist and cannot be deleted.");
+
         var recordsDeleted = await _tickRepository.DeleteAsync(tickToBeDeleted);
 
         if (recordsDeleted != 1)
@@ -255,14 +245,12 @@ public class TickService : ITickService
                 $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
     }
 
-    private async Task<Tick> GetTickByIdAsync(int id)
+    private async Task<Tick?> GetTickByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException($"ID: {id} is invalid.");
         
-        var tick = await _tickRepository.GetByIdAsync(id);
-        
-        return tick ?? throw new InvalidOperationException($"Tick with ID: {id} does not exist");
+        return await _tickRepository.GetByIdAsync(id);
     }
     
 }

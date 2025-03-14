@@ -4,6 +4,7 @@ using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
+using ArgumentException = System.ArgumentException;
 
 namespace RouteTickrAPI.Services;
 
@@ -28,13 +29,13 @@ public class ClimbService : IClimbService
         }
         catch (ArgumentNullException e)
         {
-            Console.WriteLine($"ArgumentNullException in GetAllAsync: {e.Message}");
-            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult($"A null value was encountered while mapping climbs. {e.Message}");
+            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult(
+                $"A null value was encountered while mapping climbs. {e.Message}");
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error in GetAllAsync: {e.Message}");
-            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult($"An unexpected error occurred. {e.Message}");
+            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult(
+                $"An unexpected error occurred. {e.Message}");
         }
     }
 
@@ -42,100 +43,101 @@ public class ClimbService : IClimbService
     {
         try
         {
-            var getByIdResult = await GetByIdAsync(climb.Id);
-            if (getByIdResult.Success)
-                return getByIdResult;
+            var getByIdResult = await GetClimbByIdAsync(climb.Id);
+            if (getByIdResult is not null)
+                return ServiceResult<Climb>.SuccessResult(getByIdResult);
 
             var getByNameAndLocationResult = await GetClimbByNameAndLocationIfExists(climb.Name, climb.Location);
-            if (getByNameAndLocationResult.Success)
-                return getByNameAndLocationResult;
+            if (getByNameAndLocationResult is not null)
+                return ServiceResult<Climb>.SuccessResult(getByNameAndLocationResult);
 
             return await AddAsync(climb);
         }
         catch (ArgumentNullException e)
         {
-            Console.WriteLine($"ArgumentNullException occurred in {e.TargetSite} {e.Message} {e.StackTrace}");
-            return ServiceResult<Climb>.ErrorResult($"Error occurred because {e.ParamName} is null or empty.");
+            return ServiceResult<Climb>.ErrorResult($"Error: {e.Message}");
+        }
+        catch (ArgumentException e)
+        {
+            return ServiceResult<Climb>.ErrorResult($"Error: {e.Message}");
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             return ServiceResult<Climb>.ErrorResult($"An unexpected error occurred: {e.Message}");
         }
     }
 
-    public async Task<ServiceResult<Climb>> GetByIdAsync(int id)
+    public async Task<ServiceResult<Climb>> GetByIdAsync(int id) // TODO create controller 
     {
-        var result = await _climbRepository.GetByIdAsync(id);
+        var result = await GetClimbByIdAsync(id);
 
         return result is not null
             ? ServiceResult<Climb>.SuccessResult(result)
             : ServiceResult<Climb>.NotFoundResult($"Climb not found with ID {id}");
     }
 
-    public async Task<ServiceResult<Climb>> AddAsync(Climb climb)
+    public async Task<ServiceResult<Climb>> AddAsync(Climb climb) // TODO create controller
     {
         try
         {
-            var recordsWritten = await _climbRepository.AddClimb(climb);
+            await AddClimbAsync(climb);
 
-            return recordsWritten == 2
-                ? ServiceResult<Climb>.SuccessResult(climb)
-                : ServiceResult<Climb>.ErrorResult($"Error saving climb {climb.Name}."); // throw exception?
+            return ServiceResult<Climb>.SuccessResult(climb);
+        }
+        catch (ArgumentNullException e)
+        {
+            return ServiceResult<Climb>.ErrorResult(
+                $"Error saving climb, unexpected null value. {e.Message}");
         }
         catch (DbUpdateException e)
         {
-            Console.WriteLine($"Exception occurred in {e.TargetSite} due to a database exception, " +
-                              $"Message:  {e.Message}, " +
-                              $"Stack Trace: {e.StackTrace}");
-            
-            return ServiceResult<Climb>.ErrorResult($"Error saving {climb.Name}, {e.Message}");
+            return ServiceResult<Climb>.ErrorResult(
+                $"Error saving {climb.Name}, {e.Message}");
         }
         catch (OperationCanceledException e)
         {
-            Console.WriteLine($"Exception occurred in {e.TargetSite} due to operation being cancelled, " +
-                              $"Message:  {e.Message}, " +
-                              $"Stack Trace: {e.StackTrace}");
-            
-            return ServiceResult<Climb>.ErrorResult($"Error saving {climb.Name}, save operation cancelled." +
-                                                    $"{e.Message}");
+            return ServiceResult<Climb>.ErrorResult(
+                $"Error saving {climb.Name}, save operation cancelled. {e.Message}");
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Exception occurred in {e.TargetSite}, " +
-                              $"Message:  {e.Message}, " +
-                              $"Stack Trace: {e.StackTrace}");
-            
-            return ServiceResult<Climb>.ErrorResult("Unexpected error occurred, no data was saved.");
+            return ServiceResult<Climb>.ErrorResult(
+                $"Unexpected error occurred, no data was saved. {e.Message}");
         }
     }
     
     
     //private methods
-    private async Task<ServiceResult<Climb>> GetClimbByNameAndLocationIfExists(string name, string location)
+    private async Task<Climb?> GetClimbByNameAndLocationIfExists(string name, string location)
     {
-        if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+        ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
         
-        if (string.IsNullOrEmpty(location)) throw new ArgumentNullException(nameof(location));
+        ArgumentException.ThrowIfNullOrEmpty(location, nameof(location));
         
-        var result = await _climbRepository.GetByNameAndLocationAsync(name, location);
-
-        return result is not null
-            ? ServiceResult<Climb>.SuccessResult(result)
-            : ServiceResult<Climb>.NotFoundResult($"No climb found with {name} and {location}");
+        return await _climbRepository.GetByNameAndLocationAsync(name, location);
     }
 
-    private async Task<Climb> GetClimbByIdAsync(int id)
+    private async Task<Climb?> GetClimbByIdAsync(int id)
     {
-        if (id <= 0)
-            throw new ArgumentException($"Error deleting climb, ID: {id} is invalid.");
+        if (id < 0)
+            throw new ArgumentException(
+                $"Error retrieving climb from database, ID: {id} is invalid.");
 
-        var climb = await _climbRepository.GetByIdAsync(id);
-        
-        return climb ?? throw new InvalidOperationException($"Climb with ID: {id} does not exist.");
+        return await _climbRepository.GetByIdAsync(id);
     }
 
-    private async Task UpdateClimbAsync(ClimbDto climbDto)
+    private async Task AddClimbAsync(Climb climb)
+    {
+        ArgumentNullException.ThrowIfNull(climb, nameof(climb));
+
+        var recordsWritten = await _climbRepository.AddClimb(climb);
+
+        if (recordsWritten != 2)
+            throw new InvalidOperationException(
+                $"Unexpected number of records saved. Expected 1 but got {recordsWritten}");
+    }
+
+    private async Task UpdateClimbAsync(ClimbDto climbDto) // TODO not used
     {
         ArgumentNullException.ThrowIfNull(climbDto, nameof(climbDto));
         
@@ -143,19 +145,27 @@ public class ClimbService : IClimbService
 
         var existingClimb = await GetClimbByIdAsync(climb.Id);
 
+        if (existingClimb is null)
+            throw new InvalidOperationException(
+                $"Climb with {climb.Id} does not exist and cannot be updated");
+
         var recordsUpdated = await _climbRepository.UpdateAsync(existingClimb, climb);
         
         if (recordsUpdated != 1) 
             throw new InvalidOperationException(
-                $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
+                $"Unexpected number of records updated. Expected 1 but got {recordsUpdated}");
     }
 
-    private async Task DeleteClimbAsync(int id)
+    private async Task DeleteClimbAsync(int id) // TODO not used
     {
         if (id <= 0)
             throw new ArgumentException($"Error deleting climb, ID: {id} is invalid.");
 
         var climbToBeDeleted = await GetClimbByIdAsync(id);
+
+        if (climbToBeDeleted is null)
+            throw new InvalidOperationException(
+                $"Climb with {id} does not exist and cannot be deleted");
 
         var recordsDeleted = await _climbRepository.DeleteAsync(climbToBeDeleted);
         
