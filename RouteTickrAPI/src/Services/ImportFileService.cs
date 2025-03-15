@@ -15,14 +15,14 @@ public class ImportFileService : IImportFileService
     private readonly ITickRepository _tickRepository;
     private readonly IClimbService _climbService;
     private readonly ITickService _tickService;
-    private readonly IRabbitMqPublisher _publisher;
+    private readonly IRabbitMqPublisherService _publisherService;
 
-    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ITickService tickService, IRabbitMqPublisher publisherService)
+    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ITickService tickService, IRabbitMqPublisherService publisherServiceService)
     {
         _tickRepository = tickRepository;
         _climbService = climbService;
         _tickService = tickService;
-        _publisher = publisherService;
+        _publisherService = publisherServiceService;
     }
     public async Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto)
     {
@@ -38,7 +38,7 @@ public class ImportFileService : IImportFileService
             {
                 await SaveClimbAsync(tickDto);
                 await SaveTickAsync(tickDto);
-                _publisher.PublishUrl(tickDto.Url);
+                _publisherService.PublishUrl(tickDto.Url);
             }
 
             await transaction.CommitAsync();

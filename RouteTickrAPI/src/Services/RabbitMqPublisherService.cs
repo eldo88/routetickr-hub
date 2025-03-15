@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 
 namespace RouteTickrAPI.Services;
 
-public class RabbitMqPublisher : IRabbitMqPublisher
+public class RabbitMqPublisherService : IRabbitMqPublisherService
 {
     private const string QueueName = "scrape_queue";
     
