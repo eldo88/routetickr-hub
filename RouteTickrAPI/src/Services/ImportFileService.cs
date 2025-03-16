@@ -24,49 +24,76 @@ public class ImportFileService : IImportFileService
         _tickService = tickService;
         _publisherService = publisherServiceService;
     }
-    public async Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto)
+
+    public async Task<ServiceResult<int>> ProcessFile(ImportFileDto fileDto)
     {
-        await using var transaction = await _tickRepository.BeginTransactionAsync();
         try
         {
             using var stream = new StringReader(fileDto.Content);
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
-
             var dataFromFile = ConvertCsvFileToTickDto(csvFile);
 
+            var isSaveSuccessful = await SaveFileContentsAsync(dataFromFile);
+
+            if (!isSaveSuccessful) return ServiceResult<int>.ErrorResult("No data saved.");
+            PublishUrls(dataFromFile);
+            return ServiceResult<int>.SuccessResult(dataFromFile.Count);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+    
+    public async Task<bool> SaveFileContentsAsync(List<TickDto> dataFromFile)
+    {
+        await using var transaction = await _tickRepository.BeginTransactionAsync();
+        try
+        {
+            var count = 0;
             foreach (var tickDto in dataFromFile)
             {
                 await SaveClimbAsync(tickDto);
                 await SaveTickAsync(tickDto);
-                _publisherService.PublishUrl(tickDto.Url);
+                count++;
             }
 
-            await transaction.CommitAsync();
+            if (dataFromFile.Count != count)
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
             
-            return ServiceResult<bool>.SuccessResult(true);
+            await transaction.CommitAsync();
+            return true;
         }
         catch (CsvHelperException e)
         {
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult(
-                $"Invalid CSV format in {fileDto.FileName}. Please check the file. {e.Message}");
+            /*return ServiceResult<bool>.ErrorResult(
+                $"Invalid CSV format in {fileDto.FileName}. Please check the file. {e.Message}");*/
+            throw;
         }
         catch (DbUpdateException e)
         {
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult(
-                $"Database error occurred while saving ticks. {e.Message}");
+            /*return ServiceResult<bool>.ErrorResult(
+                $"Database error occurred while saving ticks. {e.Message}");*/
+            throw;
         }
         catch (InvalidOperationException e)
         { 
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult(e.Message);
+            /*return ServiceResult<bool>.ErrorResult(e.Message);*/
+            throw;
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
-            return ServiceResult<bool>.ErrorResult(
-                $"An unexpected error occurred. {e.Message}");
+            /*return ServiceResult<bool>.ErrorResult(
+                $"An unexpected error occurred. {e.Message}");*/
+            throw;
         }
     }
 
@@ -76,6 +103,14 @@ public class ImportFileService : IImportFileService
         
         csvFile.Context.RegisterClassMap<TickCsvImportMapper>();
         return csvFile.GetRecords<TickDto>().ToList();
+    }
+
+    private void PublishUrls(List<TickDto> dtos)
+    {
+        foreach (var dto in dtos)
+        {
+            _publisherService.PublishUrl(dto.Url);
+        }
     }
 
     private async Task SaveClimbAsync(TickDto tickDto)

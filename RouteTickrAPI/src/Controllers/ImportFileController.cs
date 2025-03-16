@@ -21,7 +21,7 @@ public class ImportFileController : ControllerBase
         try
         {
             var fileDto = await file.ToImportFileDto();
-            var result = await _importFileService.ImportFileAsync(fileDto);
+            var result = await _importFileService.ProcessFile(fileDto);
             if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
 
             return Ok($"File {fileDto.FileName} uploaded successfully.");

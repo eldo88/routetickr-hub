@@ -4,5 +4,6 @@ namespace RouteTickrAPI.Services;
 
 public interface IImportFileService
 {
-    Task<ServiceResult<bool>> ImportFileAsync(ImportFileDto fileDto);
+    Task<ServiceResult<int>> ProcessFile(ImportFileDto fileDto);
+    Task<bool> SaveFileContentsAsync(List<TickDto> dataFromFile);
 }
