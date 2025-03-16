@@ -45,7 +45,7 @@ public class Worker : BackgroundService
                     autoAck: true, 
                     consumer: consumer, 
                     cancellationToken: stoppingToken);
-            
+
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
