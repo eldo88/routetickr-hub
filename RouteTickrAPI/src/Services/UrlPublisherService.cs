@@ -3,11 +3,11 @@ using RabbitMQ.Client;
 
 namespace RouteTickrAPI.Services;
 
-public class RabbitMqPublisherService : IRabbitMqPublisherService
+public class UrlPublisherService : IPublisherService
 {
     private const string QueueName = "scrape_queue";
     
-    public async void PublishUrl(string url)
+    public async void PublishMessage(string url)
     {
         try
         {

@@ -15,9 +15,9 @@ public class ImportFileService : IImportFileService
     private readonly ITickRepository _tickRepository;
     private readonly IClimbService _climbService;
     private readonly ITickService _tickService;
-    private readonly IRabbitMqPublisherService _publisherService;
+    private readonly IPublisherService _publisherService;
 
-    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ITickService tickService, IRabbitMqPublisherService publisherServiceService)
+    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ITickService tickService, IPublisherService publisherServiceService)
     {
         _tickRepository = tickRepository;
         _climbService = climbService;
@@ -109,7 +109,7 @@ public class ImportFileService : IImportFileService
     {
         foreach (var dto in dtos)
         {
-            _publisherService.PublishUrl(dto.Url);
+            _publisherService.PublishMessage(dto.Url);
         }
     }
 
