@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Entities;
 using RouteTickrAPI.Extensions;
@@ -39,31 +38,34 @@ public class ClimbService : IClimbService
         }
     }
 
-    public async Task<ServiceResult<Climb>> AddClimbIfNotExists(Climb climb)
+    public async Task<Climb> GetOrSaveClimb(Climb climb)
     {
         try
         {
             var getByIdResult = await GetClimbByIdAsync(climb.Id);
             if (getByIdResult is not null)
-                return ServiceResult<Climb>.SuccessResult(getByIdResult);
+                return getByIdResult;
 
             var getByNameAndLocationResult = await GetClimbByNameAndLocationIfExists(climb.Name, climb.Location);
             if (getByNameAndLocationResult is not null)
-                return ServiceResult<Climb>.SuccessResult(getByNameAndLocationResult);
+                return getByNameAndLocationResult;
 
-            return await AddAsync(climb);
+            await AddClimbAsync(climb);
+
+            return climb;
         }
         catch (ArgumentNullException e)
         {
-            return ServiceResult<Climb>.ErrorResult($"Error: {e.Message}");
+            throw;
         }
         catch (ArgumentException e)
         {
-            return ServiceResult<Climb>.ErrorResult($"Error: {e.Message}");
+            throw;
         }
         catch (Exception e)
         {
-            return ServiceResult<Climb>.ErrorResult($"An unexpected error occurred: {e.Message}");
+            Console.WriteLine($"Error: {e.Message}");
+            throw;
         }
     }
 

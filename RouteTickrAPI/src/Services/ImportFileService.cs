@@ -115,11 +115,9 @@ public class ImportFileService : IImportFileService
 
     private async Task SaveClimbAsync(TickDto tickDto)
     {
-        var route = tickDto.BuildClimb();
-        var result = await _climbService.AddClimbIfNotExists(route);
-        if (!result.Success) // TODO think about a better way to bubble exceptions up
-            throw new InvalidOperationException($"Failed to save climb. {result.ErrorMessage}");
-        tickDto.Climb = result.Data;
+        var climb = tickDto.BuildClimb();
+        var result = await _climbService.GetOrSaveClimb(climb);
+        tickDto.Climb = result;
     }
 
     private async Task SaveTickAsync(TickDto tickDto)

@@ -16,6 +16,7 @@ public class ImportFileServiceTests
     private Mock<IDbContextTransaction> _transactionMock;
     private Mock<IClimbService> _climbService;
     private Mock<ITickService> _tickService;
+    private Mock<IPublisherService> _publisherService;
     
     [SetUp]
     public void Setup()
@@ -24,7 +25,8 @@ public class ImportFileServiceTests
         _transactionMock = new Mock<IDbContextTransaction>();
         _climbService = new Mock<IClimbService>();
         _tickService = new Mock<ITickService>();
-        _importFileService = new ImportFileService(_tickRepository.Object, _climbService.Object, _tickService.Object);
+        _publisherService = new Mock<IPublisherService>();
+        _importFileService = new ImportFileService(_tickRepository.Object, _climbService.Object, _tickService.Object, _publisherService.Object);
     }
     
     [Test]
@@ -53,14 +55,14 @@ public class ImportFileServiceTests
         };
 
         _climbService
-            .Setup(cs => cs.AddClimbIfNotExists(It.IsAny<Climb>()))
-            .ReturnsAsync(ServiceResult<Climb>.SuccessResult(climb));
+            .Setup(cs => cs.GetOrSaveClimb(It.IsAny<Climb>()))
+            .ReturnsAsync(climb);
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
             .ReturnsAsync(1);
         //Act
-        var result = await _importFileService.ImportFileAsync(fileDto);
+        var result = await _importFileService.ProcessFile(fileDto);
         
         //Assert
         Assert.Multiple(() =>
@@ -90,7 +92,7 @@ public class ImportFileServiceTests
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
             .ReturnsAsync(1);
         //Act
-        var result = await _importFileService.ImportFileAsync(fileDto);
+        var result = await _importFileService.ProcessFile(fileDto);
         //Assert
         Assert.Multiple(() =>
         {
@@ -118,7 +120,7 @@ public class ImportFileServiceTests
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
             .ThrowsAsync(new Exception("Database exception"));
         //Act
-        var result = await _importFileService.ImportFileAsync(fileDto);
+        var result = await _importFileService.ProcessFile(fileDto);
         
         //Assert
         Assert.Multiple(() =>

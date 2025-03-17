@@ -318,8 +318,8 @@ public class TickServiceTests
         var tickDto = TickBuilder.CreateValidTickDto();
 
         _climbService
-            .Setup(cs => cs.AddClimbIfNotExists(It.IsAny<Climb>()))
-            .ReturnsAsync(ServiceResult<Climb>.SuccessResult(tickDto.Climb));
+            .Setup(cs => cs.GetOrSaveClimb(It.IsAny<Climb>()))!
+            .ReturnsAsync(tickDto.Climb);
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))
@@ -356,8 +356,8 @@ public class TickServiceTests
         var tickDto = TickBuilder.CreateValidTickDto();
         
         _climbService
-            .Setup(cs => cs.AddClimbIfNotExists(It.IsAny<Climb>()))
-            .ReturnsAsync(ServiceResult<Climb>.SuccessResult(tickDto.Climb));
+            .Setup(cs => cs.GetOrSaveClimb(It.IsAny<Climb>()))!
+            .ReturnsAsync(tickDto.Climb);
 
         _tickRepository
             .Setup(r => r.AddAsync(It.IsAny<Tick>()))

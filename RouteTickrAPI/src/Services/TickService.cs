@@ -183,12 +183,9 @@ public class TickService : ITickService
         if (tickDto.Climb is null)
             throw new ArgumentNullException(nameof(tickDto));
 
-        var result = await _climbService.AddClimbIfNotExists(tickDto.Climb);
-
-        if (!result.Success || result.Data is null)
-            throw new InvalidOperationException($"Failed to get or save climb: {result.ErrorMessage}");
+        var result = await _climbService.GetOrSaveClimb(tickDto.Climb);
         
-        return result.Data;
+        return result;
     }
     
     private async Task<TickDto> SaveTickAsync(TickDto tickDto) 
