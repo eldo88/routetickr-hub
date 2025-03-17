@@ -114,7 +114,6 @@ public class ImportFileService : IImportFileService
             {
                 await _publisherService.PublishMessageAsync(dto.Url);
             }
-            await _publisherService.DisposeAsync();
         }
         catch (Exception e)
         { //Swallow exception, back ground service that doesn't impact user TODO add logging
