@@ -36,7 +36,7 @@ public class ImportFileService : IImportFileService
             var isSaveSuccessful = await SaveFileContentsAsync(dataFromFile);
 
             if (!isSaveSuccessful) return ServiceResult<int>.ErrorResult("No data saved.");
-            PublishUrls(dataFromFile);
+            await PublishUrls(dataFromFile);
             return ServiceResult<int>.SuccessResult(dataFromFile.Count);
         }
         catch (Exception e)
@@ -105,11 +105,20 @@ public class ImportFileService : IImportFileService
         return csvFile.GetRecords<TickDto>().ToList();
     }
 
-    private void PublishUrls(List<TickDto> dtos)
+    private async Task PublishUrls(List<TickDto> dtos)
     {
-        foreach (var dto in dtos)
+        try
         {
-            _publisherService.PublishMessage(dto.Url);
+            await _publisherService.InitializeAsync();
+            foreach (var dto in dtos)
+            {
+                await _publisherService.PublishMessageAsync(dto.Url);
+            }
+            await _publisherService.DisposeAsync();
+        }
+        catch (Exception e)
+        { //Swallow exception, back ground service that doesn't impact user TODO add logging
+            Console.WriteLine(e);
         }
     }
 

@@ -6,34 +6,51 @@ namespace RouteTickrAPI.Services;
 public class UrlPublisherService : IPublisherService
 {
     private const string QueueName = "scrape_queue";
+    private IConnection? _connection;
+    private IChannel? _channel;
     
-    public async void PublishMessage(string url)
+    public async Task InitializeAsync()
     {
-        try
-        {
-            var factory = new ConnectionFactory();
-            await using var connection = await factory.CreateConnectionAsync();
-            await using var channel = await connection.CreateChannelAsync();
-        
-            await channel.QueueDeclareAsync(
-                queue: QueueName, 
-                durable: false, 
-                exclusive: false, 
-                autoDelete: false,
-                arguments: null);
-        
-            var body = Encoding.UTF8.GetBytes(url);
-        
-            await channel.BasicPublishAsync(
-                exchange: string.Empty,             
-                routingKey: QueueName,
-                body: body);
+        var factory = new ConnectionFactory();
+        _connection = await factory.CreateConnectionAsync();
+        _channel = await _connection.CreateChannelAsync();
 
-            Console.WriteLine($" [x] Sent '{url}'");
+        await _channel.QueueDeclareAsync(
+            queue: QueueName,
+            durable: false,
+            exclusive: false,
+            autoDelete: false,
+            arguments: null);
+    }
+
+    public async Task PublishMessageAsync(string url)
+    {
+        if (_channel is null)
+            throw new InvalidOperationException("Publisher has not been initialized. Call InitializeAsync() first.");
+
+        var body = Encoding.UTF8.GetBytes(url);
+        await _channel.BasicPublishAsync(
+            exchange: string.Empty,
+            routingKey: QueueName,
+            body: body);
+
+        Console.WriteLine($" [x] Sent '{url}'");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_channel is not null)
+        {
+            await _channel.CloseAsync();
+            await _channel.DisposeAsync();
         }
-        catch (Exception e)
-        { //Swallow exception since this is for a background service
-            Console.WriteLine($"Error processing URL for scraping {e.Message}");
+
+        if (_connection is not null)
+        {
+            await _connection.CloseAsync();
+            await _connection.DisposeAsync();
         }
+
+        GC.SuppressFinalize(this);
     }
 }

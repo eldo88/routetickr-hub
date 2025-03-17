@@ -1,6 +1,7 @@
 namespace RouteTickrAPI.Services;
 
-public interface IPublisherService
+public interface IPublisherService : IAsyncDisposable
 {
-    void PublishMessage(string message);
+    Task InitializeAsync();
+    Task PublishMessageAsync(string message);
 }
