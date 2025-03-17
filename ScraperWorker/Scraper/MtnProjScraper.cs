@@ -8,14 +8,33 @@ public class MtnProjScraper
     {
         _urlQueue = new Queue<string>();
     }
+    
+    public async Task Scrape()
+    {
+        string? url;
+        lock (_urlQueue)
+        {
+            if (_urlQueue.Count == 0) return;
+            url = _urlQueue.Dequeue();
+        }
+        var html = await GetHtmlAsync(url);
+        Console.WriteLine(html);
+    }
+    
     public void EnqueueUrls(string url)
     {
-        _urlQueue.Enqueue(url);
+        lock (_urlQueue)
+        {
+            _urlQueue.Enqueue(url);   
+        }
     }
 
     public bool HasUrls()
     {
-        return _urlQueue.Count > 0;
+        lock (_urlQueue)
+        {
+            return _urlQueue.Count > 0;   
+        }
     }
     
     private static async Task<string> GetHtmlAsync(string url)
@@ -26,11 +45,5 @@ public class MtnProjScraper
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
-
-    public async Task Scrape()
-    {
-        var url = _urlQueue.Dequeue();
-        var html = await GetHtmlAsync(url);
-        Console.WriteLine(html);
-    }
+    
 }
