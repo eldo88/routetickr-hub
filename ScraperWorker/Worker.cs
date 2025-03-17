@@ -9,6 +9,8 @@ public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
     private readonly MtnProjScraper _scraper = new();
+    private IConnection? _connection;
+    private IChannel? _channel;
 
     public Worker(ILogger<Worker> logger)
     {
@@ -22,18 +24,20 @@ public class Worker : BackgroundService
             ProcessScrapingQueue(stoppingToken)
         );
     }
-
+    
     private async Task ListenForMessages(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
+            if (!stoppingToken.IsCancellationRequested)
             {
                 var factory = new ConnectionFactory();
-                await using var connection = await factory.CreateConnectionAsync(stoppingToken);
-                await using var channel = await connection.CreateChannelAsync(cancellationToken: stoppingToken);
-            
-                await channel.QueueDeclareAsync(
+                _connection = await factory.CreateConnectionAsync(stoppingToken);
+                _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
+
+                _logger.LogInformation("Connected to RabbitMQ");
+
+                await _channel.QueueDeclareAsync(
                     queue: "scrape_queue", 
                     durable: false, 
                     exclusive: false, 
@@ -41,33 +45,30 @@ public class Worker : BackgroundService
                     arguments: null, 
                     cancellationToken: stoppingToken);
 
-                var consumer = new AsyncEventingBasicConsumer(channel);
+                _logger.LogInformation("Queue declared: scrape_queue");
+
+                var consumer = new AsyncEventingBasicConsumer(_channel);
                 consumer.ReceivedAsync += (model, ea) =>
                 {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     _scraper.EnqueueUrls(message);
-                    _logger.LogInformation("Message from queue: {message}", DateTimeOffset.Now);
+                    _logger.LogInformation("Received message: {Message}", message);
                     return Task.CompletedTask;
                 };
 
-                await channel.BasicConsumeAsync(
-                    "scrape_queue", 
+                await _channel.BasicConsumeAsync(
+                    queue: "scrape_queue", 
                     autoAck: true, 
                     consumer: consumer, 
                     cancellationToken: stoppingToken);
 
-                if (_logger.IsEnabled(LogLevel.Information))
-                {
-                    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                }
-
-                //await Task.Delay(1000, stoppingToken);
+                _logger.LogInformation("Started consuming messages from scrape_queue");
             }
-            catch (Exception e)
-            {//Swallow exception since this is for a background service
-                _logger.LogError("Error listening for messages {e.Message}", DateTimeOffset.Now);
-            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error listening for messages");
         }
     }
     
@@ -84,10 +85,37 @@ public class Worker : BackgroundService
             }
             catch (Exception e)
             {
-                _logger.LogError("Error during scraping: {e.Message}", DateTimeOffset.Now);
+                _logger.LogError(e, "Error during scraping");
             }
             // Wait 60 seconds before next scrape to adhere to MtnProj TOS https://www.mountainproject.com/robots.txt
             await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
         }
+    }
+    
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Stopping worker service...");
+
+        if (_channel is not null)
+        {
+            await _channel.CloseAsync(cancellationToken);
+            await _channel.DisposeAsync();
+        }
+
+        if (_connection is not null)
+        {
+            await _connection.CloseAsync(cancellationToken);
+            await _connection.DisposeAsync();
+        }
+
+        await base.StopAsync(cancellationToken);
+    }
+    
+    public override void Dispose()
+    {
+        _channel?.Dispose();
+        _connection?.Dispose();
+        base.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
