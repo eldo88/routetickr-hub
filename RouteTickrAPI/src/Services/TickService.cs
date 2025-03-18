@@ -173,22 +173,7 @@ public class TickService : ITickService
         }
     }
     
-    
-    /*****************************************************************************************************/
-    /* Private methods*/
-    
-    
-    private async Task<Climb> GetOrSaveClimb(TickDto tickDto)
-    {
-        if (tickDto.Climb is null)
-            throw new ArgumentNullException(nameof(tickDto));
-
-        var result = await _climbService.GetOrSaveClimb(tickDto.Climb);
-        
-        return result;
-    }
-    
-    private async Task<TickDto> SaveTickAsync(TickDto tickDto) 
+    public async Task<TickDto> SaveTickAsync(TickDto tickDto) 
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
         
@@ -202,6 +187,21 @@ public class TickService : ITickService
             ? tickDtoToReturn
             : throw new InvalidOperationException(
                 $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
+    }
+    
+    
+    /*****************************************************************************************************/
+    /* Private methods*/
+    
+    
+    private async Task<Climb> GetOrSaveClimb(TickDto tickDto)
+    {
+        if (tickDto.Climb is null)
+            throw new ArgumentNullException(nameof(tickDto));
+
+        var result = await _climbService.GetOrSaveClimb(tickDto.Climb);
+        
+        return result;
     }
 
     private async Task UpdateTickAsync(TickDto tickDto)
