@@ -1,6 +1,6 @@
 namespace RouteTickrAPI.Services;
 
-public interface ICrudOperationsAsync<T>
+public interface ICrudOperations<T>
 {
     Task<ServiceResult<IEnumerable<T>>> GetAllAsync();
     Task<ServiceResult<T>> GetByIdAsync(int id);

@@ -3,7 +3,7 @@ using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Services;
 
-public interface IClimbService : ICrudOperationsAsync<ClimbDto>
+public interface IClimbService : ICrudOperations<ClimbDto>
 {
     Task<Climb> GetOrSaveClimb(Climb climb);
 }
