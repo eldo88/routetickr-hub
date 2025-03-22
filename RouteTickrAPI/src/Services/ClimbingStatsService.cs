@@ -67,7 +67,7 @@ public class ClimbingStatsService : IClimbingStatsService
 
                 return new ClimbingStatsDto
                 {
-                    TotalTicks = await CalcTickTotal(),
+                    TotalTicks = await CalcTotalTicks(),
                     TotalPitches = await CalcTotalPitches(),
                     LocationVisits = await CalcVisitsPerLocation(),
                     TicksPerGrade = await CalcTicksPerGrade()
@@ -88,18 +88,14 @@ public class ClimbingStatsService : IClimbingStatsService
             throw;
         }
     }
-    private async Task<int> CalcTickTotal()
+    private async Task<int> CalcTotalTicks()
     {
-        var totalTicks = await _tickRepository.GetTotalCountAsync();
-
-        return totalTicks;
+        return await _tickRepository.GetTotalCountAsync();
     }
 
     private async Task<int> CalcTotalPitches()
     {
-        var totalPitches = await _tickRepository.GetPitchesAsync();
-
-        return totalPitches ?? 0;
+        return await _tickRepository.GetPitchesAsync() ?? 0;
     }
 
     private async Task<Dictionary<string, int>> CalcVisitsPerLocation()
