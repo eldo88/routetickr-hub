@@ -1,4 +1,4 @@
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 
 namespace RouteTickrAPI.DTOs;
 

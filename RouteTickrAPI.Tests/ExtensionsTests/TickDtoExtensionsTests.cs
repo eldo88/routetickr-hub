@@ -1,5 +1,5 @@
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Tests.TestHelpers;
 

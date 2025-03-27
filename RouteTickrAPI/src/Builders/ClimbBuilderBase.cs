@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 using RouteTickrAPI.Enums;
 
 namespace RouteTickrAPI.Builders;

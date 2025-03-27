@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using RouteTickrAPI.Data;
 using RouteTickrAPI.Middleware;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;

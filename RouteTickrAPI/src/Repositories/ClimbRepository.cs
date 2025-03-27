@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using RouteTickrAPI.Data;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 using RouteTickr.DbContext;
 
 namespace RouteTickrAPI.Repositories;

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 using ArgumentException = System.ArgumentException;

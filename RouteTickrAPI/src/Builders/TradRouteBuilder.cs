@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 
 namespace RouteTickrAPI.Builders;
 

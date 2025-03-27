@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 
 namespace RouteTickrAPI.Repositories;
 

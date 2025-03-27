@@ -1,10 +1,9 @@
-/*
-using Microsoft.EntityFrameworkCore;
-using RouteTickrAPI.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using RouteTickr.Entities;
 
-namespace RouteTickrAPI.Data;
+namespace RouteTickr.DbContext;
 
-public class ApplicationDbContext1(DbContextOptions<ApplicationDbContext1> options) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
 {
     public DbSet<Tick> Ticks { get; init; }
     public DbSet<User> Users { get; init; }
@@ -34,4 +33,3 @@ public class ApplicationDbContext1(DbContextOptions<ApplicationDbContext1> optio
         base.OnModelCreating(modelBuilder);
     }
 }
-*/

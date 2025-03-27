@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RouteTickrAPI\RouteTickrAPI.csproj" />
+    <ProjectReference Include="..\RouteTickr.Entities\RouteTickr.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

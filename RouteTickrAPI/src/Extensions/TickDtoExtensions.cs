@@ -1,6 +1,6 @@
 using RouteTickrAPI.Builders;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 using RouteTickrAPI.Enums;
 
 namespace RouteTickrAPI.Extensions;

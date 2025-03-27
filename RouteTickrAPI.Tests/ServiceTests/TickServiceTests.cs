@@ -1,6 +1,6 @@
 using Moq;
 using RouteTickrAPI.DTOs;
-using RouteTickrAPI.Entities;
+using RouteTickr.Entities;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
