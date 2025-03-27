@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using RouteTickrAPI.DTOs;
+using RouteTickrAPI.Entities;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 
@@ -70,7 +71,9 @@ public class ClimbingStatsService : IClimbingStatsService
                     TotalTicks = await CalcTotalTicks(),
                     TotalPitches = await CalcTotalPitches(),
                     LocationVisits = await CalcVisitsPerLocation(),
-                    TicksPerGrade = await CalcTicksPerGrade()
+                    TicksPerGrade = await CalcTicksPerGrade(),
+                    SendPyramid = await CreateSendPyramid(),
+                    SendPyramidByGrade = await CreateSendPyramidByGrade()
                 };
             });
 
@@ -147,5 +150,45 @@ public class ClimbingStatsService : IClimbingStatsService
         }
             
         return gradeCounts;
+    }
+
+    private async Task<Dictionary<string, int>> CreateSendPyramid()
+    {
+        var gradeCounts = new Dictionary<string, int>();
+        var ticks = await _tickRepository.GetAllAsync();
+        var filteredTicks = ticks
+            .Where(t => t.LeadStyle == "Redpoint" || t.LeadStyle == "Onsight" || t.LeadStyle == "Flash")
+            .Select(t => t.Rating);
+
+        foreach (var rating in filteredTicks)
+        {
+            gradeCounts.IncrementCount(rating);
+        }
+
+        return gradeCounts;
+    }
+
+    private async Task<Dictionary<string, Dictionary<string, int>>> CreateSendPyramidByGrade()
+    {
+        var ticks = await _tickRepository.GetAllAsync();
+        var filteredTicks = ticks
+            .Where(t => t.LeadStyle == "Redpoint" || t.LeadStyle == "Onsight" || t.LeadStyle == "Flash").ToList();
+        
+        Console.WriteLine($"length: {filteredTicks.Count}");
+        
+        var countByStyle = new Dictionary<string, Dictionary<string, int>>();
+        var countByGrade = new Dictionary<string, int>();
+
+        foreach (var tick in filteredTicks)
+        {
+            if (!countByStyle.TryGetValue(tick.RouteType, out var value))
+            {
+                value = new Dictionary<string, int>();
+                countByStyle[tick.RouteType] = value;
+            }
+            value.IncrementCount(tick.Rating);
+        }
+
+        return countByStyle;
     }
 }
