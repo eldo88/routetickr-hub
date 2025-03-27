@@ -3,8 +3,12 @@ using RouteTickr.Entities;
 
 namespace RouteTickr.DbContext;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
+public class ApplicationDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
+    
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options) { }
+    
     public DbSet<Tick> Ticks { get; init; }
     public DbSet<User> Users { get; init; }
     
