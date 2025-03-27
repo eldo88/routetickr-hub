@@ -50,7 +50,9 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
     {
         try
         {
-            await AddClimbAsync(climbDto);
+            var climb = climbDto.ToEntity();
+            
+            await AddClimbAsync(climb);
 
             return ServiceResult<ClimbDto>.SuccessResult(climbDto);
         }
@@ -118,9 +120,8 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
             if (getByNameAndLocationResult is not null)
                 return getByNameAndLocationResult;
             
-            var climbDto = climb.ToDto();
 
-            await AddClimbAsync(climbDto);
+            await AddClimbAsync(climb);
 
             return climb;
         }
@@ -158,11 +159,9 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
         return await _climbRepository.GetByIdAsync(id);
     }
 
-    private async Task AddClimbAsync(ClimbDto climbDto)
+    private async Task AddClimbAsync(Climb climb)
     {
-        ArgumentNullException.ThrowIfNull(climbDto, nameof(climbDto));
-
-        var climb = climbDto.ToEntity();
+        ArgumentNullException.ThrowIfNull(climb, nameof(climb));
 
         var recordsWritten = await _climbRepository.AddClimb(climb);
 

@@ -35,7 +35,7 @@ builder.Services.AddScoped<IClimbService, ClimbService>();
 builder.Services.AddScoped<IPublisherService, UrlPublisherService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=RouteTickr.db"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddCors(options =>
 {
