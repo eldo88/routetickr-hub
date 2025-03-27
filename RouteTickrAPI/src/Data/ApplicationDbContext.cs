@@ -3,7 +3,7 @@ using RouteTickrAPI.Entities;
 
 namespace RouteTickrAPI.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext1(DbContextOptions<ApplicationDbContext1> options) : DbContext(options)
 {
     public DbSet<Tick> Ticks { get; init; }
     public DbSet<User> Users { get; init; }

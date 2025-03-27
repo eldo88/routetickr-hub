@@ -22,4 +22,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RouteTickr.DbContext\RouteTickr.DbContext.csproj" />
+    <ProjectReference Include="..\RouteTickr.Entities\RouteTickr.Entities.csproj" />
+  </ItemGroup>
+
 </Project>

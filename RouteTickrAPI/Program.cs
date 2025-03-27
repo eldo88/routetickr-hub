@@ -7,6 +7,7 @@ using RouteTickrAPI.Data;
 using RouteTickrAPI.Middleware;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
+using RouteTickr.DbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
