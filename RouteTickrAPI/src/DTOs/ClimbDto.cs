@@ -1,4 +1,4 @@
-using RouteTickrAPI.Enums;
+using RouteTickr.Messages.Enums;
 
 namespace RouteTickrAPI.DTOs;
 

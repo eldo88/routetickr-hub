@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using RouteTickrAPI.Enums;
+using RouteTickr.Messages.Enums;
 
 namespace RouteTickr.Entities;
 

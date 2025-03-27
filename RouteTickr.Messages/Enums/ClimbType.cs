@@ -1,4 +1,4 @@
-namespace RouteTickrAPI.Enums;
+namespace RouteTickr.Messages.Enums;
 
 public enum ClimbType //possibly add mixed types for mixed trad and mixed ice
 {

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using RouteTickr.Entities;
-using RouteTickrAPI.Enums;
+using RouteTickr.Messages.Enums;
 
 namespace RouteTickrAPI.Builders;
 

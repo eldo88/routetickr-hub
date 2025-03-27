@@ -1,4 +1,4 @@
-namespace RouteTickrAPI.Enums;
+namespace RouteTickr.Messages.Enums;
 
 public enum ClimbDangerRating
 {

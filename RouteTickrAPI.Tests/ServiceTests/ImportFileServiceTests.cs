@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using RouteTickr.Entities;
-using RouteTickrAPI.Enums;
+using RouteTickr.Messages.Enums;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;

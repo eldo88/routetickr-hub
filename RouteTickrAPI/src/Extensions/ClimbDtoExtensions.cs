@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using RouteTickrAPI.DTOs;
 using RouteTickr.Entities;
-using RouteTickrAPI.Enums;
+using RouteTickr.Messages.Enums;
 
 namespace RouteTickrAPI.Extensions;
 
