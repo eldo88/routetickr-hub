@@ -85,7 +85,7 @@ public class TickService : ITickService
 
         if (tick is null)
             throw new InvalidOperationException(
-                $"Tick with {id} does not exist and cannot be deleted.");
+                $"Tick with ID: {id} does not exist and cannot be deleted.");
         
         var tickToBeDeleted = tick.ToEntity();
 
