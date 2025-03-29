@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using CsvHelper;
 using Microsoft.EntityFrameworkCore;
 
 namespace RouteTickrAPI.Middleware;
@@ -29,11 +30,11 @@ public class GlobalExceptionHandler(RequestDelegate next)
 
         var errorResponse = new
         {
-            Message = e.Message,
-            StatusCode = context.Response.StatusCode,
+            ErrorMessage = e.Message,
+            HttpStatusCode = context.Response.StatusCode,
+            ErrorDetails = e.StackTrace,
             Timestamp = DateTime.UtcNow
         };
-
 
         return context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
     }
@@ -42,11 +43,12 @@ public class GlobalExceptionHandler(RequestDelegate next)
     {
         return e switch
         {
-            ArgumentNullException => HttpStatusCode.InternalServerError,
-            ArgumentException => HttpStatusCode.InternalServerError,
+            ArgumentNullException => HttpStatusCode.BadRequest,
+            ArgumentException => HttpStatusCode.BadRequest,
             InvalidOperationException => HttpStatusCode.InternalServerError,
             UnauthorizedAccessException => HttpStatusCode.Unauthorized,
             DbUpdateException => HttpStatusCode.InternalServerError,
+            CsvHelperException => HttpStatusCode.BadRequest,
             _ => HttpStatusCode.InternalServerError
         };
     }

@@ -68,31 +68,10 @@ public class ImportFileService : IImportFileService
             await transaction.CommitAsync();
             return true;
         }
-        catch (CsvHelperException e)
-        {
-            await transaction.RollbackAsync();
-            /*return ServiceResult<bool>.ErrorResult(
-                $"Invalid CSV format in {fileDto.FileName}. Please check the file. {e.Message}");*/
-            throw;
-        }
-        catch (DbUpdateException e)
-        {
-            await transaction.RollbackAsync();
-            /*return ServiceResult<bool>.ErrorResult(
-                $"Database error occurred while saving ticks. {e.Message}");*/
-            throw;
-        }
-        catch (InvalidOperationException e)
-        { 
-            await transaction.RollbackAsync();
-            /*return ServiceResult<bool>.ErrorResult(e.Message);*/
-            throw;
-        }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
-            /*return ServiceResult<bool>.ErrorResult(
-                $"An unexpected error occurred. {e.Message}");*/
+            Console.WriteLine(e);
             throw;
         }
     }
@@ -116,7 +95,7 @@ public class ImportFileService : IImportFileService
             }
         }
         catch (Exception e)
-        { //Swallow exception, back ground service that doesn't impact user TODO add logging
+        { //Swallow exception, background service that doesn't impact user TODO add logging
             Console.WriteLine(e);
         }
     }
