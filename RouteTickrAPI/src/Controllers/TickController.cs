@@ -38,6 +38,7 @@ public class TickController : ControllerBase
     }
 
     [HttpGet]
+    [Route("/ids")]
     public async Task<IActionResult> GetByListOfIds([FromQuery] List<int> tickIds)
     {
         var result = await _tickService.GetByListOfIdsAsync(tickIds);
