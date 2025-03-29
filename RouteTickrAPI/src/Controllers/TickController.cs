@@ -6,7 +6,7 @@ using RouteTickrAPI.Services;
 namespace RouteTickrAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]/[action]")]
+[Route("api/[controller]")]
 public class TickController : ControllerBase
 {
     private readonly ITickService _tickService;
@@ -17,7 +17,7 @@ public class TickController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetTicks()
     {
         var result = await _tickService.GetAllAsync();
         var tickDtos = result as TickDto[] ?? result.ToArray();
@@ -27,9 +27,8 @@ public class TickController : ControllerBase
         return Ok(tickDtos);
     }
 
-    [HttpGet]
-    [Route("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetTick(int id)
     {
         var result = await _tickService.GetByIdAsync(id);
         if (result is null) 
@@ -49,24 +48,28 @@ public class TickController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(TickDto tickDto)
+    public async Task<IActionResult> PostTick(TickDto tickDto)
     {
         var result = await _tickService.AddAsync(tickDto);
         
-        //TODO return link to newly added tick?
-        return CreatedAtAction(nameof(GetAll), new { id = result.Id }, result);
+        return CreatedAtAction(nameof(PostTick), new { id = result.Id }, result);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(TickDto tickDto)
-    { 
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> PutTick(int id, TickDto tickDto)
+    {
+        if (id != tickDto.Id)
+        {
+            return BadRequest();
+        }
+        
         var result = await _tickService.UpdateAsync(tickDto);
         
         return Ok(result);
     }
     
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> DeleteTick(int id)
     {
         await _tickService.DeleteAsync(id);
         

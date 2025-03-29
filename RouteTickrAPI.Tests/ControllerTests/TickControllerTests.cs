@@ -27,7 +27,7 @@ public class TickControllerTests
             .Setup(s => s.DeleteAsync(tickId));
         
         //Act
-        var result = await _tickController.Delete(tickId);
+        var result = await _tickController.DeleteTick(tickId);
         //Assert
         Assert.That(result, Is.InstanceOf(typeof(NoContentResult)));
     }
@@ -41,7 +41,7 @@ public class TickControllerTests
             .Setup(s => s.DeleteAsync(tickId));
         
         //Act
-        var result = await _tickController.Delete(tickId);
+        var result = await _tickController.DeleteTick(tickId);
         //Assert
         Assert.That(result, Is.InstanceOf(typeof(NotFoundObjectResult)));
     }
