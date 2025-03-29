@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -22,25 +23,30 @@ public class GlobalExceptionHandler(RequestDelegate next)
     {
         context.Response.ContentType = "application/json";
 
-        var (statusCode, errorMessage) = e switch
-        {
-            ArgumentException => (HttpStatusCode.BadRequest, e.Message),
-            InvalidOperationException => (HttpStatusCode.InternalServerError, e.Message),
-            UnauthorizedAccessException => (HttpStatusCode.Unauthorized, e.Message),
-            DbUpdateException => (HttpStatusCode.InternalServerError, e.Message),
-            _ => (HttpStatusCode.InternalServerError, e.Message)
-        };
+        var statusCode = SetStatusCode(e);
 
         context.Response.StatusCode = (int)statusCode;
 
         var errorResponse = new
         {
-            Message = errorMessage,
-            StatusCode = (int)statusCode,
+            Message = e.Message,
+            StatusCode = context.Response.StatusCode,
             Timestamp = DateTime.UtcNow
         };
 
 
         return context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
+    }
+
+    private static HttpStatusCode SetStatusCode(Exception e)
+    {
+        return e switch
+        {
+            ArgumentException => HttpStatusCode.BadRequest,
+            InvalidOperationException => HttpStatusCode.InternalServerError,
+            UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+            DbUpdateException => HttpStatusCode.InternalServerError,
+            _ => HttpStatusCode.InternalServerError
+        };
     }
 }
