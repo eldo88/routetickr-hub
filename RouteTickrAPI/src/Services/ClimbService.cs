@@ -15,129 +15,55 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
     {
         _climbRepository = climbRepository;
     }
-    public async Task<ServiceResult<IEnumerable<ClimbDto>>> GetAllAsync()
+    public async Task<IEnumerable<ClimbDto>> GetAllAsync()
     {
-        try
-        {
-            var climbs = await _climbRepository.GetAllAsync();
-            var climbDtoList = climbs.Select(ClimbDtoExtensions.ToDto).ToList();
-
-            return climbDtoList.Count > 0
-                ? ServiceResult<IEnumerable<ClimbDto>>.SuccessResult(climbDtoList)
-                : ServiceResult<IEnumerable<ClimbDto>>.NotFoundResult("No climbs found");
-        }
-        catch (ArgumentNullException e)
-        {
-            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult(
-                $"A null value was encountered while mapping climbs. {e.Message}");
-        }
-        catch (Exception e)
-        {
-            return ServiceResult<IEnumerable<ClimbDto>>.ErrorResult(
-                $"An unexpected error occurred. {e.Message}");
-        }
+        var climbs = await _climbRepository.GetAllAsync();
+        
+        return climbs.Select(ClimbDtoExtensions.ToDto).ToList();
     }
 
-    public async Task<ServiceResult<ClimbDto>> GetByIdAsync(int id) // create controller 
+    public async Task<ClimbDto?> GetByIdAsync(int id) // create controller 
     {
         var result = await GetClimbByIdAsync(id);
-        if (result is null) return ServiceResult<ClimbDto>.NotFoundResult($"Climb not found with ID {id}");
-        var dto = result.ToDto();
-        return ServiceResult<ClimbDto>.SuccessResult(dto);
+       
+        return result?.ToDto();
     }
 
-    public async Task<ServiceResult<ClimbDto>> AddAsync(ClimbDto climbDto) // create controller 
+    public async Task<ClimbDto> AddAsync(ClimbDto climbDto) // create controller 
     {
-        try
-        {
-            var climb = climbDto.ToEntity();
+        var climb = climbDto.ToEntity();
             
-            await AddClimbAsync(climb);
+        await AddClimbAsync(climb);
 
-            return ServiceResult<ClimbDto>.SuccessResult(climbDto);
-        }
-        catch (ArgumentNullException e)
-        {
-            return ServiceResult<ClimbDto>.ErrorResult(
-                $"Error saving climb, unexpected null value. {e.Message}");
-        }
-        catch (DbUpdateException e)
-        {
-            return ServiceResult<ClimbDto>.ErrorResult(
-                $"Error saving {climbDto.Name}, {e.Message}");
-        }
-        catch (OperationCanceledException e)
-        {
-            return ServiceResult<ClimbDto>.ErrorResult(
-                $"Error saving {climbDto.Name}, save operation cancelled. {e.Message}");
-        }
-        catch (Exception e)
-        {
-            return ServiceResult<ClimbDto>.ErrorResult(
-                $"Unexpected error occurred, no data was saved. {e.Message}");
-        }
+        return climbDto;
     }
 
-    public async Task<ServiceResult<ClimbDto>> UpdateAsync(ClimbDto dto) // create controller and implement method
+    public async Task<ClimbDto> UpdateAsync(ClimbDto dto) // create controller and implement method
     {
-        try
-        {
             await UpdateClimbAsync(dto);
 
-            return ServiceResult<ClimbDto>.SuccessResult(dto);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+            return dto;
     }
 
-    public async Task<ServiceResult<bool>> DeleteAsync(int id) // create controller and implement method
+    public async Task DeleteAsync(int id) // create controller and implement method
     {
-        try
-        {
-            await DeleteClimbAsync(id);
-
-            return ServiceResult<bool>.SuccessResult(true);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        await DeleteClimbAsync(id);
     }
 
     public async Task<Climb> GetOrSaveClimb(Climb climb)
     {
-        try
-        {
-            var getByIdResult = await GetClimbByIdAsync(climb.Id);
-            if (getByIdResult is not null)
-                return getByIdResult;
+        var getByIdResult = await GetClimbByIdAsync(climb.Id);
+        if (getByIdResult is not null)
+            return getByIdResult;
 
-            var getByNameAndLocationResult = await GetClimbByNameAndLocationIfExists(climb.Name, climb.Location);
-            if (getByNameAndLocationResult is not null)
-                return getByNameAndLocationResult;
+        var getByNameAndLocationResult = await GetClimbByNameAndLocationIfExists(climb.Name, climb.Location);
+        if (getByNameAndLocationResult is not null)
+            return getByNameAndLocationResult;
             
 
-            await AddClimbAsync(climb);
+        await AddClimbAsync(climb);
 
-            return climb;
-        }
-        catch (ArgumentNullException e)
-        {
-            throw;
-        }
-        catch (ArgumentException e)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error: {e.Message}");
-            throw;
-        }
+        return climb;
     }
 
     //private methods

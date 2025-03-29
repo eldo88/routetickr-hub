@@ -5,6 +5,6 @@ namespace RouteTickrAPI.Services;
 
 public interface ITickService : ICrudOperations<TickDto>
 { 
-    Task<ServiceResult<List<TickDto>>> GetByListOfIdsAsync(List<int> tickIds);
+    Task<List<TickDto>> GetByListOfIdsAsync(List<int> tickIds);
     Task<TickDto> SaveTickAsync(TickDto tickDto);
 }

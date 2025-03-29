@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Services;
 
 namespace RouteTickrAPI.Controllers;
@@ -18,8 +19,9 @@ public class ClimbController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var result = await _climbService.GetAllAsync();
-        if (!result.Success) { return NotFound(new { Message = result.ErrorMessage }); }
+        var climbDtos = result as ClimbDto[] ?? result.ToArray();
+        if (climbDtos.Length == 0) { return NotFound(new { Message = "No climbs found." }); }
 
-        return Ok(result.Data);
+        return Ok(climbDtos);
     }
 }

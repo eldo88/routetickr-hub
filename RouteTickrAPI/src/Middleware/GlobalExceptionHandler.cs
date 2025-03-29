@@ -24,11 +24,11 @@ public class GlobalExceptionHandler(RequestDelegate next)
 
         var (statusCode, errorMessage) = e switch
         {
-            ArgumentException => (HttpStatusCode.BadRequest, "Invalid request."),
-            InvalidOperationException => (HttpStatusCode.NotFound, "Resource not found."),
-            UnauthorizedAccessException => (HttpStatusCode.Unauthorized, "Unauthorized access."),
-            DbUpdateException => (HttpStatusCode.InternalServerError, "Database error occurred."),
-            _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred.")
+            ArgumentException => (HttpStatusCode.BadRequest, e.Message),
+            InvalidOperationException => (HttpStatusCode.InternalServerError, e.Message),
+            UnauthorizedAccessException => (HttpStatusCode.Unauthorized, e.Message),
+            DbUpdateException => (HttpStatusCode.InternalServerError, e.Message),
+            _ => (HttpStatusCode.InternalServerError, e.Message)
         };
 
         context.Response.StatusCode = (int)statusCode;

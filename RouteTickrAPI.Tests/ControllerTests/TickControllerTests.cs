@@ -24,8 +24,8 @@ public class TickControllerTests
         //Arrange
         const int tickId = 1;
         _tickService
-            .Setup(s => s.DeleteAsync(tickId))
-            .ReturnsAsync(ServiceResult<bool>.SuccessResult(true));
+            .Setup(s => s.DeleteAsync(tickId));
+        
         //Act
         var result = await _tickController.Delete(tickId);
         //Assert
@@ -38,8 +38,8 @@ public class TickControllerTests
         //Arrange
         const int tickId = 999999;
         _tickService
-            .Setup(s => s.DeleteAsync(tickId))
-            .ReturnsAsync(ServiceResult<bool>.ErrorResult("Error uploading file contents."));
+            .Setup(s => s.DeleteAsync(tickId));
+        
         //Act
         var result = await _tickController.Delete(tickId);
         //Assert

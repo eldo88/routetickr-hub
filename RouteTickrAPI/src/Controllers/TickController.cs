@@ -20,10 +20,11 @@ public class TickController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var result = await _tickService.GetAllAsync();
-        if (!result.Success) 
-            return NotFound(new { Message = result.ErrorMessage });
+        var tickDtos = result as TickDto[] ?? result.ToArray();
+        if (tickDtos.Length == 0) 
+            return NotFound(new { Message = "No ticks found" });
         
-        return Ok(result.Data);
+        return Ok(tickDtos);
     }
 
     [HttpGet]
@@ -31,48 +32,43 @@ public class TickController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _tickService.GetByIdAsync(id);
-        if (!result.Success) 
-            return BadRequest(result);
+        if (result is null) 
+            return NotFound(new { Message = $"No tick found for id {id}"});
         
-        return Ok(result.Data);
+        return Ok(result);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetByListOfIds([FromQuery] List<int> tickIds)
     {
         var result = await _tickService.GetByListOfIdsAsync(tickIds);
-        if (!result.Success) 
-            return BadRequest(result);
+        if (result.Count == 0)
+            return NotFound(new { Message = "No ticks found" });
         
-        return Ok(result.Data);
+        return Ok(result);
     }
 
     [HttpPost]
     public async Task<IActionResult> Add(TickDto tickDto)
     {
         var result = await _tickService.AddAsync(tickDto);
-        if (!result.Success) 
-            return BadRequest(result);
+        
         //TODO return link to newly added tick?
-        return CreatedAtAction(nameof(GetAll), new { id = result.Data.Id }, result.Data);
+        return CreatedAtAction(nameof(GetAll), new { id = result.Id }, result);
     }
 
     [HttpPut]
     public async Task<IActionResult> Update(TickDto tickDto)
     { 
         var result = await _tickService.UpdateAsync(tickDto);
-        if (!result.Success) 
-            return BadRequest(result);
         
-        return Ok(result.Data);
+        return Ok(result);
     }
     
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var result = await _tickService.DeleteAsync(id);
-        if (!result.Success) 
-            return NotFound(result);
+        await _tickService.DeleteAsync(id);
         
         return NoContent();
     }
