@@ -42,7 +42,8 @@ public class GlobalExceptionHandler(RequestDelegate next)
     {
         return e switch
         {
-            ArgumentException => HttpStatusCode.BadRequest,
+            ArgumentNullException => HttpStatusCode.InternalServerError,
+            ArgumentException => HttpStatusCode.InternalServerError,
             InvalidOperationException => HttpStatusCode.InternalServerError,
             UnauthorizedAccessException => HttpStatusCode.Unauthorized,
             DbUpdateException => HttpStatusCode.InternalServerError,
