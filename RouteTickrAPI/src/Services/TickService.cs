@@ -64,7 +64,7 @@ public class TickService : ITickService
 
         if (existingTick is null)
             throw new InvalidOperationException(
-                $"Tick with {tickDto.Id} does not exist and cannot be updated.");
+                $"Tick with ID: {tickDto.Id} does not exist and cannot be updated.");
 
         var climb = tickDto.BuildClimb();
         var updateTo = tickDto.ToTickEntity(climb);
