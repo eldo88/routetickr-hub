@@ -5,7 +5,7 @@ using RouteTickrAPI.Services;
 namespace RouteTickrAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]/[action]")]
+[Route("api/[controller]")]
 public class ClimbController : ControllerBase
 {
     private readonly IClimbService _climbService;
@@ -16,7 +16,7 @@ public class ClimbController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetCLimbs()
     {
         var result = await _climbService.GetAllAsync();
         var climbDtos = result as ClimbDto[] ?? result.ToArray();
