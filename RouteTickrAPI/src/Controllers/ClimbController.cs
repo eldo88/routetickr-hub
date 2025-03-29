@@ -20,7 +20,8 @@ public class ClimbController : ControllerBase
     {
         var result = await _climbService.GetAllAsync();
         var climbDtos = result as ClimbDto[] ?? result.ToArray();
-        if (climbDtos.Length == 0) { return NotFound(new { Message = "No climbs found." }); }
+        if (climbDtos.Length == 0) 
+            return NotFound(new { Message = "No climbs found." });
         
         return Ok(climbDtos);
     }
