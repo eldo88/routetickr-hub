@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Services;
@@ -6,6 +7,7 @@ namespace RouteTickrAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
+[Authorize]
 public class ImportFileController : ControllerBase
 {
     private readonly IImportFileService _importFileService;

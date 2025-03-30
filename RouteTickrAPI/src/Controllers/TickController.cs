@@ -1,12 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteTickrAPI.DTOs;
-using RouteTickr.Entities;
 using RouteTickrAPI.Services;
 
 namespace RouteTickrAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TickController : ControllerBase
 {
     private readonly ITickService _tickService;

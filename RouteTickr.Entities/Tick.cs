@@ -27,9 +27,9 @@ public class Tick
     [Required]
     public int ClimbId { get; set; }
     [ForeignKey("ClimbId")]
-    public Climb Climb { get; set; }
+    public virtual Climb Climb { get; set; }
     [Required]
-    public string UserId { get; init; }
+    public string UserId { get; set; }
     [ForeignKey("UserId")]
-    public User User { get; init; }
+    public virtual User User { get; set; }
 }
