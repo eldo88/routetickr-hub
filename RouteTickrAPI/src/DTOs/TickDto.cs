@@ -22,4 +22,5 @@ public class TickDto
     public int? RatingCode { get; init; }
     public int? ClimbId { get; set; }
     public Climb? Climb { get; set; }
+    public string UserId { get; set; } = string.Empty;
 }

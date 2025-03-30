@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Services;
+using RouteTickr.Entities;
+using System.Security.Claims;
 
 namespace RouteTickrAPI.Controllers;
 
@@ -52,9 +54,16 @@ public class TickController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PostTick(TickDto tickDto)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null)
+        {
+            return Unauthorized("Could not identify the user.");
+        }
+        
+        tickDto.UserId = userId;
         var result = await _tickService.AddAsync(tickDto);
         
-        return CreatedAtAction(nameof(PostTick), new { id = result.Id }, result);
+        return CreatedAtAction(nameof(GetTick), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:int}")]
