@@ -1,25 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace RouteTickr.Entities;
 
-[Index(nameof(Username), IsUnique = true)]
-public class User
+public class User : IdentityUser
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
-    [Required] 
-    [MaxLength(100)] 
-    public string Username { get; set; } = "";
-
-    [Required]
-    [MaxLength(100)]
-    public string PasswordHash { get; set; } = "";
-
-    [Required]
-    [MaxLength(25)]
-    public string Role { get; set; } = "";
+    public virtual ICollection<Tick> Ticks { get; set; } = new List<Tick>();
 }

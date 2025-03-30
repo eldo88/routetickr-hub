@@ -27,7 +27,6 @@ builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ITickService, TickService>();
 builder.Services.AddScoped<ITickRepository, TickRepository>();
 builder.Services.AddScoped<IClimbingStatsService, ClimbingStatsService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IImportFileService, ImportFileService>();
 builder.Services.AddScoped<IClimbRepository, ClimbRepository>();
 builder.Services.AddScoped<IClimbService, ClimbService>();

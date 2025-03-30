@@ -28,4 +28,8 @@ public class Tick
     public int ClimbId { get; set; }
     [ForeignKey("ClimbId")]
     public Climb Climb { get; set; }
+    [Required]
+    public string UserId { get; init; }
+    [ForeignKey("UserId")]
+    public User User { get; init; }
 }

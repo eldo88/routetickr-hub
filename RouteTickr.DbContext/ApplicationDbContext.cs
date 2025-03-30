@@ -1,16 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RouteTickr.Entities;
 
 namespace RouteTickr.DbContext;
 
-public class ApplicationDbContext : Microsoft.EntityFrameworkCore.DbContext
+public class ApplicationDbContext : IdentityDbContext<User>
 {
     
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
     
     public DbSet<Tick> Ticks { get; init; }
-    public DbSet<User> Users { get; init; }
     
     public DbSet<Climb> Climbs { get; init; }
     public DbSet<SportRoute> SportRoutes { get; init; }
@@ -21,6 +21,8 @@ public class ApplicationDbContext : Microsoft.EntityFrameworkCore.DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Climb>().ToTable("Climbs");
         modelBuilder.Entity<SportRoute>().ToTable("SportRoutes");
         modelBuilder.Entity<TradRoute>().ToTable("TradRoutes");
@@ -32,8 +34,10 @@ public class ApplicationDbContext : Microsoft.EntityFrameworkCore.DbContext
             .HasOne(t => t.Climb)
             .WithMany()
             .HasForeignKey(t => t.ClimbId);
-        
-        
-        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Tick>()
+            .HasOne<User>()
+            .WithMany(u => u.Ticks)
+            .HasForeignKey(t => t.UserId);
     }
 }
