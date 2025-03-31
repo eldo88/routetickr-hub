@@ -20,6 +20,8 @@ public class TickController : ControllerBase
     }
     
     [HttpGet]
+    [ProducesResponseType(typeof(TickDto[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTicks()
     {
         var result = await _tickService.GetAllAsync();
@@ -31,6 +33,8 @@ public class TickController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(TickDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTick(int id)
     {
         var result = await _tickService.GetByIdAsync(id);
@@ -42,6 +46,7 @@ public class TickController : ControllerBase
 
     [HttpGet]
     [Route("/ids")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByListOfIds([FromQuery] List<int> tickIds)
     {
         var result = await _tickService.GetByListOfIdsAsync(tickIds);
@@ -52,6 +57,8 @@ public class TickController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(TickDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> PostTick(TickDto tickDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -67,9 +74,11 @@ public class TickController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [ProducesResponseType(typeof(TickDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PutTick(int id, TickDto tickDto)
     {
-        if (id != tickDto.Id)
+        if (id != tickDto.Id || id < 0)
         {
             return BadRequest();
         }
@@ -80,6 +89,7 @@ public class TickController : ControllerBase
     }
     
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteTick(int id)
     {
         await _tickService.DeleteAsync(id);
