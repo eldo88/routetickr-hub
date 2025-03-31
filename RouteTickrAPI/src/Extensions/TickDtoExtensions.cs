@@ -30,7 +30,8 @@ public static class TickDtoExtensions
             Length = entity.Length,
             RatingCode = entity.RatingCode,
             ClimbId = entity.ClimbId,
-            Climb = entity.Climb
+            Climb = entity.Climb,
+            UserId = entity.UserId
         };
     }
     
@@ -57,7 +58,8 @@ public static class TickDtoExtensions
             Length = dto.Length,
             RatingCode = dto.RatingCode,
             Climb = dto.Climb ?? dto.BuildClimb(),
-            ClimbId = dto.ClimbId ?? 0
+            ClimbId = dto.ClimbId ?? 0,
+            UserId = dto.UserId
         };
     }
     
@@ -85,7 +87,8 @@ public static class TickDtoExtensions
             Length = dto.Length,
             RatingCode = dto.RatingCode,
             ClimbId = climb.Id,
-            Climb = climb
+            Climb = climb,
+            UserId = dto.UserId
         };
     }
 
