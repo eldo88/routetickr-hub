@@ -25,7 +25,7 @@ public class ImportFileService : IImportFileService
         _publisherService = publisherServiceService;
     }
 
-    public async Task<ServiceResult<int>> ProcessFile(ImportFileDto fileDto, string userId)
+    public async Task<int> ProcessFile(ImportFileDto fileDto, string userId)
     {
         try
         {
@@ -38,8 +38,8 @@ public class ImportFileService : IImportFileService
             {
                 await PublishUrls(dataFromFile);
             }
-            
-            return ServiceResult<int>.SuccessResult(dataFromFile.Count);
+
+            return ticksSaved;
         }
         catch (Exception e)
         {

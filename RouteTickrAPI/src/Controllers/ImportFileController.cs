@@ -22,23 +22,19 @@ public class ImportFileController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> ImportFile(IFormFile file)
     {
-        try
+        ArgumentNullException.ThrowIfNull(file);
+        
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId is null)
-            {
-                return Unauthorized("Could not identify the user.");
-            }
+            return Unauthorized("Could not identify the user.");
+        }
             
-            var fileDto = await file.ToImportFileDto();
-            var result = await _importFileService.ProcessFile(fileDto, userId);
-            if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
+        var fileDto = await file.ToImportFileDto();
+        var result = await _importFileService.ProcessFile(fileDto, userId);
+        if (result <= 0) 
+            return BadRequest(new { Message = "File was either empty or error occurred."});
 
-            return Ok($"File {fileDto.FileName} uploaded successfully.");
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(new { e.Message });
-        }
+        return Ok($"File {fileDto.FileName} uploaded successfully, {result} records saved.");
     }
 }
