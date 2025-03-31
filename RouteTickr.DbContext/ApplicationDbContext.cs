@@ -36,7 +36,7 @@ public class ApplicationDbContext : IdentityDbContext<User>
             .HasForeignKey(t => t.ClimbId);
 
         modelBuilder.Entity<Tick>()
-            .HasOne<User>()
+            .HasOne(t => t.User)
             .WithMany(u => u.Ticks)
             .HasForeignKey(t => t.UserId);
     }

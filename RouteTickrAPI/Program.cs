@@ -98,8 +98,6 @@ var jwtKey = builder.Configuration["Jwt:Key"]; // Get from appsettings.json or s
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
-Console.WriteLine($"--- Program.cs --- Key: {jwtKey}, Issuer: {jwtIssuer}, Audience: {jwtAudience}");
-
 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
 {
     throw new InvalidOperationException("JWT Key, Issuer or Audience is not configured properly.");
@@ -108,6 +106,8 @@ if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.Is
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
