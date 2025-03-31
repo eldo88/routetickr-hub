@@ -1,6 +1,7 @@
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Mappers;
@@ -32,10 +33,12 @@ public class ImportFileService : IImportFileService
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
             var dataFromFile = ConvertCsvFileToTickDto(csvFile);
 
-            var isSaveSuccessful = await SaveFileContentsAsync(dataFromFile, userId);
-
-            if (!isSaveSuccessful) return ServiceResult<int>.ErrorResult("No data saved.");
-            await PublishUrls(dataFromFile);
+            var ticksSaved = await SaveFileContentsAsync(dataFromFile, userId);
+            if (ticksSaved > 0)
+            {
+                await PublishUrls(dataFromFile);
+            }
+            
             return ServiceResult<int>.SuccessResult(dataFromFile.Count);
         }
         catch (Exception e)
@@ -45,11 +48,12 @@ public class ImportFileService : IImportFileService
         }
     }
     
-    public async Task<bool> SaveFileContentsAsync(List<TickDto> dataFromFile, string userId)
+    public async Task<int> SaveFileContentsAsync(List<TickDto> dataFromFile, string userId)
     {
-        await using var transaction = await _tickRepository.BeginTransactionAsync();
+        IDbContextTransaction? transaction = null;
         try
         {
+            transaction = await _tickRepository.BeginTransactionAsync();
             var count = 0;
             foreach (var tickDto in dataFromFile)
             {
@@ -61,17 +65,18 @@ public class ImportFileService : IImportFileService
 
             if (dataFromFile.Count != count)
             {
-                await transaction.RollbackAsync();
-                return false;
+                throw new InvalidOperationException("Error saving file contents.");
             }
-            
-            await transaction.CommitAsync();
-            return true;
+
+            await _tickRepository.CommitTransactionAsync(transaction);
+            return count;
         }
         catch (Exception e)
         {
-            await transaction.RollbackAsync();
-            Console.WriteLine(e);
+            if (transaction != null)
+            {
+                await _tickRepository.RollbackTransactionAsync(transaction);
+            }
             throw;
         }
     }
