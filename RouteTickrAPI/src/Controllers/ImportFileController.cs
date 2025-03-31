@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,8 +24,14 @@ public class ImportFileController : ControllerBase
     {
         try
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+            {
+                return Unauthorized("Could not identify the user.");
+            }
+            
             var fileDto = await file.ToImportFileDto();
-            var result = await _importFileService.ProcessFile(fileDto);
+            var result = await _importFileService.ProcessFile(fileDto, userId);
             if (!result.Success) { return BadRequest(new { Message = result.ErrorMessage }); }
 
             return Ok($"File {fileDto.FileName} uploaded successfully.");

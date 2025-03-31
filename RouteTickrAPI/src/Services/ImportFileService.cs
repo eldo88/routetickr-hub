@@ -1,7 +1,6 @@
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Mappers;
@@ -25,7 +24,7 @@ public class ImportFileService : IImportFileService
         _publisherService = publisherServiceService;
     }
 
-    public async Task<ServiceResult<int>> ProcessFile(ImportFileDto fileDto)
+    public async Task<ServiceResult<int>> ProcessFile(ImportFileDto fileDto, string userId)
     {
         try
         {
@@ -33,7 +32,7 @@ public class ImportFileService : IImportFileService
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
             var dataFromFile = ConvertCsvFileToTickDto(csvFile);
 
-            var isSaveSuccessful = await SaveFileContentsAsync(dataFromFile);
+            var isSaveSuccessful = await SaveFileContentsAsync(dataFromFile, userId);
 
             if (!isSaveSuccessful) return ServiceResult<int>.ErrorResult("No data saved.");
             await PublishUrls(dataFromFile);
@@ -46,7 +45,7 @@ public class ImportFileService : IImportFileService
         }
     }
     
-    public async Task<bool> SaveFileContentsAsync(List<TickDto> dataFromFile)
+    public async Task<bool> SaveFileContentsAsync(List<TickDto> dataFromFile, string userId)
     {
         await using var transaction = await _tickRepository.BeginTransactionAsync();
         try
@@ -54,6 +53,7 @@ public class ImportFileService : IImportFileService
             var count = 0;
             foreach (var tickDto in dataFromFile)
             {
+                tickDto.UserId = userId;
                 await SaveClimbAsync(tickDto);
                 await SaveTickAsync(tickDto);
                 count++;
