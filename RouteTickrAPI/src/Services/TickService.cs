@@ -119,48 +119,10 @@ public class TickService : ITickService
     private async Task<Climb> GetOrSaveClimb(TickDto tickDto)
     {
         if (tickDto.Climb is null)
-            throw new ArgumentNullException(nameof(tickDto));
+            ArgumentNullException.ThrowIfNull(tickDto.Climb);
 
         var result = await _climbService.GetOrSaveClimb(tickDto.Climb);
         
         return result;
     }
-
-    /*private async Task UpdateTickAsync(TickDto tickDto)
-    {
-        ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
-        
-        var existingTick = await GetByIdAsync(tickDto.Id);
-
-        if (existingTick is null)
-            throw new InvalidOperationException(
-                $"Tick with {tickDto.Id} does not exist and cannot be updated.");
-
-        var climb = tickDto.BuildClimb();
-        var updateTo = tickDto.ToTickEntity(climb);
-        var tick = existingTick.ToEntity();
-
-        var recordsUpdated = await _tickRepository.UpdateAsync(tick, updateTo);
-
-        if (recordsUpdated != 1) 
-            throw new InvalidOperationException(
-                $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
-    }*/
-
-    /*private async Task DeleteTickAsync(int id)
-    {
-        var tick = await GetByIdAsync(id);
-
-        if (tick is null)
-            throw new InvalidOperationException(
-                $"Tick with {id} does not exist and cannot be deleted.");
-        
-        var tickToBeDeleted = tick.ToEntity();
-
-        var recordsDeleted = await _tickRepository.DeleteAsync(tickToBeDeleted);
-
-        if (recordsDeleted != 1)
-            throw new InvalidOperationException(
-                $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
-    }*/
 }
