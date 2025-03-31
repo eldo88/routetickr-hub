@@ -109,6 +109,6 @@ public class ImportFileService : IImportFileService
 
     private async Task SaveTickAsync(TickDto tickDto)
     {
-        await _tickService.SaveTickAsync(tickDto);
+        await _tickService.AddAsync(tickDto);
     }
 }

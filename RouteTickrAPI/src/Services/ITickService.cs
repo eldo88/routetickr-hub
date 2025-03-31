@@ -6,5 +6,4 @@ namespace RouteTickrAPI.Services;
 public interface ITickService : ICrudOperations<TickDto>
 { 
     Task<List<TickDto>> GetByListOfIdsAsync(List<int> tickIds);
-    Task<TickDto> SaveTickAsync(TickDto tickDto);
 }

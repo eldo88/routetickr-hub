@@ -158,22 +158,6 @@ public class TickService : ITickService
         }
     }
     
-    public async Task<TickDto> SaveTickAsync(TickDto tickDto) 
-    {
-        ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
-        
-        var climb = await GetOrSaveClimb(tickDto);
-        var tick = tickDto.ToTickEntity(climb);
-        
-        var recordsAdded = await _tickRepository.AddAsync(tick);
-        var tickDtoToReturn = tick.ToTickDto();
-
-        return recordsAdded == 1
-            ? tickDtoToReturn
-            : throw new InvalidOperationException(
-                $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
-    }
-    
     
     /*****************************************************************************************************/
     /* Private methods*/
