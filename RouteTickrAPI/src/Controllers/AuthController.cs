@@ -14,7 +14,7 @@ namespace RouteTickrAPI.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
+    private readonly SignInManager<User> _signInManager; // TODO look into how to integrate this, used in a few examples 
     private readonly IConfiguration _configuration;
     
     public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
@@ -83,7 +83,6 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
         {
-            // Log this critical configuration error
             throw new InvalidOperationException("JWT configuration is missing or invalid.");
         }
 
@@ -94,9 +93,8 @@ public class AuthController : ControllerBase
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? throw new InvalidOperationException("Username cannot be null.")), // Subject
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? throw new InvalidOperationException("Email cannot be null")),
-            new Claim(ClaimTypes.NameIdentifier, user.Id), // Standard claim for User ID
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token ID
-            // Add other claims as needed (e.g., roles)
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         // Consider token expiration time carefully
