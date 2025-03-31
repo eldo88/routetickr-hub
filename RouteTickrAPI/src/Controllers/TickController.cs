@@ -34,9 +34,14 @@ public class TickController : ControllerBase
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(TickDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTick(int id)
     {
+        if (id <= 0)
+        {
+            return BadRequest($"Invalid ID: {id}");
+        }
         var result = await _tickService.GetByIdAsync(id);
         if (result is null) 
             return NotFound(new { Message = $"No tick found for id {id}"});
