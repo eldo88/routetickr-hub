@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteTickrAPI.Extensions;
@@ -7,7 +8,7 @@ namespace RouteTickrAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ImportFileController : ControllerBase
 {
     private readonly IImportFileService _importFileService;

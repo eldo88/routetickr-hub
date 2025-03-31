@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Services;
-using RouteTickr.Entities;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace RouteTickrAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TickController : ControllerBase
 {
     private readonly ITickService _tickService;
