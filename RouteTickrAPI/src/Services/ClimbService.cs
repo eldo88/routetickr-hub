@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using RouteTickrAPI.DTOs;
 using RouteTickr.Entities;
 using RouteTickrAPI.Extensions;
