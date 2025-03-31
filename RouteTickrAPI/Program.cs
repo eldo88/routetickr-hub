@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using RouteTickrAPI.Middleware;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
@@ -23,7 +24,40 @@ builder.Services.AddControllers()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Define the Swagger document (title, version, etc.)
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "RouteTickr API", Version = "v1" });
+
+    // --- Add JWT Authentication Support ---
+
+    // 1. Define the Security Scheme (Bearer Authentication)
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter your token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+
+    // 2. Make Swagger UI use the Security Scheme
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<ITickService, TickService>();
@@ -64,6 +98,8 @@ var jwtKey = builder.Configuration["Jwt:Key"]; // Get from appsettings.json or s
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 
+Console.WriteLine($"--- Program.cs --- Key: {jwtKey}, Issuer: {jwtIssuer}, Audience: {jwtAudience}");
+
 if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
 {
     throw new InvalidOperationException("JWT Key, Issuer or Audience is not configured properly.");
@@ -99,11 +135,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<GlobalExceptionHandler>();
+
 app.UseRouting(); 
 
 app.UseCors("AllowSpecificOrigin");
-
-app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseAuthentication();
 app.UseAuthorization();
