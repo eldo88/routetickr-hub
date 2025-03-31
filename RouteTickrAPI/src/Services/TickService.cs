@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.DTOs;
 using RouteTickr.Entities;
@@ -52,47 +53,109 @@ public class TickService : ITickService
 
     public async Task<TickDto> AddAsync(TickDto tickDto)
     {
-        return await SaveTickAsync(tickDto);
+        ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
+
+        IDbContextTransaction? transaction = null;
+        try
+        {
+            transaction = await _tickRepository.BeginTransactionAsync();
+            
+            var climb = await GetOrSaveClimb(tickDto);
+            var tick = tickDto.ToTickEntity(climb);
+        
+            var recordsAdded = await _tickRepository.AddAsync(tick);
+            var tickDtoToReturn = tick.ToTickDto();
+
+            if (recordsAdded != 1)
+            {
+                throw new InvalidOperationException(
+                    $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
+            }
+            
+            await _tickRepository.CommitTransactionAsync(transaction);
+
+            return tickDtoToReturn;
+        }
+        catch (Exception e)
+        {
+            if (transaction != null)
+            {
+                await _tickRepository.RollbackTransactionAsync(transaction);
+            }
+            throw;
+        }
     }
 
     public async Task<TickDto> UpdateAsync(TickDto tickDto)
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
-        
-        var existingTick = await GetByIdAsync(tickDto.Id);
 
-        if (existingTick is null)
-            throw new InvalidOperationException(
-                $"Tick with ID: {tickDto.Id} does not exist and cannot be updated.");
+        IDbContextTransaction? transaction = null;
+        try
+        {
+            transaction = await _tickRepository.BeginTransactionAsync();
+            
+            var existingTick = await GetByIdAsync(tickDto.Id);
 
-        var climb = tickDto.BuildClimb();
-        var updateTo = tickDto.ToTickEntity(climb);
-        var tick = existingTick.ToEntity();
+            if (existingTick is null)
+                throw new InvalidOperationException(
+                    $"Tick with ID: {tickDto.Id} does not exist and cannot be updated.");
 
-        var recordsUpdated = await _tickRepository.UpdateAsync(tick, updateTo);
+            var climb = tickDto.BuildClimb();
+            var updateTo = tickDto.ToTickEntity(climb);
+            var tick = existingTick.ToEntity();
 
-        if (recordsUpdated != 1) 
-            throw new InvalidOperationException(
-                $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
+            var recordsUpdated = await _tickRepository.UpdateAsync(tick, updateTo);
 
-        return tickDto;
+            if (recordsUpdated != 1) 
+                throw new InvalidOperationException(
+                    $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
+
+            await _tickRepository.CommitTransactionAsync(transaction);
+
+            return tickDto;
+        }
+        catch (Exception e)
+        {
+            if (transaction != null)
+            {
+                await _tickRepository.RollbackTransactionAsync(transaction);
+            }
+            throw;
+        }
     }
 
     public async Task DeleteAsync(int id)
     {
-        var tick = await GetByIdAsync(id);
+        IDbContextTransaction? transaction = null;
+        try
+        {
+            transaction = await _tickRepository.BeginTransactionAsync();
+            
+            var tick = await GetByIdAsync(id);
 
-        if (tick is null)
-            throw new InvalidOperationException(
-                $"Tick with ID: {id} does not exist and cannot be deleted.");
+            if (tick is null)
+                throw new InvalidOperationException(
+                    $"Tick with ID: {id} does not exist and cannot be deleted.");
         
-        var tickToBeDeleted = tick.ToEntity();
+            var tickToBeDeleted = tick.ToEntity();
 
-        var recordsDeleted = await _tickRepository.DeleteAsync(tickToBeDeleted);
+            var recordsDeleted = await _tickRepository.DeleteAsync(tickToBeDeleted);
 
-        if (recordsDeleted != 1)
-            throw new InvalidOperationException(
-                $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
+            if (recordsDeleted != 1)
+                throw new InvalidOperationException(
+                    $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
+
+            await _tickRepository.CommitTransactionAsync(transaction);
+        }
+        catch (Exception e)
+        {
+            if (transaction != null)
+            {
+                await _tickRepository.RollbackTransactionAsync(transaction);
+            }
+            throw;
+        }
     }
     
     public async Task<TickDto> SaveTickAsync(TickDto tickDto) 

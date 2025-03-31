@@ -76,4 +76,16 @@ public class TickRepository : ITickRepository
     {
         return await _context.Database.BeginTransactionAsync();
     }
+    
+    public async Task CommitTransactionAsync(IDbContextTransaction transaction)
+    {
+        ArgumentNullException.ThrowIfNull(transaction);
+        await transaction.CommitAsync();
+    }
+
+    public async Task RollbackTransactionAsync(IDbContextTransaction transaction)
+    {
+        ArgumentNullException.ThrowIfNull(transaction);
+        await transaction.RollbackAsync();
+    }
 }

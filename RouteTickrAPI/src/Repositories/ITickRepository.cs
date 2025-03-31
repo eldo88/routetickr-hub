@@ -16,4 +16,6 @@ public interface ITickRepository
     Task<List<string>> GetLocationAsync();
     Task<List<string>> GetRatingAsync();
     Task<IDbContextTransaction> BeginTransactionAsync();
+    Task CommitTransactionAsync(IDbContextTransaction transaction);
+    Task RollbackTransactionAsync(IDbContextTransaction transaction);
 }
