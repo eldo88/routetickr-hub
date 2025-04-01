@@ -5,21 +5,19 @@ using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Extensions;
 using RouteTickrAPI.Mappers;
-using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Services;
 
 public class ImportFileService : IImportFileService
 {
-    
-    private readonly ITickRepository _tickRepository;
+    private readonly ILogger<ImportFileService> _logger;
     private readonly IClimbService _climbService;
     private readonly ITickService _tickService;
     private readonly IPublisherService _publisherService;
 
-    public ImportFileService(ITickRepository tickRepository, IClimbService climbService, ITickService tickService, IPublisherService publisherServiceService)
+    public ImportFileService(ILogger<ImportFileService> logger ,IClimbService climbService, ITickService tickService, IPublisherService publisherServiceService)
     {
-        _tickRepository = tickRepository;
+        _logger = logger;
         _climbService = climbService;
         _tickService = tickService;
         _publisherService = publisherServiceService;
@@ -43,7 +41,7 @@ public class ImportFileService : IImportFileService
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e, "Error processing file.");
             throw;
         }
     }
@@ -65,10 +63,7 @@ public class ImportFileService : IImportFileService
         }
         catch (Exception e)
         {
-            if (transaction != null)
-            {
-                await _tickRepository.RollbackTransactionAsync(transaction);
-            }
+            _logger.LogError(e, "Error saving file contents.");
             throw;
         }
     }
@@ -92,8 +87,8 @@ public class ImportFileService : IImportFileService
             }
         }
         catch (Exception e)
-        { //Swallow exception, background service that doesn't impact user TODO add logging
-            Console.WriteLine(e);
+        { //Swallow exception, background service that doesn't impact user
+            _logger.LogError(e, "Error sending messages.");
         }
     }
 }
