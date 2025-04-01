@@ -76,12 +76,12 @@ public class TickController : ControllerBase
             return Unauthorized("Could not identify the user.");
         }
 
-        IDbContextTransaction transaction = null;
+        IDbContextTransaction? transaction = null;
         try
         {
             transaction = await _tickRepository.BeginTransactionAsync();
             tickDto.UserId = userId;
-            var result = await _tickService.AddAsync(tickDto, transaction);
+            var result = await _tickService.AddAsync(tickDto);
 
             await _tickRepository.CommitTransactionAsync(transaction);
         
@@ -107,11 +107,11 @@ public class TickController : ControllerBase
             return BadRequest();
         }
 
-        IDbContextTransaction transaction = null;
+        IDbContextTransaction? transaction = null;
         try
         {
             transaction = await _tickRepository.BeginTransactionAsync();
-            var result = await _tickService.UpdateAsync(tickDto, transaction);
+            var result = await _tickService.UpdateAsync(tickDto);
 
             await _tickRepository.CommitTransactionAsync(transaction);
         
@@ -134,11 +134,11 @@ public class TickController : ControllerBase
         if (id < 0)
             return BadRequest("Invalid Id");
 
-        IDbContextTransaction transaction = null;
+        IDbContextTransaction? transaction = null;
         try
         {
             transaction = await _tickRepository.BeginTransactionAsync();
-            await _tickService.DeleteAsync(id, transaction);
+            await _tickService.DeleteAsync(id);
 
             await _tickRepository.CommitTransactionAsync(transaction);
         

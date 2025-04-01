@@ -56,7 +56,7 @@ public class ImportFileService : IImportFileService
                 var climb = tickDto.BuildClimb();
                 var result = await _climbService.GetOrSaveClimb(climb);
                 tickDto.Climb = result;
-                await _tickService.AddAsync(tickDto, transaction);
+                await _tickService.AddAsync(tickDto);
             }
             
             return dataFromFile.Count;

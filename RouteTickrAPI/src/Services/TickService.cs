@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.Repositories;
 using RouteTickrAPI.DTOs;
 using RouteTickr.Entities;
@@ -51,7 +50,7 @@ public class TickService : ITickService
         return tickDtos;
     }
 
-    public async Task<TickDto> AddAsync(TickDto tickDto, IDbContextTransaction? transaction = null)
+    public async Task<TickDto> AddAsync(TickDto tickDto)
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
         
@@ -77,7 +76,7 @@ public class TickService : ITickService
         }
     }
 
-    public async Task<TickDto> UpdateAsync(TickDto tickDto, IDbContextTransaction? transaction = null)
+    public async Task<TickDto> UpdateAsync(TickDto tickDto)
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
         
@@ -107,7 +106,7 @@ public class TickService : ITickService
         }
     }
 
-    public async Task DeleteAsync(int id, IDbContextTransaction? transaction = null)
+    public async Task DeleteAsync(int id)
     {
         try
         {
