@@ -18,6 +18,7 @@ public class TickRepository : ITickRepository
     {
         return await _context.Ticks
             .Include(t => t.Climb)
+            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -25,6 +26,7 @@ public class TickRepository : ITickRepository
     {
         return await _context.Ticks
             .Include(t => t.Climb)
+            .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
