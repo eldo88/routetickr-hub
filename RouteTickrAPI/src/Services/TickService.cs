@@ -8,11 +8,13 @@ namespace RouteTickrAPI.Services;
 
 public class TickService : ITickService
 {
+    private readonly ILogger<TickService> _logger;
     private readonly ITickRepository _tickRepository;
     private readonly IClimbService _climbService;
 
-    public TickService(ITickRepository tickRepository, IClimbService climbService)
+    public TickService(ILogger<TickService> logger,ITickRepository tickRepository, IClimbService climbService)
     {
+        _logger = logger;
         _tickRepository = tickRepository;
         _climbService = climbService;
     }
@@ -25,7 +27,10 @@ public class TickService : ITickService
     public async Task<TickDto?> GetByIdAsync(int id)
     {
         if (id <= 0)
+        {
+            _logger.LogError($"Invalid id {id}");
             throw new ArgumentException($"ID: {id} is invalid.");
+        }
         
         var tick = await _tickRepository.GetByIdAsync(id);
         
@@ -35,7 +40,10 @@ public class TickService : ITickService
     public async Task<List<TickDto>> GetByListOfIdsAsync(List<int> tickIds)
     {//possibly not needed
         if (tickIds.Count == 0)
+        {
+            _logger.LogError("List of Ids is empty");
             throw new ArgumentException("ID list is empty");
+        }
 
         var tickDtos = new List<TickDto>();
 
@@ -62,6 +70,7 @@ public class TickService : ITickService
 
         if (recordsAdded != 1)
         {
+            _logger.LogError($@"{recordsAdded} number of records saved, should be 1");
             throw new InvalidOperationException(
                 $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
         }
@@ -76,8 +85,11 @@ public class TickService : ITickService
         var existingTick = await GetByIdAsync(tickDto.Id);
 
         if (existingTick is null)
+        {
+            _logger.LogError("Existing tick is null");
             throw new InvalidOperationException(
-                    $"Tick with ID: {tickDto.Id} does not exist and cannot be updated.");
+                $"Tick with ID: {tickDto.Id} does not exist and cannot be updated.");
+        }
 
         var climb = tickDto.BuildClimb();
         var updateTo = tickDto.ToTickEntity(climb);
@@ -85,9 +97,12 @@ public class TickService : ITickService
 
         var recordsUpdated = await _tickRepository.UpdateAsync(tick, updateTo);
 
-        if (recordsUpdated != 1) 
+        if (recordsUpdated != 1)
+        {
+            _logger.LogError($@"{recordsUpdated} amount of records updated, should be 1");
             throw new InvalidOperationException(
                 $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
+        }
 
         return tickDto;
     }
@@ -97,17 +112,22 @@ public class TickService : ITickService
         var tick = await GetByIdAsync(id);
 
         if (tick is null)
+        {
+            _logger.LogError("Tick is null");
             throw new InvalidOperationException(
-                    $"Tick with ID: {id} does not exist and cannot be deleted.");
+                $"Tick with ID: {id} does not exist and cannot be deleted.");
+        }
         
         var tickToBeDeleted = tick.ToEntity();
 
         var recordsDeleted = await _tickRepository.DeleteAsync(tickToBeDeleted);
 
         if (recordsDeleted != 1)
+        {
+            _logger.LogError($@"{recordsDeleted} records deleted, should be 1");
             throw new InvalidOperationException(
                 $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
-        
+        }
     }
     
     
