@@ -4,6 +4,8 @@ using RouteTickrAPI.DTOs;
 using RouteTickrAPI.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore.Storage;
+using RouteTickrAPI.Repositories;
 
 namespace RouteTickrAPI.Controllers;
 
@@ -13,10 +15,12 @@ namespace RouteTickrAPI.Controllers;
 public class TickController : ControllerBase
 {
     private readonly ITickService _tickService;
+    private readonly ITickRepository _tickRepository;
 
-    public TickController(ITickService tickService)
+    public TickController(ITickService tickService, ITickRepository tickRepository)
     {
         _tickService = tickService;
+        _tickRepository = tickRepository;
     }
     
     [HttpGet]
@@ -71,11 +75,26 @@ public class TickController : ControllerBase
         {
             return Unauthorized("Could not identify the user.");
         }
+
+        IDbContextTransaction transaction = null;
+        try
+        {
+            transaction = await _tickRepository.BeginTransactionAsync();
+            tickDto.UserId = userId;
+            var result = await _tickService.AddAsync(tickDto, transaction);
+
+            await _tickRepository.CommitTransactionAsync(transaction);
         
-        tickDto.UserId = userId;
-        var result = await _tickService.AddAsync(tickDto);
-        
-        return CreatedAtAction(nameof(GetTick), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(GetTick), new { id = result.Id }, result);
+        }
+        catch (Exception e)
+        {
+            if (transaction != null)
+            {
+                await _tickRepository.RollbackTransactionAsync(transaction);
+            }
+            throw;
+        }
     }
 
     [HttpPut("{id:int}")]
@@ -87,18 +106,51 @@ public class TickController : ControllerBase
         {
             return BadRequest();
         }
+
+        IDbContextTransaction transaction = null;
+        try
+        {
+            transaction = await _tickRepository.BeginTransactionAsync();
+            var result = await _tickService.UpdateAsync(tickDto, transaction);
+
+            await _tickRepository.CommitTransactionAsync(transaction);
         
-        var result = await _tickService.UpdateAsync(tickDto);
-        
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            if (transaction != null)
+            {
+                await _tickRepository.RollbackTransactionAsync(transaction);
+            }
+            throw;
+        }
     }
     
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteTick(int id)
     {
-        await _tickService.DeleteAsync(id);
+        if (id < 0)
+            return BadRequest("Invalid Id");
+
+        IDbContextTransaction transaction = null;
+        try
+        {
+            transaction = await _tickRepository.BeginTransactionAsync();
+            await _tickService.DeleteAsync(id, transaction);
+
+            await _tickRepository.CommitTransactionAsync(transaction);
         
-        return NoContent();
+            return NoContent();
+        }
+        catch (Exception e)
+        {
+            if (transaction != null)
+            {
+                await _tickRepository.RollbackTransactionAsync(transaction);
+            }
+            throw;
+        }
     }
 }

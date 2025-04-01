@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Storage;
 using RouteTickrAPI.DTOs;
 using RouteTickr.Entities;
 using RouteTickrAPI.Extensions;
@@ -28,7 +29,7 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
         return result?.ToDto();
     }
 
-    public async Task<ClimbDto> AddAsync(ClimbDto climbDto) // create controller 
+    public async Task<ClimbDto> AddAsync(ClimbDto climbDto, IDbContextTransaction? transaction = null) // create controller 
     {
         var climb = climbDto.ToEntity();
             
@@ -37,14 +38,14 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
         return climbDto;
     }
 
-    public async Task<ClimbDto> UpdateAsync(ClimbDto dto) // create controller and implement method
+    public async Task<ClimbDto> UpdateAsync(ClimbDto dto, IDbContextTransaction? transaction = null) // create controller and implement method
     {
             await UpdateClimbAsync(dto);
 
             return dto;
     }
 
-    public async Task DeleteAsync(int id) // create controller and implement method
+    public async Task DeleteAsync(int id, IDbContextTransaction? transaction = null) // create controller and implement method
     {
         await DeleteClimbAsync(id);
     }

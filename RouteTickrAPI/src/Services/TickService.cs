@@ -51,15 +51,12 @@ public class TickService : ITickService
         return tickDtos;
     }
 
-    public async Task<TickDto> AddAsync(TickDto tickDto)
+    public async Task<TickDto> AddAsync(TickDto tickDto, IDbContextTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
-
-        IDbContextTransaction? transaction = null;
+        
         try
         {
-            transaction = await _tickRepository.BeginTransactionAsync();
-            
             var climb = await GetOrSaveClimb(tickDto);
             var tick = tickDto.ToTickEntity(climb);
         
@@ -71,30 +68,21 @@ public class TickService : ITickService
                 throw new InvalidOperationException(
                     $"Unexpected number of records saved. Expected 1 but got {recordsAdded}");
             }
-            
-            await _tickRepository.CommitTransactionAsync(transaction);
 
             return tickDtoToReturn;
         }
         catch (Exception e)
         {
-            if (transaction != null)
-            {
-                await _tickRepository.RollbackTransactionAsync(transaction);
-            }
             throw;
         }
     }
 
-    public async Task<TickDto> UpdateAsync(TickDto tickDto)
+    public async Task<TickDto> UpdateAsync(TickDto tickDto, IDbContextTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(tickDto, nameof(tickDto));
-
-        IDbContextTransaction? transaction = null;
+        
         try
         {
-            transaction = await _tickRepository.BeginTransactionAsync();
-            
             var existingTick = await GetByIdAsync(tickDto.Id);
 
             if (existingTick is null)
@@ -111,27 +99,18 @@ public class TickService : ITickService
                 throw new InvalidOperationException(
                     $"Unexpected number of records saved. Expected 1 but got {recordsUpdated}");
 
-            await _tickRepository.CommitTransactionAsync(transaction);
-
             return tickDto;
         }
         catch (Exception e)
         {
-            if (transaction != null)
-            {
-                await _tickRepository.RollbackTransactionAsync(transaction);
-            }
             throw;
         }
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id, IDbContextTransaction? transaction = null)
     {
-        IDbContextTransaction? transaction = null;
         try
         {
-            transaction = await _tickRepository.BeginTransactionAsync();
-            
             var tick = await GetByIdAsync(id);
 
             if (tick is null)
@@ -145,15 +124,10 @@ public class TickService : ITickService
             if (recordsDeleted != 1)
                 throw new InvalidOperationException(
                     $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
-
-            await _tickRepository.CommitTransactionAsync(transaction);
+            
         }
         catch (Exception e)
         {
-            if (transaction != null)
-            {
-                await _tickRepository.RollbackTransactionAsync(transaction);
-            }
             throw;
         }
     }
