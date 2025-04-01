@@ -14,11 +14,13 @@ namespace RouteTickrAPI.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TickController : ControllerBase
 {
+    private readonly ILogger<TickController> _logger;
     private readonly ITickService _tickService;
     private readonly ITickRepository _tickRepository;
 
-    public TickController(ITickService tickService, ITickRepository tickRepository)
+    public TickController(ILogger<TickController> logger, ITickService tickService, ITickRepository tickRepository)
     {
+        _logger = logger;
         _tickService = tickService;
         _tickRepository = tickRepository;
     }
@@ -93,6 +95,7 @@ public class TickController : ControllerBase
             {
                 await _tickRepository.RollbackTransactionAsync(transaction);
             }
+            _logger.LogError(e, "Error posting tick");
             throw;
         }
     }
@@ -123,6 +126,7 @@ public class TickController : ControllerBase
             {
                 await _tickRepository.RollbackTransactionAsync(transaction);
             }
+            _logger.LogError(e, "Error updating tick");
             throw;
         }
     }
@@ -150,6 +154,7 @@ public class TickController : ControllerBase
             {
                 await _tickRepository.RollbackTransactionAsync(transaction);
             }
+            _logger.LogError(e, "Error deleting tick");
             throw;
         }
     }
