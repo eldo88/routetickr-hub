@@ -8,10 +8,12 @@ namespace RouteTickrAPI.Services;
 
 public class ClimbService : IClimbService // TODO create controller for crud operations
 {
+    private readonly ILogger<ClimbService> _logger;
     private readonly IClimbRepository _climbRepository;
 
-    public ClimbService(IClimbRepository climbRepository)
+    public ClimbService(ILogger<ClimbService> logger, IClimbRepository climbRepository)
     {
+        _logger = logger;
         _climbRepository = climbRepository;
     }
     public async Task<IEnumerable<ClimbDto>> GetAllAsync()
@@ -39,9 +41,9 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
 
     public async Task<ClimbDto> UpdateAsync(ClimbDto dto) // create controller and implement method
     {
-            await UpdateClimbAsync(dto);
+        await UpdateClimbAsync(dto);
 
-            return dto;
+        return dto;
     }
 
     public async Task DeleteAsync(int id) // create controller and implement method
@@ -58,8 +60,7 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
         var getByNameAndLocationResult = await GetClimbByNameAndLocationIfExists(climb.Name, climb.Location);
         if (getByNameAndLocationResult is not null)
             return getByNameAndLocationResult;
-            
-
+        
         await AddClimbAsync(climb);
 
         return climb;
@@ -91,8 +92,11 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
         var recordsWritten = await _climbRepository.AddClimb(climb);
 
         if (recordsWritten != 2)
+        {
+            _logger.LogError($"{recordsWritten} number of records wrtting, should be 2");
             throw new InvalidOperationException(
-                $"Unexpected number of records saved. Expected 1 but got {recordsWritten}");
+                $"Unexpected number of records saved. Expected 1 but got {recordsWritten}");   
+        }
     }
 
     private async Task UpdateClimbAsync(ClimbDto climbDto) // TODO not used
@@ -104,31 +108,46 @@ public class ClimbService : IClimbService // TODO create controller for crud ope
         var existingClimb = await GetClimbByIdAsync(climb.Id);
 
         if (existingClimb is null)
+        {
+            _logger.LogError("Existing climb is null");
             throw new InvalidOperationException(
                 $"Climb with {climb.Id} does not exist and cannot be updated");
+        }
 
         var recordsUpdated = await _climbRepository.UpdateAsync(existingClimb, climb);
-        
-        if (recordsUpdated != 1) 
+
+        if (recordsUpdated != 1)
+        {
+            _logger.LogError($"{recordsUpdated} number of records updated, expected 1");
             throw new InvalidOperationException(
-                $"Unexpected number of records updated. Expected 1 but got {recordsUpdated}");
+                $"Unexpected number of records updated. Expected 1 but got {recordsUpdated}");   
+        }
     }
 
     private async Task DeleteClimbAsync(int id) // TODO not used
     {
         if (id <= 0)
-            throw new ArgumentException($"Error deleting climb, ID: {id} is invalid.");
+        {
+            _logger.LogError($"ID {id} is invalid");
+            throw new ArgumentException($"Error deleting climb, ID: {id} is invalid.");   
+        }
 
         var climbToBeDeleted = await GetClimbByIdAsync(id);
 
         if (climbToBeDeleted is null)
+        {
+            _logger.LogError("Climb to be deleted is null");
             throw new InvalidOperationException(
-                $"Climb with {id} does not exist and cannot be deleted");
+                $"Climb with {id} does not exist and cannot be deleted");   
+        }
 
         var recordsDeleted = await _climbRepository.DeleteAsync(climbToBeDeleted);
-        
+
         if (recordsDeleted != 1)
+        {
+            _logger.LogError($"{recordsDeleted} number of records deleted, should be 1");
             throw new InvalidOperationException(
-                $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");
+                $"Unexpected number of records deleted. Expected 1 but got {recordsDeleted}");   
+        }
     }
 }
