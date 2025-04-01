@@ -14,11 +14,13 @@ namespace RouteTickrAPI.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ImportFileController : ControllerBase
 {
+    private readonly ILogger<ImportFileController> _logger;
     private readonly IImportFileService _importFileService;
     private readonly ITickRepository _tickRepository;
 
-    public ImportFileController(IImportFileService importFileService, ITickRepository tickRepository)
+    public ImportFileController(ILogger<ImportFileController> logger,IImportFileService importFileService, ITickRepository tickRepository)
     {
+        _logger = logger;
         _importFileService = importFileService;
         _tickRepository = tickRepository;
     }
@@ -56,6 +58,7 @@ public class ImportFileController : ControllerBase
             {
                 await _tickRepository.RollbackTransactionAsync(transaction);
             }
+            _logger.LogError(e, "Error importing file");
             return StatusCode(StatusCodes.Status500InternalServerError, 
                 new { Message = "Failed to import file. See logs for details." });
         }
