@@ -169,7 +169,8 @@ public static class TickDtoExtensions
                 .WithNumberOfPitches(tickDto.Pitches ?? 0)
                 .Build(),
             
-            _ => throw new ArgumentException("Error creating routes")
+            ClimbType.Unknown => throw new ArgumentException("Unknown passed in for climb type"),
+            _ => throw new ArgumentException("Error creating routes, climb type is not recognized.")
         };
     }
 
