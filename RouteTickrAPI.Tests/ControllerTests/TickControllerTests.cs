@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using RouteTickrAPI.Controllers;
+using RouteTickrAPI.Repositories;
 using RouteTickrAPI.Services;
 
 namespace RouteTickrAPI.Tests.ControllerTests;
@@ -8,14 +10,16 @@ namespace RouteTickrAPI.Tests.ControllerTests;
 [TestFixture]
 public class TickControllerTests
 {
+    private Mock<ILogger<TickController>> _logger;
     private Mock<ITickService> _tickService;
+    private Mock<ITickRepository> _tickRepository;
     private TickController _tickController;
 
     [SetUp]
     public void Setup()
     {
         _tickService = new Mock<ITickService>();
-        _tickController = new TickController(_tickService.Object);
+        _tickController = new TickController(_logger.Object, _tickService.Object, _tickRepository.Object);
     }
 
     [Test]
