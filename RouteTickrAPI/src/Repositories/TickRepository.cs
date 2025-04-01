@@ -38,7 +38,8 @@ public class TickRepository : ITickRepository
 
     public async Task<int> UpdateAsync(Tick existingTick, Tick updateTo)
     {
-        _context.Entry(existingTick).CurrentValues.SetValues(updateTo);
+        _context.Entry(existingTick).State = EntityState.Detached;
+        _context.Entry(updateTo).State = EntityState.Modified;
         return await _context.SaveChangesAsync();
     }
 
