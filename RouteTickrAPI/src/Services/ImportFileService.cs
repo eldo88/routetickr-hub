@@ -25,7 +25,7 @@ public class ImportFileService : IImportFileService
         _publisherService = publisherServiceService;
     }
 
-    public async Task<int> ProcessFile(ImportFileDto fileDto, string userId)
+    public async Task<int> ProcessFile(ImportFileDto fileDto, string userId, IDbContextTransaction? transaction = null)
     {
         try
         {
@@ -33,7 +33,7 @@ public class ImportFileService : IImportFileService
             using var csvFile = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture));
             var dataFromFile = ConvertCsvFileToTickDto(csvFile);
 
-            var ticksSaved = await SaveFileContentsAsync(dataFromFile, userId);
+            var ticksSaved = await SaveFileContentsAsync(dataFromFile, userId, transaction);
             if (ticksSaved > 0)
             {
                 await PublishUrls(dataFromFile);
@@ -48,28 +48,20 @@ public class ImportFileService : IImportFileService
         }
     }
     
-    public async Task<int> SaveFileContentsAsync(List<TickDto> dataFromFile, string userId)
+    public async Task<int> SaveFileContentsAsync(List<TickDto> dataFromFile, string userId, IDbContextTransaction? transaction = null)
     {
-        IDbContextTransaction? transaction = null;
         try
         {
-            transaction = await _tickRepository.BeginTransactionAsync();
-            var count = 0;
             foreach (var tickDto in dataFromFile)
             {
                 tickDto.UserId = userId;
-                await SaveClimbAsync(tickDto);
-                await SaveTickAsync(tickDto);
-                count++;
+                var climb = tickDto.BuildClimb();
+                var result = await _climbService.GetOrSaveClimb(climb);
+                tickDto.Climb = result;
+                await _tickService.AddAsync(tickDto);
             }
-
-            if (dataFromFile.Count != count)
-            {
-                throw new InvalidOperationException("Error saving file contents.");
-            }
-
-            await _tickRepository.CommitTransactionAsync(transaction);
-            return count;
+            
+            return dataFromFile.Count;
         }
         catch (Exception e)
         {
@@ -103,17 +95,5 @@ public class ImportFileService : IImportFileService
         { //Swallow exception, background service that doesn't impact user TODO add logging
             Console.WriteLine(e);
         }
-    }
-
-    private async Task SaveClimbAsync(TickDto tickDto)
-    {
-        var climb = tickDto.BuildClimb();
-        var result = await _climbService.GetOrSaveClimb(climb);
-        tickDto.Climb = result;
-    }
-
-    private async Task SaveTickAsync(TickDto tickDto)
-    {
-        await _tickService.AddAsync(tickDto);
     }
 }
